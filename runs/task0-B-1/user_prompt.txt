@@ -1,0 +1,135 @@
+Task:
+
+Add `GET /v1/feeds/{feedID}/entries/count` to the API. It returns `{"count": N}`, where N is the
+number of entries in that feed. A feed that does not exist, or that belongs to another user,
+returns 404.
+
+## Policy files (a package without its own file inherits from the nearest parent)
+client: nouns: | priority: correctness | boundary: egress
+internal/api: nouns: users, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations | priority: correctness | boundary: ingress
+internal/cli: nouns: schema_version, users, user_sessions, web_sessions, categories, feeds, feed_icons, icons, entries, enclosures, acme_cache | priority: correctness | boundary: ingress
+internal/config: nouns: | priority: correctness | boundary: interior
+internal/crypto: nouns: | priority: security | boundary: interior
+internal/database: nouns: * | priority: correctness | boundary: storage
+internal/fever: nouns: users, integrations, categories, feeds, feed_icons, icons, entries | priority: correctness | boundary: ingress
+internal/googlereader: nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures | priority: correctness | boundary: ingress
+internal/http: nouns: | priority: security | boundary: ingress
+internal/http/client: nouns: | priority: security | boundary: egress
+internal/http/request: nouns: | priority: security | boundary: interior
+internal/http/response: nouns: | priority: correctness | boundary: interior
+internal/http/server: nouns: | priority: security | boundary: ingress
+internal/integration: nouns: | priority: correctness | boundary: egress
+internal/locale: nouns: | priority: simplicity | boundary: interior
+internal/mediaproxy: nouns: | priority: security | boundary: interior
+internal/metric: nouns: users, feeds, entries | priority: latency | boundary: interior
+internal/model: nouns: | priority: correctness | boundary: interior
+internal/oauth2: nouns: | priority: security | boundary: egress
+internal/proxyrotator: nouns: | priority: simplicity | boundary: interior
+internal/reader: nouns: | priority: security | boundary: interior
+internal/reader/fetcher: nouns: | priority: security | boundary: egress
+internal/reader/handler: nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures | priority: correctness | boundary: egress
+internal/reader/icon: nouns: icons, feed_icons | priority: correctness | boundary: egress
+internal/reader/opml: nouns: categories, feeds | priority: correctness | boundary: interior
+internal/reader/processor: nouns: users, integrations, feeds, entries | priority: correctness | boundary: egress
+internal/reader/scraper: nouns: | priority: security | boundary: egress
+internal/reader/subscription: nouns: | priority: correctness | boundary: egress
+internal/storage: nouns: acme_cache, api_keys, categories, enclosures, entries, entry_tombstones, feed_icons, feeds, icons, integrations, user_sessions, users, webauthn_credentials, web_sessions | priority: correctness | boundary: storage
+internal/systemd: nouns: | priority: simplicity | boundary: egress
+internal/template: nouns: | priority: security | boundary: interior
+internal/timezone: nouns: | priority: simplicity | boundary: interior
+internal/ui: nouns: users, user_sessions, web_sessions, webauthn_credentials, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations | priority: security | boundary: ingress
+internal/ui/form: nouns: | priority: correctness | boundary: interior
+internal/ui/static: nouns: | priority: simplicity | boundary: interior
+internal/ui/view: nouns: | priority: correctness | boundary: interior
+internal/urllib: nouns: | priority: correctness | boundary: interior
+internal/validator: nouns: users, categories, feeds, api_keys | priority: correctness | boundary: interior
+internal/version: nouns: | priority: simplicity | boundary: interior
+internal/worker: nouns: users, integrations, feeds, feed_icons, icons, entries, enclosures | priority: latency | boundary: interior
+
+## Packages (number of declared functions; union of their effects)
+. (1): reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs
+client (132): net, mut
+internal/api (60): reads api_keys, reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes api_keys, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes users, writes web_sessions, net, mut
+internal/cli (19): reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs, mut
+internal/config (124): fs, mut
+internal/crypto (8): no effects
+internal/database (3): reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials
+internal/fever (16): reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes entries, net, mut
+internal/googlereader (44): reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, writes users, net, mut
+internal/http/client (7): net, mut
+internal/http/request (26): no effects
+internal/http/response (43): mut
+internal/http/server (22): net, fs, mut
+internal/integration (2): net
+internal/integration/apprise (2): net
+internal/integration/archiveorg (2): net
+internal/integration/betula (2): net
+internal/integration/cubox (2): net
+internal/integration/discord (2): net
+internal/integration/espial (2): net
+internal/integration/gotify (4): net
+internal/integration/instapaper (2): net
+internal/integration/karakeep (3): net
+internal/integration/linkace (2): net
+internal/integration/linkding (2): net
+internal/integration/linktaco (2): net
+internal/integration/linkwarden (2): net
+internal/integration/matrixbot (5): net
+internal/integration/notion (2): net
+internal/integration/ntfy (3): net
+internal/integration/nunuxkeeper (2): net
+internal/integration/omnivore (2): net
+internal/integration/pinboard (7): net, mut
+internal/integration/pushover (3): net
+internal/integration/raindrop (2): net
+internal/integration/readeck (2): net
+internal/integration/readwise (2): net
+internal/integration/rssbridge (1): net
+internal/integration/shaarli (3): net
+internal/integration/shiori (3): net
+internal/integration/slack (2): net
+internal/integration/telegrambot (4): net
+internal/integration/wallabag (4): net
+internal/integration/webhook (4): net
+internal/locale (18): mut
+internal/mediaproxy (9): no effects
+internal/metric (2): reads entries, reads feeds, reads users
+internal/model (62): mut
+internal/oauth2 (25): net, mut
+internal/proxyrotator (3): mut
+internal/reader/atom (17): mut
+internal/reader/date (4): no effects
+internal/reader/encoding (3): no effects
+internal/reader/fetcher (49): net, mut
+internal/reader/filter (10): no effects
+internal/reader/handler (4): reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+internal/reader/icon (11): reads feed_icons, reads icons, writes feed_icons, writes icons, net, mut
+internal/reader/itunes (3): no effects
+internal/reader/json (6): mut
+internal/reader/language (1): no effects
+internal/reader/media (13): no effects
+internal/reader/opml (19): reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads users, writes categories, writes enclosures, writes entries, writes feeds, mut
+internal/reader/parser (3): no effects
+internal/reader/processor (21): reads entries, reads users, net, mut
+internal/reader/rdf (2): no effects
+internal/reader/readability (17): mut
+internal/reader/readingtime (3): no effects
+internal/reader/rewrite (35): mut
+internal/reader/rss (17): mut
+internal/reader/sanitizer (40): mut
+internal/reader/scraper (4): net, mut
+internal/reader/subscription (14): net, mut
+internal/reader/urlcleaner (2): mut
+internal/reader/xml (6): no effects
+internal/storage (201): reads acme_cache, reads api_keys, reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, reads web_sessions, reads webauthn_credentials, writes acme_cache, writes api_keys, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes users, writes web_sessions, writes webauthn_credentials, mut
+internal/systemd (4): net
+internal/template (15): mut
+internal/timezone (5): no effects
+internal/ui (128): reads api_keys, reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, reads web_sessions, reads webauthn_credentials, writes api_keys, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes users, writes web_sessions, writes webauthn_credentials, net, mut
+internal/ui/form (26): mut
+internal/ui/static (3): no effects
+internal/ui/view (5): mut
+internal/urllib (15): no effects
+internal/validator (36): reads api_keys, reads categories, reads feeds, reads users
+internal/version (2): no effects
+internal/worker (4): reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut

@@ -34,25 +34,36 @@ def load_policy(pkg):
     _cache[pkg] = pol
     return pol
 
-# ---- (a) tags vs inference
+# ---- (a) tags vs inference, every declared function
 tag = collections.Counter()
 tag_fail = []
 for f in F:
-    if not f['exported']:
+    if not f['decl']:
         continue
     dec = f['declared']
+    if dec is not None and dec and dec[-1].endswith('!hand'):
+        tag['hand-certified'] += 1      # a human vouches for this tag; not machine-checked
+        continue
+    if not f['certified']:
+        # fail closed: reflection or a subprocess is reachable, nothing below can be trusted
+        if dec is not None:
+            tag_fail.append((f['id'], 'cannot be certified (reflection/subprocess) but carries a machine tag', f['impure_reasons']))
+        tag['uncertifiable'] += 1
+        continue
     if dec is None:
         tag['untagged'] += 1
-        if f['inferred']:
-            tag_fail.append((f['id'], 'untagged but has effects', f['inferred']))
+        if f['tag']:
+            tag_fail.append((f['id'], 'untagged but inference has a tag for it', f['tag']))
         continue
     inf = set(f['inferred'])
-    decs = set(dec) - {'pure'}
+    decs = set(dec) - {'pure', 'ambient'}
     missing = [e for e in inf - decs if e.startswith('writes') or e == 'net']
     if missing:
         tag_fail.append((f['id'], 'undeclared', sorted(missing)))
-    if 'pure' in dec and (inf or not f['pure']):
-        tag_fail.append((f['id'], 'declared pure, not provably pure', f['inferred'] or f['impure_reasons']))
+    if 'pure' in dec and not f['pure']:
+        tag_fail.append((f['id'], 'declared pure, not provably pure', f['inferred'] or f.get('impure_reasons') or f.get('ambient')))
+    if 'ambient' in dec and (inf or f.get('impure_reasons')):
+        tag_fail.append((f['id'], 'declared ambient, has more than ambient effects', f['inferred'] or f.get('impure_reasons')))
     if inf - decs - set(missing):
         tag['undeclared-read-fs-or-mut'] += 1
     if decs - inf:
@@ -86,7 +97,7 @@ res = {'tag_counts': tag, 'tag_failures': tag_fail, 'policy_violations': viol, '
 if '--json' in sys.argv:
     json.dump(res, open(sys.argv[sys.argv.index('--json') + 1], 'w'), indent=1)
 
-print('== tag check (exported functions) ==')
+print('== tag check (declared functions) ==')
 print(dict(tag))
 print('failures:', len(tag_fail))
 for x in tag_fail[:15]:

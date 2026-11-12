@@ -1,0 +1,5 @@
+Task:
+
+Add `GET /v1/feeds/{feedID}/entries/count` to the API. It returns `{"count": N}`, where N is the
+number of entries in that feed. A feed that does not exist, or that belongs to another user,
+returns 404.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write `// @effects:` tags above exported functions, from graph.json.
+"""Write `// @effects:` tags above every declared function (exported or not), from graph.json.
 
 usage: tag.py <graph.json> <repo dir> [--untagged-out file]
 Functions with inferred effects get those effects; provably pure ones get `pure`.
@@ -12,17 +12,14 @@ d = json.load(open(graph))
 byfile = collections.defaultdict(list)
 untagged, n = [], 0
 for f in d['functions']:
-    if not f['exported'] or not f['file']:
+    if not f['decl'] or not f['file']:
+        continue          # closures and package initialisers are never tagged
+    if not f['tag']:
+        untagged.append({'id': f['id'], 'file': f['file'], 'line': f['line'], 'exported': f['exported'],
+                         'certified': f['certified'], 'inferred': f['inferred'],
+                         'reasons': f.get('impure_reasons', []), 'examples': f.get('impure_examples', [])})
         continue
-    if f['inferred']:
-        tag = ', '.join(f['inferred'])
-    elif f['pure']:
-        tag = 'pure'
-    else:
-        untagged.append({'id': f['id'], 'file': f['file'], 'line': f['line'],
-                         'reasons': f['impure_reasons'], 'examples': f.get('impure_examples', [])})
-        continue
-    byfile[f['file']].append((f['line'], tag, f['id']))
+    byfile[f['file']].append((f['line'], f['tag'], f['id']))
 for path, items in byfile.items():
     p = os.path.join(repo, path)
     lines = open(p).read().split('\n')
@@ -39,6 +36,6 @@ for path, items in byfile.items():
             lines.insert(i, new)
         n += 1
     open(p, 'w').write('\n'.join(lines))
-print(f'tagged {n} exported functions in {len(byfile)} files; {len(untagged)} left untagged')
+print(f'tagged {n} declared functions in {len(byfile)} files; {len(untagged)} left untagged')
 if out:
     json.dump(untagged, open(out, 'w'), indent=1)

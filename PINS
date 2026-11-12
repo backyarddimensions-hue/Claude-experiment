@@ -1,6 +1,6 @@
 # Pinned versions. Every run starts from these.
 miniflux        https://github.com/miniflux/v2                                     1af9501ae474000c3b7f6eb93877e707b5a2708a
-miniflux-tagged local branch `annotated` = 1af9501 + annotations/miniflux-tags.patch  (comment-only diff, 807 tag lines)
+miniflux-tagged local branch `annotated` = 1af9501 + annotations/miniflux-tags.patch (tags on 1,304 functions) + .agentpolicy files + graph.json
 conduit         https://github.com/realworld-apps/golang-gin-realworld-example-app  a41289b2a4951e7cc09066f86742a27f85121c9b
 realworld-spec  https://github.com/gothinkster/realworld                            25588846c314b15a5e427ffe816e6b4af7be68c7
 go              go1.27.4 linux/amd64

@@ -1,10 +1,10 @@
-== tag check (exported functions) ==
-{'tagged': 807, 'untagged': 78}
+== tag check (declared functions) ==
+{'tagged': 1304, 'untagged': 150}
 failures: 0
 == policy check (all functions) ==
 direct-net-in-ingress: 2 function-level hits (0 on exported), 2 distinct (package, effect) pairs
-     [code-undeclared] internal/cli               net                          1 funcs   e.g. internal/cli.doHealthCheck net/http.Client.Get @ internal/cli/health_check.go:22
-     [analysis-over-approx] internal/http/server       net                          1 funcs   e.g. internal/http/server.setupAutocert golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:186
+     [code-undeclared] internal/cli               net                          1 funcs   e.g. internal/cli.doHealthCheck net/http.Client.Get @ internal/cli/health_check.go:23
+     [analysis-over-approx] internal/http/server       net                          1 funcs   e.g. internal/http/server.setupAutocert golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:188
 noun-reads: 36 function-level hits (15 on exported), 14 distinct (package, effect) pairs
      [policy-wrong   ] internal/api               reads entry_tombstones       4 funcs   e.g. internal/api.(*handler).createFeedHandler 
      [policy-wrong   ] internal/cli               reads entry_tombstones       4 funcs   e.g. internal/cli.Parse 

@@ -1,3 +1,5 @@
 repos/
 tools/
 *.db
+runs/*/work/
+runs/*/cwd/

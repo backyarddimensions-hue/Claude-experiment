@@ -1,0 +1,31 @@
+{
+ "task": "0",
+ "pass": true,
+ "checks": [
+  {
+   "name": "endpoint returns 200",
+   "ok": true,
+   "gating": true,
+   "detail": "200 {'count': 3}"
+  },
+  {
+   "name": "count equals number of entries",
+   "ok": true,
+   "gating": true,
+   "detail": "{'count': 3}"
+  },
+  {
+   "name": "unknown feed returns 404",
+   "ok": true,
+   "gating": true,
+   "detail": "404"
+  },
+  {
+   "name": "another user's feed returns 404",
+   "ok": true,
+   "gating": true,
+   "detail": "404"
+  }
+ ],
+ "info": {}
+}

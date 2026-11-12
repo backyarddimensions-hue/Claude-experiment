@@ -1,7 +1,7 @@
 {
  "tag_counts": {
-  "tagged": 807,
-  "untagged": 78
+  "tagged": 1304,
+  "untagged": 150
  },
  "tag_failures": [],
  "policy_violations": [
@@ -163,7 +163,7 @@
    "net",
    "internal/cli.doHealthCheck",
    false,
-   "net/http.Client.Get @ internal/cli/health_check.go:22"
+   "net/http.Client.Get @ internal/cli/health_check.go:23"
   ],
   [
    "noun-reads",
@@ -291,7 +291,7 @@
    "net",
    "internal/http/server.setupAutocert",
    false,
-   "golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:186"
+   "golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:188"
   ],
   [
    "noun-reads",

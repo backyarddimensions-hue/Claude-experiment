@@ -2,7 +2,7 @@
 //
 // Vocabulary (fixed by the experiment design):
 //
-//	pure | reads <noun> | writes <noun> | net | fs | mut
+//	pure | ambient | reads <noun> | writes <noun> | net | fs | mut
 //
 // A function with no inferred effect is only called "pure" if the tool can prove it:
 // no global writes, no mutation of caller-visible state, no nondeterminism, no logging,
@@ -48,6 +48,9 @@ type Func struct {
 	Line      int        `json:"line"`
 	Signature string     `json:"signature"`
 	Exported  bool       `json:"exported"`
+	Decl      bool       `json:"decl"`                      // a named, declared function or method (tagged in source); false for closures and package initialisers
+	Certified bool       `json:"certified"`                 // false: reaches reflection or a subprocess, so no tag can be machine-checked
+	Tag       string     `json:"tag"`                       // the tag the tagger writes: effects list, "ambient", "pure", or "" (hand-tag list)
 	Declared  []string   `json:"declared"`                  // parsed from the @effects tag in source; null if untagged
 	Inferred  []string   `json:"inferred"`                  // transitive effects in the tag vocabulary (incl. mut)
 	InfApprox []string   `json:"inferred_approx,omitempty"` // subset of inferred whose noun was guessed, not proven, on every path
@@ -258,6 +261,9 @@ func register(fn *ssa.Function) {
 		f.Line = pos.Line
 	}
 	f.Signature = signature(fn)
+	if _, ok := fn.Syntax().(*ast.FuncDecl); ok && fn.Parent() == nil && fn.Name() != "init" && !strings.HasPrefix(fn.Name(), "init#") {
+		f.Decl = true
+	}
 	if decl, ok := fn.Syntax().(*ast.FuncDecl); ok && decl.Doc != nil {
 		for _, c := range decl.Doc.List {
 			if i := strings.Index(c.Text, "@effects:"); i >= 0 {
@@ -707,7 +713,8 @@ func call(f *Func, in ssa.CallInstruction, siteCallees map[ssa.CallInstruction][
 			f.add(e, key, in, false)
 			return
 		}
-		if c.Method.Name() == "Error" && ifaceName == "error" || ifacePkg == "" && ifaceName == "error" {
+		if c.Method.Name() == "Error" && types.Identical(c.Value.Type(), types.Universe.Lookup("error").Type()) {
+			f.cat("error-string", "error.Error() at "+pos(in)) // ambient by decision 10
 			return
 		}
 		if cat, ok := classifyExternal(ifacePkg, ifaceName, c.Method.Name()); ok {
@@ -717,6 +724,30 @@ func call(f *Func, in ssa.CallInstruction, siteCallees map[ssa.CallInstruction][
 			return
 		}
 		if !found {
+			// Every target the call graph found is external: accept if all of them are classifiable.
+			ext, allKnown := 0, true
+			var cats []string
+			for _, callee := range siteCallees[in] {
+				cp := pkgOf(callee)
+				if cp == nil || inModule(callee) {
+					continue
+				}
+				ext++
+				cat, ok := classifyExternal(cp.Path(), recvName(callee), callee.Name())
+				if !ok {
+					allKnown = false
+					break
+				}
+				if cat != "" {
+					cats = append(cats, cat)
+				}
+			}
+			if ext > 0 && allKnown {
+				for _, cat := range cats {
+					f.cat(cat, "interface call "+key+" at "+pos(in))
+				}
+				return
+			}
 			f.cat("dynamic-call", "interface call "+key+" at "+pos(in))
 		}
 		return
@@ -948,11 +979,20 @@ func classifyExternal(pkg, recv, name string) (cat string, ok bool) {
 			return "reads-environment", true
 		case "Exit", "Setenv", "Unsetenv":
 			return "process-control", true
+		case "StartProcess":
+			return "subprocess", true
 		case "IsNotExist", "IsExist", "IsTimeout", "IsPermission", "NewFile", "Fd", "Name":
 			return "", true
 		}
 		return "", false
-	case "os/exec", "os/signal", "syscall", "golang.org/x/sys/unix", "golang.org/x/term":
+	case "os/exec":
+		return "subprocess", true
+	case "syscall", "golang.org/x/sys/unix":
+		if strings.Contains(name, "Exec") || strings.Contains(name, "Fork") || name == "StartProcess" {
+			return "subprocess", true
+		}
+		return "process-control", true
+	case "os/signal", "golang.org/x/term":
 		return "process-control", true
 	case "log", "log/slog":
 		return "logging", true
@@ -1528,7 +1568,25 @@ func emit(out string) {
 		sort.Strings(f.Ambient)
 		sort.Strings(f.Impure)
 		sort.Strings(f.ImpureEx)
-		f.Pure = len(f.Inferred) == 0 && len(f.Impure) == 0
+		f.Pure = len(f.Inferred) == 0 && len(f.Impure) == 0 && len(f.Ambient) == 0
+		f.Certified = true
+		for _, c := range f.Impure {
+			if c == "reflection" || c == "subprocess" {
+				f.Certified = false // fail closed (decision 11)
+			}
+		}
+		switch {
+		case !f.Certified:
+			f.Tag = ""
+		case len(f.Inferred) > 0:
+			f.Tag = strings.Join(f.Inferred, ", ")
+		case len(f.Impure) > 0:
+			f.Tag = "" // something the vocabulary cannot express: hand-tag list
+		case len(f.Ambient) > 0:
+			f.Tag = "ambient"
+		default:
+			f.Tag = "pure"
+		}
 		f.Callees, f.Callers, f.Refs = ids(f.callees), ids(f.callers), ids(f.refs)
 		sort.Slice(f.Direct, func(i, j int) bool { return f.Direct[i].Pos < f.Direct[j].Pos })
 	}
@@ -1546,7 +1604,7 @@ func emit(out string) {
 }
 
 // ambient impurity: real, but deliberately outside the tag vocabulary (decision 2026-11-11, item 4).
-var ambient = map[string]bool{"logging": true, "nondeterministic": true, "concurrency": true, "http-server-io": true, "stream-io": true}
+var ambient = map[string]bool{"error-string": true, "logging": true, "nondeterministic": true, "concurrency": true, "http-server-io": true, "stream-io": true}
 
 func effKey(e string) string {
 	order := map[string]string{"reads": "1", "writes": "2", "net": "3", "fs": "4", "mut": "5"}

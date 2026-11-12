@@ -1,0 +1,52 @@
+diff --git a/internal/api/api.go b/internal/api/api.go
+index 12e022e2..693a16f2 100644
+--- a/internal/api/api.go
++++ b/internal/api/api.go
+@@ -53,6 +53,7 @@ func NewHandler(store *storage.Storage, pool *worker.Pool) http.Handler {
+ 	mux.HandleFunc("GET /v1/export", handler.exportFeedsHandler)
+ 	mux.HandleFunc("POST /v1/import", handler.importFeedsHandler)
+ 	mux.HandleFunc("GET /v1/feeds/{feedID}/entries", handler.getFeedEntriesHandler)
++	mux.HandleFunc("GET /v1/feeds/{feedID}/entries/count", handler.getFeedEntriesCountHandler)
+ 	mux.HandleFunc("POST /v1/feeds/{feedID}/entries/import", handler.importFeedEntryHandler)
+ 	mux.HandleFunc("GET /v1/feeds/{feedID}/entries/{entryID}", handler.getFeedEntryHandler)
+ 	mux.HandleFunc("GET /v1/entries/ids", handler.getEntryIDsHandler)
+diff --git a/internal/api/entry_handlers.go b/internal/api/entry_handlers.go
+index 8cc6e342..0be57b24 100644
+--- a/internal/api/entry_handlers.go
++++ b/internal/api/entry_handlers.go
+@@ -110,6 +110,35 @@ func (h *handler) getFeedEntriesHandler(w http.ResponseWriter, r *http.Request)
+ 	h.findEntries(w, r, feedID, 0)
+ }
+ 
++// @effects: reads categories, reads entries, reads feeds
++func (h *handler) getFeedEntriesCountHandler(w http.ResponseWriter, r *http.Request) {
++	userID := request.UserID(r)
++
++	feedID := request.RouteInt64Param(r, "feedID")
++	if feedID == 0 {
++		response.JSONNotFound(w, r)
++		return
++	}
++
++	exists, err := h.store.FeedExists(userID, feedID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++	if !exists {
++		response.JSONNotFound(w, r)
++		return
++	}
++
++	count, err := h.store.NewEntryQueryBuilder(userID).WithFeedID(feedID).CountEntries()
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
++	response.JSON(w, r, map[string]int{"count": count})
++}
++
+ // @effects: reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, mut
+ func (h *handler) getCategoryEntriesHandler(w http.ResponseWriter, r *http.Request) {
+ 	categoryID := request.RouteInt64Param(r, "categoryID")

@@ -1,0 +1,50 @@
+diff --git a/internal/api/api.go b/internal/api/api.go
+index 3cf8f75d..c8d46159 100644
+--- a/internal/api/api.go
++++ b/internal/api/api.go
+@@ -52,6 +52,7 @@ func NewHandler(store *storage.Storage, pool *worker.Pool) http.Handler {
+ 	mux.HandleFunc("GET /v1/export", handler.exportFeedsHandler)
+ 	mux.HandleFunc("POST /v1/import", handler.importFeedsHandler)
+ 	mux.HandleFunc("GET /v1/feeds/{feedID}/entries", handler.getFeedEntriesHandler)
++	mux.HandleFunc("GET /v1/feeds/{feedID}/entries/count", handler.getFeedEntriesCountHandler)
+ 	mux.HandleFunc("POST /v1/feeds/{feedID}/entries/import", handler.importFeedEntryHandler)
+ 	mux.HandleFunc("GET /v1/feeds/{feedID}/entries/{entryID}", handler.getFeedEntryHandler)
+ 	mux.HandleFunc("GET /v1/entries/ids", handler.getEntryIDsHandler)
+diff --git a/internal/api/entry_handlers.go b/internal/api/entry_handlers.go
+index 217eeb38..9ad4c500 100644
+--- a/internal/api/entry_handlers.go
++++ b/internal/api/entry_handlers.go
+@@ -105,6 +105,33 @@ func (h *handler) getFeedEntriesHandler(w http.ResponseWriter, r *http.Request)
+ 	h.findEntries(w, r, feedID, 0)
+ }
+ 
++func (h *handler) getFeedEntriesCountHandler(w http.ResponseWriter, r *http.Request) {
++	feedID := request.RouteInt64Param(r, "feedID")
++	if feedID <= 0 {
++		response.JSONNotFound(w, r)
++		return
++	}
++
++	userID := request.UserID(r)
++	exists, err := h.store.FeedExists(userID, feedID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++	if !exists {
++		response.JSONNotFound(w, r)
++		return
++	}
++
++	count, err := h.store.NewEntryQueryBuilder(userID).WithFeedID(feedID).CountEntries()
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
++	response.JSON(w, r, map[string]int{"count": count})
++}
++
+ func (h *handler) getCategoryEntriesHandler(w http.ResponseWriter, r *http.Request) {
+ 	categoryID := request.RouteInt64Param(r, "categoryID")
+ 	if categoryID == 0 {
