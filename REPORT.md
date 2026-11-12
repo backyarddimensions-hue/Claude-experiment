@@ -113,7 +113,7 @@ Each run is `python3 harness/run.py <arm> <task> <n>`:
 **Prompts.** Exact text for each arm of the shakedown is in
 `runs/task0-<arm>-1/system_prompt.txt` and `user_prompt.txt`; the source is `harness/prompts.py`.
 The system prompt is the same in all arms except the access paragraph. A1 and B share the same
-description of the layer. B's user prompt adds 41 policy lines and a 62-line package summary.
+description of the layer. B's user prompt adds 41 policy lines and an 86-line package summary.
 
 **Correct** means: existing unit and integration suite passes, and every gating check of the
 hidden acceptance test passes.
