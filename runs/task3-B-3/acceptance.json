@@ -1,0 +1,61 @@
+{
+ "task": "3",
+ "pass": true,
+ "checks": [
+  {
+   "name": "user object has max_feeds, 0 by default",
+   "ok": true,
+   "gating": true,
+   "detail": "0"
+  },
+  {
+   "name": "administrator can set max_feeds",
+   "ok": true,
+   "gating": true,
+   "detail": "201 -> 2"
+  },
+  {
+   "name": "non-admin cannot change own limit",
+   "ok": true,
+   "gating": true,
+   "detail": "http 403, limit now 2"
+  },
+  {
+   "name": "feeds up to the limit are created",
+   "ok": true,
+   "gating": true,
+   "detail": "201 201, 2 feeds"
+  },
+  {
+   "name": "create beyond the limit is 4xx and creates nothing",
+   "ok": true,
+   "gating": true,
+   "detail": "http 400, 2 feeds"
+  },
+  {
+   "name": "import at the limit adds nothing",
+   "ok": true,
+   "gating": true,
+   "detail": "http 400, 2 feeds"
+  },
+  {
+   "name": "import below the limit still works",
+   "ok": true,
+   "gating": true,
+   "detail": "http 201, 2 feeds"
+  },
+  {
+   "name": "import never leaves more than max_feeds",
+   "ok": true,
+   "gating": true,
+   "detail": "http 400, 3 feeds"
+  },
+  {
+   "name": "a user with max_feeds 0 is unlimited",
+   "ok": true,
+   "gating": true,
+   "detail": "201"
+  }
+ ],
+ "info": {}
+}

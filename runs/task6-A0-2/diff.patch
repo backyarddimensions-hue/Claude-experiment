@@ -1,0 +1,86 @@
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..df3614e7 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,50 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// Every modification of a users or feeds row is recorded in audit_log.
++		// Row contents are deliberately not copied, because both tables hold
++		// credentials. The only exemption is the last-login timestamp update,
++		// which sets miniflux.skip_audit for the duration of its transaction.
++		_, err = tx.Exec(`
++			CREATE TABLE audit_log (
++				id bigserial not null,
++				created_at timestamp with time zone not null default now(),
++				table_name text not null,
++				operation text not null,
++				row_id bigint not null,
++				primary key (id)
++			);
++
++			CREATE INDEX audit_log_table_name_row_id_idx
++				ON audit_log (table_name, row_id);
++
++			CREATE FUNCTION audit_log_record() RETURNS trigger AS $audit$
++			BEGIN
++				IF coalesce(current_setting('miniflux.skip_audit', true), '') = 'on' THEN
++					RETURN NULL;
++				END IF;
++
++				IF TG_OP = 'DELETE' THEN
++					INSERT INTO audit_log (table_name, operation, row_id)
++						VALUES (TG_TABLE_NAME, TG_OP, OLD.id);
++				ELSE
++					INSERT INTO audit_log (table_name, operation, row_id)
++						VALUES (TG_TABLE_NAME, TG_OP, NEW.id);
++				END IF;
++
++				RETURN NULL;
++			END;
++			$audit$ LANGUAGE plpgsql;
++
++			CREATE TRIGGER users_audit_log_trigger
++				AFTER INSERT OR UPDATE OR DELETE ON users
++				FOR EACH ROW EXECUTE PROCEDURE audit_log_record();
++
++			CREATE TRIGGER feeds_audit_log_trigger
++				AFTER INSERT OR UPDATE OR DELETE ON feeds
++				FOR EACH ROW EXECUTE PROCEDURE audit_log_record();
++		`)
++		return err
++	},
+ }
+diff --git a/internal/storage/user.go b/internal/storage/user.go
+index 22d0ca92..567678c1 100644
+--- a/internal/storage/user.go
++++ b/internal/storage/user.go
+@@ -31,9 +31,24 @@ func (s *Storage) CountUsers() (int, error) {
+ 
+ // SetLastLogin sets the user's last login timestamp to the current time.
+ func (s *Storage) SetLastLogin(userID int64) error {
+-	query := `UPDATE users SET last_login_at=now() WHERE id=$1`
+-	_, err := s.db.Exec(query, userID)
++	tx, err := s.db.Begin()
+ 	if err != nil {
++		return fmt.Errorf(`store: unable to start transaction: %v`, err)
++	}
++
++	// The last login timestamp is the only users modification that is not
++	// recorded in audit_log. The setting is local to this transaction.
++	if _, err := tx.Exec(`SELECT set_config('miniflux.skip_audit', 'on', true)`); err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to update last login date: %v`, err)
++	}
++
++	if _, err := tx.Exec(`UPDATE users SET last_login_at=now() WHERE id=$1`, userID); err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to update last login date: %v`, err)
++	}
++
++	if err := tx.Commit(); err != nil {
+ 		return fmt.Errorf(`store: unable to update last login date: %v`, err)
+ 	}
+ 

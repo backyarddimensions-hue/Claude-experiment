@@ -1,0 +1,124 @@
+{"tool": "where", "effect": "writes users", "pkg": null, "hits": 55, "t": 1794462179.064}
+{"tool": "_result", "name": "where", "chars": 4893, "t": 1794462179.064}
+{"tool": "where", "effect": "writes feeds", "pkg": null, "hits": 69, "t": 1794462179.875}
+{"tool": "_result", "name": "where", "chars": 6158, "t": 1794462179.875}
+{"tool": "signatures", "pkg": "internal/database", "functions": 3, "t": 1794462179.88}
+{"tool": "_result", "name": "signatures", "chars": 1075, "t": 1794462179.88}
+{"tool": "where", "effect": "writes audit_log", "pkg": null, "hits": 0, "t": 1794462180.091}
+{"tool": "_result", "name": "where", "chars": 646, "t": 1794462180.091}
+{"tool": "open_file", "path": "internal/api/user_handlers.go", "start": 1, "end": 286, "lines": 286, "file_lines": 286, "t": 1794462187.598}
+{"tool": "_result", "name": "open_file", "chars": 7718, "t": 1794462187.598}
+{"tool": "open_file", "path": "internal/api/feed_handlers.go", "start": 1, "end": 298, "lines": 298, "file_lines": 298, "t": 1794462188.024}
+{"tool": "_result", "name": "open_file", "chars": 9341, "t": 1794462188.024}
+{"tool": "open_file", "path": "internal/api/opml_handlers.go", "start": 1, "end": 45, "lines": 45, "file_lines": 45, "t": 1794462188.389}
+{"tool": "_result", "name": "open_file", "chars": 1606, "t": 1794462188.389}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1530, "end": 1594, "lines": 65, "file_lines": 1594, "t": 1794462188.97}
+{"tool": "_result", "name": "open_file", "chars": 2718, "t": 1794462188.97}
+{"tool": "open_file", "path": "internal/googlereader/handler.go", "start": 320, "end": 830, "lines": 511, "file_lines": 1339, "t": 1794462189.657}
+{"tool": "_result", "name": "open_file", "chars": 16884, "t": 1794462189.657}
+{"tool": "open_file", "path": "internal/api/.agentpolicy", "start": 1, "end": 4, "lines": 4, "file_lines": 4, "t": 1794462190.079}
+{"tool": "_result", "name": "open_file", "chars": 170, "t": 1794462190.079}
+{"tool": "open_file", "path": "internal/storage/.agentpolicy", "start": 1, "end": 4, "lines": 4, "file_lines": 4, "t": 1794462190.5}
+{"tool": "_result", "name": "open_file", "chars": 255, "t": 1794462190.5}
+{"tool": "open_file", "path": "internal/googlereader/.agentpolicy", "start": 1, "end": 4, "lines": 4, "file_lines": 4, "t": 1794462190.854}
+{"tool": "_result", "name": "open_file", "chars": 169, "t": 1794462190.854}
+{"tool": "signatures", "pkg": "internal/api", "functions": 60, "t": 1794462208.958}
+{"tool": "_result", "name": "signatures", "chars": 13943, "t": 1794462208.958}
+{"tool": "open_file", "path": "internal/storage/storage.go", "start": 1, "end": 58, "lines": 58, "file_lines": 58, "t": 1794462209.324}
+{"tool": "_result", "name": "open_file", "chars": 1521, "t": 1794462209.324}
+{"tool": "open_file", "path": "internal/reader/opml/handler.go", "start": 55, "end": 184, "lines": 130, "file_lines": 184, "t": 1794462209.903}
+{"tool": "_result", "name": "open_file", "chars": 4843, "t": 1794462209.903}
+{"tool": "open_file", "path": "internal/database/database.go", "start": 1, "end": 64, "lines": 64, "file_lines": 64, "t": 1794462210.218}
+{"tool": "_result", "name": "open_file", "chars": 2391, "t": 1794462210.218}
+{"tool": "open_file", "path": "internal/api/category_handlers.go", "start": 1, "end": 20, "lines": 20, "file_lines": 206, "t": 1794462229.317}
+{"tool": "_result", "name": "open_file", "chars": 610, "t": 1794462229.317}
+{"tool": "open_file", "path": "internal/api/category_handlers.go", "start": 143, "end": 206, "lines": 64, "file_lines": 206, "t": 1794462229.95}
+{"tool": "_result", "name": "open_file", "chars": 1865, "t": 1794462229.95}
+{"tool": "where", "effect": "reads feeds", "pkg": "internal/storage", "hits": 32, "t": 1794462230.392}
+{"tool": "_result", "name": "where", "chars": 3405, "t": 1794462230.398}
+{"tool": "create_file", "path": "internal/storage/audit_log.go", "existed": false, "t": 1794462240.147}
+{"tool": "_result", "name": "create_file", "chars": 2, "t": 1794462240.147}
+{"tool": "edit", "path": "internal/database/migrations.go", "matches": 1, "t": 1794462242.988}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462242.989}
+{"tool": "edit", "path": "internal/storage/.agentpolicy", "matches": 1, "t": 1794462243.937}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462243.937}
+{"tool": "edit", "path": "internal/api/.agentpolicy", "matches": 1, "t": 1794462244.779}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462244.779}
+{"tool": "edit", "path": "internal/googlereader/.agentpolicy", "matches": 1, "t": 1794462245.502}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462245.502}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462253.841}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462253.841}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462255.368}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462255.368}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462256.737}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462256.737}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462258.001}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462258.001}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462259.633}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462259.633}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462260.791}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462260.791}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462262.475}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462262.475}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462264.37}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462264.37}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462266.528}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462266.528}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462268.37}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462268.37}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462270.054}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462270.054}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462271.845}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462271.845}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462273.212}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462273.212}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462274.528}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462274.528}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462275.686}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462275.686}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462276.949}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462276.949}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462278.159}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462278.159}
+{"tool": "edit", "path": "internal/api/opml_handlers.go", "matches": 1, "t": 1794462282.058}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462282.058}
+{"tool": "edit", "path": "internal/api/category_handlers.go", "matches": 1, "t": 1794462284.686}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462284.686}
+{"tool": "edit", "path": "internal/api/category_handlers.go", "matches": 1, "t": 1794462285.897}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462285.897}
+{"tool": "edit", "path": "internal/api/category_handlers.go", "matches": 1, "t": 1794462287.634}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462287.634}
+{"tool": "edit", "path": "internal/api/category_handlers.go", "matches": 1, "t": 1794462288.791}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462288.791}
+{"tool": "edit", "path": "internal/api/category_handlers.go", "matches": 1, "t": 1794462290.044}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462290.044}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462294.703}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462294.703}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462296.335}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462296.335}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462297.917}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462297.917}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462299.6}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462299.6}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462301.337}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462301.338}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462303.497}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462303.497}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462304.812}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462304.812}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462305.812}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462305.813}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462306.865}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462306.865}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462307.97}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462307.97}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462309.446}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462309.446}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462311.128}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462311.128}
+{"tool": "edit", "path": "internal/googlereader/handler.go", "matches": 1, "t": 1794462312.813}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462312.813}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 15.9, "chars": 56, "t": 1794462328.77}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462328.771}
+{"tool": "finish", "summary": "Added an `audit_log` table (new migration) and `Storage.AppendAuditLog`; every API request that modifies `users` or `feeds` now appends a row. The build and existing tests pass; the new audit behaviour itself is not covered by any test I could run.\n\nWhere rows are appended:\n- **REST API, users:** create, update, remove.\n- **REST API, feeds:** create, update, remove, single-feed refresh (also when the refresh fails, since the error counter is written), OPML import, and category removal when it cascades to feeds.\n- **Google Reader API:** quick-add, subscribe, unsubscribe, rename, move, and disable-tag (which moves feeds to another category).\n- **Not audited:** the last-login update in the API, Fever and Google Reader auth paths, as the task specifies. UI, CLI and background worker writes are also untouched.\n\nThings to know:\n- **Schema is my own design.** Columns are `id`, `created_at`, `user_id` (the requesting user, no foreign key so rows survive user deletion), `table_name`, `action`, `row_id` (0 when several rows are affected).\n- **Not transactional.** The audit row is inserted right after the write, not in the same transaction; if the insert fails the request returns a server error but the original write stands.\n- **Refresh-all and refresh-category are audited too.** These only queue background jobs, so the feed rows are written by the worker later; I append one row when at least one job is queued. Say if you would rather these not count.\n- **Import and category removal are audited by feed count.** A row is appended only if the user's feed count changed, so a rejected or no-op import adds nothing and a partially failed import is still recorded.\n- **Disable-tag over-audits slightly.** It appends a row on success even if the removed categories held no feeds.\n- **Annotations are partly stale.** I added `audit_log` to the `.agentpolicy` nouns for `internal/storage`, `internal/api` and `internal/googlereader`, and updated `@effects` tags on the handlers I changed. The ", "t": 1794462338.643}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794462338.643}

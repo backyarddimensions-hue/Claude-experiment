@@ -1,0 +1,570 @@
+diff --git a/client/model.go b/client/model.go
+index ff1f444b..c2fbeb77 100644
+--- a/client/model.go
++++ b/client/model.go
+@@ -183,6 +183,7 @@ type Feed struct {
+ 	NtfyTopic                   string    `json:"ntfy_topic"`
+ 	PushoverEnabled             bool      `json:"pushover_enabled"`
+ 	PushoverPriority            int       `json:"pushover_priority"`
++	RefreshInterval             int       `json:"refresh_interval"`
+ 	Icon                        *FeedIcon `json:"icon"`
+ }
+ 
+@@ -241,6 +242,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	RefreshInterval             *int    `json:"refresh_interval,omitempty"`
+ }
+ 
+ // FeedIcon represents the feed icon.
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..6ea21c34 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,8 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		_, err = tx.Exec(`ALTER TABLE feeds ADD COLUMN refresh_interval int not null default 0`)
++		return err
++	},
+ }
+diff --git a/internal/locale/translations/ar_SA.json b/internal/locale/translations/ar_SA.json
+index 521d23d7..bd36f106 100644
+--- a/internal/locale/translations/ar_SA.json
++++ b/internal/locale/translations/ar_SA.json
+@@ -224,6 +224,8 @@
+     "form.feed.label.ntfy_priority": "أولوية Ntfy",
+     "form.feed.label.ntfy_topic": "موضوع Ntfy (اختياري)",
+     "form.feed.label.proxy_url": "رابط الوكيل (Proxy)",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "إرسال المقالات إلى Pushover",
+     "form.feed.label.pushover_default_priority": "الأولوية الافتراضية",
+     "form.feed.label.pushover_high_priority": "أولوية عالية",
+diff --git a/internal/locale/translations/de_DE.json b/internal/locale/translations/de_DE.json
+index 52c03a1b..559011b7 100644
+--- a/internal/locale/translations/de_DE.json
++++ b/internal/locale/translations/de_DE.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy-Priorität",
+     "form.feed.label.ntfy_topic": "Ntfy-Thema (optional)",
+     "form.feed.label.proxy_url": "Proxy-URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Artikel an pushover.net senden",
+     "form.feed.label.pushover_default_priority": "Pushover-Standardpriorität",
+     "form.feed.label.pushover_high_priority": "Hohe Pushoverpriorität",
+diff --git a/internal/locale/translations/el_EL.json b/internal/locale/translations/el_EL.json
+index 455ac247..ea2809aa 100644
+--- a/internal/locale/translations/el_EL.json
++++ b/internal/locale/translations/el_EL.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Προτεραιότητα Ntfy",
+     "form.feed.label.ntfy_topic": "Θέμα Ntfy (προαιρετικό)",
+     "form.feed.label.proxy_url": "Διεύθυνση URL διακομιστή μεσολάβησης",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Προώθηση καταχωρήσεων στο pushover.net",
+     "form.feed.label.pushover_default_priority": "Προεπιλεγμένη προτεραιότητα Pushover",
+     "form.feed.label.pushover_high_priority": "Υψηλή προτεραιότητα Pushover",
+diff --git a/internal/locale/translations/en_US.json b/internal/locale/translations/en_US.json
+index 036bac0f..eeb3948c 100644
+--- a/internal/locale/translations/en_US.json
++++ b/internal/locale/translations/en_US.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy priority",
+     "form.feed.label.ntfy_topic": "Ntfy topic (optional)",
+     "form.feed.label.proxy_url": "Proxy URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Push entries to Pushover",
+     "form.feed.label.pushover_default_priority": "Default priority",
+     "form.feed.label.pushover_high_priority": "High priority",
+diff --git a/internal/locale/translations/es_ES.json b/internal/locale/translations/es_ES.json
+index 481c81e1..f417d658 100644
+--- a/internal/locale/translations/es_ES.json
++++ b/internal/locale/translations/es_ES.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Prioridad Ntfy",
+     "form.feed.label.ntfy_topic": "Tema Ntfy (opcional)",
+     "form.feed.label.proxy_url": "URL del Proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Enviar artículos a pushover.net",
+     "form.feed.label.pushover_default_priority": "Prioridad predeterminada de Pushover",
+     "form.feed.label.pushover_high_priority": "Prioridad alta de Pushover",
+diff --git a/internal/locale/translations/fi_FI.json b/internal/locale/translations/fi_FI.json
+index 01926082..ea64949b 100644
+--- a/internal/locale/translations/fi_FI.json
++++ b/internal/locale/translations/fi_FI.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy-prioriteetti",
+     "form.feed.label.ntfy_topic": "Ntfy-aihe (valinnainen)",
+     "form.feed.label.proxy_url": "Välityspalvelimen URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Lähetä merkinnät pushover.net-palveluun",
+     "form.feed.label.pushover_default_priority": "Pushover-oletusprioriteetti",
+     "form.feed.label.pushover_high_priority": "Pushover-korkea prioriteetti",
+diff --git a/internal/locale/translations/fr_FR.json b/internal/locale/translations/fr_FR.json
+index 85af2444..e88aa810 100644
+--- a/internal/locale/translations/fr_FR.json
++++ b/internal/locale/translations/fr_FR.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Priorité de notification",
+     "form.feed.label.ntfy_topic": "Sujet Ntfy (facultatif)",
+     "form.feed.label.proxy_url": "URL du proxy",
++    "form.feed.label.refresh_interval": "Intervalle de rafraîchissement en minutes (0 pour utiliser l'intervalle global)",
++    "error.feed_invalid_refresh_interval": "L'intervalle de rafraîchissement doit être un nombre de minutes compris entre 0 et 525600.",
+     "form.feed.label.pushover_activate": "Activer les notifications vers Pushover",
+     "form.feed.label.pushover_default_priority": "Priorité par défaut",
+     "form.feed.label.pushover_high_priority": "Priorité élevée",
+diff --git a/internal/locale/translations/gl_ES.json b/internal/locale/translations/gl_ES.json
+index c6275c3d..09f812dc 100644
+--- a/internal/locale/translations/gl_ES.json
++++ b/internal/locale/translations/gl_ES.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Prioridade en Ntfy",
+     "form.feed.label.ntfy_topic": "Tema en Ntfy (optativo)",
+     "form.feed.label.proxy_url": "URL do mandatario",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Enviar novidades a Pushover",
+     "form.feed.label.pushover_default_priority": "Prioridade predeterminada",
+     "form.feed.label.pushover_high_priority": "Alta prioridade",
+diff --git a/internal/locale/translations/hi_IN.json b/internal/locale/translations/hi_IN.json
+index ad3dcdaa..ed4bf164 100644
+--- a/internal/locale/translations/hi_IN.json
++++ b/internal/locale/translations/hi_IN.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy प्राथमिकता",
+     "form.feed.label.ntfy_topic": "Ntfy विषय (वैकल्पिक)",
+     "form.feed.label.proxy_url": "प्रॉक्सी URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "प्रविष्टियाँ pushover.net पर भेजें",
+     "form.feed.label.pushover_default_priority": "Pushover डिफ़ॉल्ट प्राथमिकता",
+     "form.feed.label.pushover_high_priority": "Pushover उच्च प्राथमिकता",
+diff --git a/internal/locale/translations/id_ID.json b/internal/locale/translations/id_ID.json
+index de180c17..b40617a4 100644
+--- a/internal/locale/translations/id_ID.json
++++ b/internal/locale/translations/id_ID.json
+@@ -209,6 +209,8 @@
+     "form.feed.label.ntfy_priority": "Prioritas Ntfy",
+     "form.feed.label.ntfy_topic": "Topik Ntfy (opsional)",
+     "form.feed.label.proxy_url": "URL Proksi",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Kirim artikel ke pushover.net",
+     "form.feed.label.pushover_default_priority": "Prioritas baku Pushover",
+     "form.feed.label.pushover_high_priority": "Prioritas tinggi Pushover",
+diff --git a/internal/locale/translations/it_IT.json b/internal/locale/translations/it_IT.json
+index dc5e758c..a125c202 100644
+--- a/internal/locale/translations/it_IT.json
++++ b/internal/locale/translations/it_IT.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Priorità ntfy",
+     "form.feed.label.ntfy_topic": "Topic ntfy (opzionale)",
+     "form.feed.label.proxy_url": "URL del proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Invia le voci a pushover.net",
+     "form.feed.label.pushover_default_priority": "Priorità predefinita Pushover",
+     "form.feed.label.pushover_high_priority": "Priorità alta Pushover",
+diff --git a/internal/locale/translations/ja_JP.json b/internal/locale/translations/ja_JP.json
+index da97852e..12eb919e 100644
+--- a/internal/locale/translations/ja_JP.json
++++ b/internal/locale/translations/ja_JP.json
+@@ -209,6 +209,8 @@
+     "form.feed.label.ntfy_priority": "ntfy 優先度",
+     "form.feed.label.ntfy_topic": "ntfy トピック（任意）",
+     "form.feed.label.proxy_url": "プロキシ URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "エントリを pushover.net に送信",
+     "form.feed.label.pushover_default_priority": "Pushover 既定の優先度",
+     "form.feed.label.pushover_high_priority": "Pushover 高優先度",
+diff --git a/internal/locale/translations/ko_KR.json b/internal/locale/translations/ko_KR.json
+index 5fec56e9..97aae6fa 100644
+--- a/internal/locale/translations/ko_KR.json
++++ b/internal/locale/translations/ko_KR.json
+@@ -209,6 +209,8 @@
+     "form.feed.label.ntfy_priority": "ntfy 우선순위",
+     "form.feed.label.ntfy_topic": "ntfy 토픽(선택 사항)",
+     "form.feed.label.proxy_url": "프록시 URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "게시물을 pushover.net으로 전송",
+     "form.feed.label.pushover_default_priority": "Pushover 기본 우선순위",
+     "form.feed.label.pushover_high_priority": "Pushover 높은 우선순위",
+diff --git a/internal/locale/translations/nan_Latn_pehoeji.json b/internal/locale/translations/nan_Latn_pehoeji.json
+index 93ac38cb..a9007dae 100644
+--- a/internal/locale/translations/nan_Latn_pehoeji.json
++++ b/internal/locale/translations/nan_Latn_pehoeji.json
+@@ -209,6 +209,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy iu-sian sūn-sū",
+     "form.feed.label.ntfy_topic": "Ntfy topic (soán thiⁿ)",
+     "form.feed.label.proxy_url": "Proxy ê URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Pó-chûn siau-sit kàu pushover.net",
+     "form.feed.label.pushover_default_priority": "Pushover ū-siat iu-sian sūn-sū",
+     "form.feed.label.pushover_high_priority": "Pushover koân iu-sian sūn-sū",
+diff --git a/internal/locale/translations/nl_NL.json b/internal/locale/translations/nl_NL.json
+index 116943f0..a2d14fcf 100644
+--- a/internal/locale/translations/nl_NL.json
++++ b/internal/locale/translations/nl_NL.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy prioriteit",
+     "form.feed.label.ntfy_topic": "Ntfy onderwerp (optioneel)",
+     "form.feed.label.proxy_url": "Proxy-URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Stuur artikelen naar pushover.net",
+     "form.feed.label.pushover_default_priority": "Pushover standaard prioriteit",
+     "form.feed.label.pushover_high_priority": "Pushover hoge prioriteit",
+diff --git a/internal/locale/translations/pl_PL.json b/internal/locale/translations/pl_PL.json
+index 980833b8..df85e183 100644
+--- a/internal/locale/translations/pl_PL.json
++++ b/internal/locale/translations/pl_PL.json
+@@ -215,6 +215,8 @@
+     "form.feed.label.ntfy_priority": "Priorytet ntfy",
+     "form.feed.label.ntfy_topic": "Temat ntfy (opcjonalny)",
+     "form.feed.label.proxy_url": "Adres URL serwera proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Przesyłaj wpisy do pushover.net",
+     "form.feed.label.pushover_default_priority": "Domyślny priorytet Pushover",
+     "form.feed.label.pushover_high_priority": "Wysoki priorytet Pushover",
+diff --git a/internal/locale/translations/pt_BR.json b/internal/locale/translations/pt_BR.json
+index 4ea804d3..17413a63 100644
+--- a/internal/locale/translations/pt_BR.json
++++ b/internal/locale/translations/pt_BR.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Prioridade do ntfy",
+     "form.feed.label.ntfy_topic": "Tópico do ntfy (opcional)",
+     "form.feed.label.proxy_url": "Proxy URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Enviar itens para o pushover.net",
+     "form.feed.label.pushover_default_priority": "Prioridade padrão do Pushover",
+     "form.feed.label.pushover_high_priority": "Alta prioridade do Pushover",
+diff --git a/internal/locale/translations/ro_RO.json b/internal/locale/translations/ro_RO.json
+index 214b618a..eeba8e37 100644
+--- a/internal/locale/translations/ro_RO.json
++++ b/internal/locale/translations/ro_RO.json
+@@ -215,6 +215,8 @@
+     "form.feed.label.ntfy_priority": "Prioritate Ntfy",
+     "form.feed.label.ntfy_topic": "Subiect Ntfy (opțional)",
+     "form.feed.label.proxy_url": "URL Proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Activează Pushover",
+     "form.feed.label.pushover_default_priority": "Prioritate implicită Pushover",
+     "form.feed.label.pushover_high_priority": "Prioritate ridicată Pushover",
+diff --git a/internal/locale/translations/ru_RU.json b/internal/locale/translations/ru_RU.json
+index 9f2e5abe..8ecf8922 100644
+--- a/internal/locale/translations/ru_RU.json
++++ b/internal/locale/translations/ru_RU.json
+@@ -215,6 +215,8 @@
+     "form.feed.label.ntfy_priority": "Приоритет ntfy",
+     "form.feed.label.ntfy_topic": "Топик ntfy (опционально)",
+     "form.feed.label.proxy_url": "URL прокси",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Отправлять статьи в pushover.net",
+     "form.feed.label.pushover_default_priority": "По умолчанию",
+     "form.feed.label.pushover_high_priority": "Высокий",
+diff --git a/internal/locale/translations/tr_TR.json b/internal/locale/translations/tr_TR.json
+index ab54c4cb..61f4c441 100644
+--- a/internal/locale/translations/tr_TR.json
++++ b/internal/locale/translations/tr_TR.json
+@@ -212,6 +212,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy öncelik",
+     "form.feed.label.ntfy_topic": "Ntfy konusu (isteğe bağlı)",
+     "form.feed.label.proxy_url": "Proxy URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Makaleleri pushover.net'e gönder",
+     "form.feed.label.pushover_default_priority": "Pushover varsayılan öncelik",
+     "form.feed.label.pushover_high_priority": "Pushover yüksek öncelik",
+diff --git a/internal/locale/translations/uk_UA.json b/internal/locale/translations/uk_UA.json
+index 9b2affb9..3f58fd60 100644
+--- a/internal/locale/translations/uk_UA.json
++++ b/internal/locale/translations/uk_UA.json
+@@ -215,6 +215,8 @@
+     "form.feed.label.ntfy_priority": "Пріоритет ntfy",
+     "form.feed.label.ntfy_topic": "Тема ntfy (необов’язково)",
+     "form.feed.label.proxy_url": "URL-адреса проксі",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Надсилати записи у pushover.net",
+     "form.feed.label.pushover_default_priority": "Стандартний пріоритет Pushover",
+     "form.feed.label.pushover_high_priority": "Високий пріоритет Pushover",
+diff --git a/internal/locale/translations/vi_VN.json b/internal/locale/translations/vi_VN.json
+index 9fd040ca..8faa7a7d 100644
+--- a/internal/locale/translations/vi_VN.json
++++ b/internal/locale/translations/vi_VN.json
+@@ -209,6 +209,8 @@
+     "form.feed.label.ntfy_priority": "Mức ưu tiên Ntfy",
+     "form.feed.label.ntfy_topic": "Chủ đề Ntfy (không bắt buộc)",
+     "form.feed.label.proxy_url": "URL proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "Gửi bài viết tới Pushover",
+     "form.feed.label.pushover_default_priority": "Mức ưu tiên mặc định",
+     "form.feed.label.pushover_high_priority": "Mức ưu tiên cao",
+diff --git a/internal/locale/translations/zh_CN.json b/internal/locale/translations/zh_CN.json
+index 18997c9d..eb4f0f17 100644
+--- a/internal/locale/translations/zh_CN.json
++++ b/internal/locale/translations/zh_CN.json
+@@ -208,6 +208,8 @@
+     "form.feed.label.ntfy_min_priority": "Ntfy 最低优先级",
+     "form.feed.label.ntfy_priority": "Ntfy 优先级",
+     "form.feed.label.ntfy_topic": "Ntfy 主题（可选）",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.proxy_url": "代理 URL",
+     "form.feed.label.pushover_activate": "推送条目到 Pushover",
+     "form.feed.label.pushover_default_priority": "Pushover 默认优先级",
+diff --git a/internal/locale/translations/zh_TW.json b/internal/locale/translations/zh_TW.json
+index 8af94f7c..f619e413 100644
+--- a/internal/locale/translations/zh_TW.json
++++ b/internal/locale/translations/zh_TW.json
+@@ -209,6 +209,8 @@
+     "form.feed.label.ntfy_priority": "Ntfy 優先順序",
+     "form.feed.label.ntfy_topic": "Ntfy topic (選填)",
+     "form.feed.label.proxy_url": "代理 URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a number of minutes between 0 and 525600.",
+     "form.feed.label.pushover_activate": "推送文章到 Pushover",
+     "form.feed.label.pushover_default_priority": "Pushover 預設優先順序",
+     "form.feed.label.pushover_high_priority": "Pushover 高優先順序",
+diff --git a/internal/model/feed.go b/internal/model/feed.go
+index eb74b0f1..520e293b 100644
+--- a/internal/model/feed.go
++++ b/internal/model/feed.go
+@@ -64,6 +64,9 @@ type Feed struct {
+ 	PushoverPriority            int       `json:"pushover_priority"`
+ 	ProxyURL                    string    `json:"proxy_url"`
+ 
++	// RefreshInterval is the per-feed polling interval in minutes; 0 means "use the global interval".
++	RefreshInterval int `json:"refresh_interval"`
++
+ 	// Non-persisted attributes
+ 	Category *Category `json:"category,omitempty"`
+ 	Icon     *FeedIcon `json:"icon"`
+@@ -121,6 +124,24 @@ func (f *Feed) CheckedNow() {
+ 
+ // ScheduleNextCheck set "next_check_at" of a feed based on the scheduler selected from the configuration.
+ func (f *Feed) ScheduleNextCheck(weeklyCount int, refreshDelay time.Duration) time.Duration {
++	// A per-feed refresh interval overrides the global scheduler configuration.
++	if f.RefreshInterval > 0 {
++		interval := time.Duration(f.RefreshInterval) * time.Minute
++
++		// Still honour the delay requested by the server (Retry-After, TTL, etc.),
++		// bounded by the scheduler max interval unless the feed interval is larger.
++		if refreshDelay > interval {
++			maxInterval := config.Opts.SchedulerRoundRobinMaxInterval()
++			if config.Opts.PollingScheduler() == SchedulerEntryFrequency {
++				maxInterval = config.Opts.SchedulerEntryFrequencyMaxInterval()
++			}
++			interval = max(interval, min(refreshDelay, maxInterval))
++		}
++
++		f.NextCheckAt = time.Now().Add(interval)
++		return interval
++	}
++
+ 	// Default to the global config Polling Frequency.
+ 	interval := config.Opts.SchedulerRoundRobinMinInterval()
+ 
+@@ -212,6 +233,25 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	RefreshInterval             *int    `json:"refresh_interval"`
++}
++
++// SetRefreshInterval changes the per-feed refresh interval (in minutes) and
++// brings the next check forward when the new interval requires it.
++func (f *Feed) SetRefreshInterval(minutes int) {
++	if minutes < 0 {
++		minutes = 0
++	}
++	if minutes == f.RefreshInterval {
++		return
++	}
++	f.RefreshInterval = minutes
++	if minutes > 0 {
++		nextCheck := time.Now().Add(time.Duration(minutes) * time.Minute)
++		if f.NextCheckAt.After(nextCheck) {
++			f.NextCheckAt = nextCheck
++		}
++	}
+ }
+ 
+ // Patch updates a feed with modified values.
+@@ -319,6 +359,10 @@ func (f *FeedModificationRequest) Patch(feed *Feed) {
+ 	if f.ProxyURL != nil {
+ 		feed.ProxyURL = *f.ProxyURL
+ 	}
++
++	if f.RefreshInterval != nil {
++		feed.SetRefreshInterval(*f.RefreshInterval)
++	}
+ }
+ 
+ // Feeds is a list of feed
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index 657d3b99..d0e57597 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -381,9 +381,10 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 			pushover_priority=$37,
+ 			proxy_url=$38,
+ 			ignore_entry_updates=$39,
+-			language=$40
++			language=$40,
++			refresh_interval=$41
+ 		WHERE
+-			id=$41 AND user_id=$42
++			id=$42 AND user_id=$43
+ 	`
+ 	_, err = s.db.Exec(query,
+ 		feed.FeedURL,
+@@ -426,6 +427,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		feed.ProxyURL,
+ 		feed.IgnoreEntryUpdates,
+ 		feed.Language,
++		feed.RefreshInterval,
+ 		feed.ID,
+ 		feed.UserID,
+ 	)
+diff --git a/internal/storage/feed_query_builder.go b/internal/storage/feed_query_builder.go
+index 564bbdee..dce9d3d5 100644
+--- a/internal/storage/feed_query_builder.go
++++ b/internal/storage/feed_query_builder.go
+@@ -185,7 +185,8 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			f.pushover_enabled,
+ 			f.pushover_priority,
+ 			f.proxy_url,
+-			f.ignore_entry_updates
++			f.ignore_entry_updates,
++			f.refresh_interval
+ 		FROM
+ 			feeds f
+ 		LEFT JOIN
+@@ -269,6 +270,7 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			&feed.PushoverPriority,
+ 			&feed.ProxyURL,
+ 			&feed.IgnoreEntryUpdates,
++			&feed.RefreshInterval,
+ 		)
+ 		if err != nil {
+ 			return nil, fmt.Errorf(`store: unable to fetch feeds row: %w`, err)
+diff --git a/internal/template/templates/views/edit_feed.html b/internal/template/templates/views/edit_feed.html
+index a264237e..6801f27d 100644
+--- a/internal/template/templates/views/edit_feed.html
++++ b/internal/template/templates/views/edit_feed.html
+@@ -100,6 +100,9 @@
+             <label for="form-proxy-url">{{ t "form.feed.label.proxy_url" }}</label>
+             <input type="url" name="proxy_url" id="form-proxy-url" value="{{ .form.ProxyURL }}" spellcheck="false">
+ 
++            <label for="form-refresh-interval">{{ t "form.feed.label.refresh_interval" }}</label>
++            <input type="number" name="refresh_interval" id="form-refresh-interval" min="0" value="{{ .form.RefreshInterval }}">
++
+             <label for="form-cookie">{{ t "form.feed.label.cookie" }}</label>
+             <input type="text" name="cookie" id="form-cookie" value="{{ .form.Cookie }}" spellcheck="false">
+ 
+diff --git a/internal/ui/feed_edit.go b/internal/ui/feed_edit.go
+index 5ce6ccb4..ecead533 100644
+--- a/internal/ui/feed_edit.go
++++ b/internal/ui/feed_edit.go
+@@ -73,6 +73,7 @@ func (h *handler) showEditFeedPage(w http.ResponseWriter, r *http.Request) {
+ 		PushoverEnabled:             feed.PushoverEnabled,
+ 		PushoverPriority:            feed.PushoverPriority,
+ 		ProxyURL:                    feed.ProxyURL,
++		RefreshInterval:             feed.RefreshInterval,
+ 	}
+ 
+ 	view := view.New(h.tpl, r)
+diff --git a/internal/ui/feed_update.go b/internal/ui/feed_update.go
+index be144e41..624f1178 100644
+--- a/internal/ui/feed_update.go
++++ b/internal/ui/feed_update.go
+@@ -67,6 +67,7 @@ func (h *handler) updateFeed(w http.ResponseWriter, r *http.Request) {
+ 		ProxyURL:              model.OptionalString(feedForm.ProxyURL),
+ 		BlockFilterEntryRules: model.OptionalString(feedForm.BlockFilterEntryRules),
+ 		KeepFilterEntryRules:  model.OptionalString(feedForm.KeepFilterEntryRules),
++		RefreshInterval:       &feedForm.RefreshInterval,
+ 	}
+ 
+ 	if validationErr := validator.ValidateFeedModification(h.store, loggedUser.ID, feed.ID, feedModificationRequest); validationErr != nil {
+diff --git a/internal/ui/form/feed.go b/internal/ui/form/feed.go
+index e42d6c73..28084b4e 100644
+--- a/internal/ui/form/feed.go
++++ b/internal/ui/form/feed.go
+@@ -6,6 +6,7 @@ package form // import "miniflux.app/v2/internal/ui/form"
+ import (
+ 	"net/http"
+ 	"strconv"
++	"strings"
+ 
+ 	"miniflux.app/v2/internal/model"
+ )
+@@ -49,6 +50,7 @@ type FeedForm struct {
+ 	PushoverEnabled  bool
+ 	PushoverPriority int
+ 	ProxyURL         string
++	RefreshInterval  int
+ }
+ 
+ // Merge updates the fields of the given feed.
+@@ -88,6 +90,7 @@ func (f FeedForm) Merge(feed *model.Feed) *model.Feed {
+ 	feed.PushoverEnabled = f.PushoverEnabled
+ 	feed.PushoverPriority = f.PushoverPriority
+ 	feed.ProxyURL = f.ProxyURL
++	feed.SetRefreshInterval(f.RefreshInterval)
+ 	return feed
+ }
+ 
+@@ -108,7 +111,18 @@ func NewFeedForm(r *http.Request) *FeedForm {
+ 		pushoverPriority = 0
+ 	}
+ 
++	// An empty value means "use the global interval"; anything unparsable is
++	// turned into a negative value so that the validator rejects it.
++	refreshInterval := 0
++	if rawValue := strings.TrimSpace(r.FormValue("refresh_interval")); rawValue != "" {
++		refreshInterval, err = strconv.Atoi(rawValue)
++		if err != nil {
++			refreshInterval = -1
++		}
++	}
++
+ 	return &FeedForm{
++		RefreshInterval: refreshInterval,
+ 		FeedURL:                     r.FormValue("feed_url"),
+ 		SiteURL:                     r.FormValue("site_url"),
+ 		Title:                       r.FormValue("title"),
+diff --git a/internal/validator/feed.go b/internal/validator/feed.go
+index b56eecf8..6dc95961 100644
+--- a/internal/validator/feed.go
++++ b/internal/validator/feed.go
+@@ -181,5 +181,12 @@ func ValidateFeedModification(store *storage.Storage, userID, feedID int64, requ
+ 		}
+ 	}
+ 
++	if request.RefreshInterval != nil {
++		// Upper bound: one year, which also keeps the value within a 32-bit column.
++		if *request.RefreshInterval < 0 || *request.RefreshInterval > 525600 {
++			return locale.NewLocalizedError("error.feed_invalid_refresh_interval")
++		}
++	}
++
+ 	return nil
+ }

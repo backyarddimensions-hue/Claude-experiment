@@ -1,0 +1,85 @@
+{
+ "task": "6",
+ "pass": true,
+ "checks": [
+  {
+   "name": "audit_log table exists",
+   "ok": true,
+   "gating": true,
+   "detail": ""
+  },
+  {
+   "name": "1 POST /v1/users appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 201, 1 new rows"
+  },
+  {
+   "name": "2 PUT /v1/users/{id} appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 201, 1 new rows"
+  },
+  {
+   "name": "4 POST /v1/feeds appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 201, 1 new rows"
+  },
+  {
+   "name": "5 PUT /v1/feeds/{id} appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 201, 1 new rows"
+  },
+  {
+   "name": "7a PUT /v1/feeds/{id}/refresh (success) appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 204, 1 new rows"
+  },
+  {
+   "name": "7b PUT /v1/feeds/{id}/refresh (fetch fails, error recorded on feed) appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 500, 1 new rows"
+  },
+  {
+   "name": "8 POST /v1/import appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 201, 1 new rows"
+  },
+  {
+   "name": "6 DELETE /v1/feeds/{id} appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 204, 1 new rows"
+  },
+  {
+   "name": "3 DELETE /v1/users/{id} appends an audit row",
+   "ok": true,
+   "gating": true,
+   "detail": "http 204, 1 new rows"
+  },
+  {
+   "name": "read-only requests append nothing",
+   "ok": true,
+   "gating": false,
+   "detail": "0 rows for two GETs"
+  }
+ ],
+ "info": {
+  "paths_found": 8,
+  "paths_found_list": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8"
+  ]
+ }
+}

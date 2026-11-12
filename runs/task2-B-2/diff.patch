@@ -1,0 +1,192 @@
+diff --git a/client/model.go b/client/model.go
+index bcfcde9e..4998511e 100644
+--- a/client/model.go
++++ b/client/model.go
+@@ -280,6 +280,7 @@ type Entry struct {
+ 	Enclosures  Enclosures `json:"enclosures,omitempty"`
+ 	Tags        []string   `json:"tags"`
+ 	ReadingTime int        `json:"reading_time"`
++	WordCount   *int       `json:"word_count"`
+ 	UserID      int64      `json:"user_id"`
+ 	FeedID      int64      `json:"feed_id"`
+ 	Starred     bool       `json:"starred"`
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..76751115 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,10 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// Existing entries keep a NULL word count (unknown); it is populated
++		// whenever an entry is created or updated.
++		_, err = tx.Exec(`ALTER TABLE entries ADD COLUMN word_count int`)
++		return err
++	},
+ }
+diff --git a/internal/model/entry.go b/internal/model/entry.go
+index eb8df830..f1f2ea90 100644
+--- a/internal/model/entry.go
++++ b/internal/model/entry.go
+@@ -42,6 +42,7 @@ type Entry struct {
+ 	ShareCode   string        `json:"share_code"`
+ 	Starred     bool          `json:"starred"`
+ 	ReadingTime int           `json:"reading_time"`
++	WordCount   *int          `json:"word_count"`
+ 	Enclosures  EnclosureList `json:"enclosures"`
+ 	Feed        *Feed         `json:"feed,omitempty"`
+ 	Tags        []string      `json:"tags"`
+diff --git a/internal/storage/entry.go b/internal/storage/entry.go
+index 1797fd64..a218f430 100644
+--- a/internal/storage/entry.go
++++ b/internal/storage/entry.go
+@@ -8,10 +8,12 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"log/slog"
++	"strings"
+ 	"time"
+ 
+ 	"miniflux.app/v2/internal/crypto"
+ 	"miniflux.app/v2/internal/model"
++	"miniflux.app/v2/internal/reader/sanitizer"
+ 
+ 	"github.com/lib/pq"
+ )
+@@ -49,9 +51,10 @@ func (s *Storage) CountAllEntries() (map[string]int64, error) {
+ }
+ 
+ // UpdateEntryTitleAndContent updates entry title and content.
+-// @effects: writes entries
++// @effects: writes entries, mut
+ func (s *Storage) UpdateEntryTitleAndContent(entry *model.Entry) error {
+ 	truncatedTitle, truncatedContent := truncateTitleAndContentForTSVectorField(entry.Title, entry.Content)
++	wordCount := countContentWords(entry.Content)
+ 	query := `
+ 		UPDATE
+ 			entries
+@@ -59,7 +62,8 @@ func (s *Storage) UpdateEntryTitleAndContent(entry *model.Entry) error {
+ 			title=$1,
+ 			content=$2,
+ 			reading_time=$3,
+-			document_vectors = setweight(to_tsvector($4), 'A') || setweight(to_tsvector($5), 'B')
++			document_vectors = setweight(to_tsvector($4), 'A') || setweight(to_tsvector($5), 'B'),
++			word_count=$8
+ 		WHERE
+ 			id=$6 AND user_id=$7
+ 	`
+@@ -72,17 +76,25 @@ func (s *Storage) UpdateEntryTitleAndContent(entry *model.Entry) error {
+ 		truncatedTitle,
+ 		truncatedContent,
+ 		entry.ID,
+-		entry.UserID); err != nil {
++		entry.UserID,
++		wordCount); err != nil {
+ 		return fmt.Errorf(`store: unable to update entry #%d: %v`, entry.ID, err)
+ 	}
+ 
++	entry.WordCount = &wordCount
+ 	return nil
+ }
+ 
++// countContentWords returns the number of words in the entry content once HTML tags are removed.
++func countContentWords(content string) int {
++	return len(strings.Fields(sanitizer.StripTags(content)))
++}
++
+ // createEntry add a new entry.
+ // @effects: reads entry_tombstones, writes enclosures, writes entries, mut
+ func (s *Storage) createEntry(tx *sql.Tx, entry *model.Entry) error {
+ 	truncatedTitle, truncatedContent := truncateTitleAndContentForTSVectorField(entry.Title, entry.Content)
++	wordCount := countContentWords(entry.Content)
+ 	// The WHERE NOT EXISTS guard makes the tombstone check atomic with the insert, so a
+ 	// concurrent archive committing between an earlier existence check and this statement
+ 	// cannot bring a deleted entry back as unread.
+@@ -102,7 +114,8 @@ func (s *Storage) createEntry(tx *sql.Tx, entry *model.Entry) error {
+ 				changed_at,
+ 				document_vectors,
+ 				tags,
+-				language
++				language,
++				word_count
+ 			)
+ 		SELECT
+ 			$1,
+@@ -118,7 +131,8 @@ func (s *Storage) createEntry(tx *sql.Tx, entry *model.Entry) error {
+ 			now(),
+ 			setweight(to_tsvector($11), 'A') || setweight(to_tsvector($12), 'B'),
+ 			$13,
+-			$14
++			$14,
++			$15
+ 		WHERE NOT EXISTS (
+ 			SELECT 1 FROM entry_tombstones WHERE feed_id=$9 AND hash=$2
+ 		)
+@@ -141,6 +155,7 @@ func (s *Storage) createEntry(tx *sql.Tx, entry *model.Entry) error {
+ 		truncatedContent,
+ 		pq.Array(entry.Tags),
+ 		entry.Language,
++		wordCount,
+ 	).Scan(
+ 		&entry.ID,
+ 		&entry.Status,
+@@ -153,6 +168,7 @@ func (s *Storage) createEntry(tx *sql.Tx, entry *model.Entry) error {
+ 	if err != nil {
+ 		return fmt.Errorf(`store: unable to create entry %q (feed #%d): %v`, entry.URL, entry.FeedID, err)
+ 	}
++	entry.WordCount = &wordCount
+ 
+ 	for _, enclosure := range entry.Enclosures {
+ 		enclosure.EntryID = entry.ID
+@@ -172,6 +188,7 @@ func (s *Storage) createEntry(tx *sql.Tx, entry *model.Entry) error {
+ // @effects: writes enclosures, writes entries, mut
+ func (s *Storage) updateEntry(tx *sql.Tx, entry *model.Entry) error {
+ 	truncatedTitle, truncatedContent := truncateTitleAndContentForTSVectorField(entry.Title, entry.Content)
++	wordCount := countContentWords(entry.Content)
+ 	query := `
+ 		UPDATE
+ 			entries
+@@ -184,7 +201,8 @@ func (s *Storage) updateEntry(tx *sql.Tx, entry *model.Entry) error {
+ 			reading_time=$6,
+ 			document_vectors = setweight(to_tsvector($7), 'A') || setweight(to_tsvector($8), 'B'),
+ 			tags=$12,
+-			language=$13
++			language=$13,
++			word_count=$14
+ 		WHERE
+ 			user_id=$9 AND feed_id=$10 AND hash=$11
+ 		RETURNING
+@@ -205,10 +223,12 @@ func (s *Storage) updateEntry(tx *sql.Tx, entry *model.Entry) error {
+ 		entry.Hash,
+ 		pq.Array(entry.Tags),
+ 		entry.Language,
++		wordCount,
+ 	).Scan(&entry.ID)
+ 	if err != nil {
+ 		return fmt.Errorf(`store: unable to update entry %q: %v`, entry.URL, err)
+ 	}
++	entry.WordCount = &wordCount
+ 
+ 	for _, enclosure := range entry.Enclosures {
+ 		enclosure.UserID = entry.UserID
+diff --git a/internal/storage/entry_query_builder.go b/internal/storage/entry_query_builder.go
+index 4beb3363..99766c19 100644
+--- a/internal/storage/entry_query_builder.go
++++ b/internal/storage/entry_query_builder.go
+@@ -345,6 +345,7 @@ func (e *EntryQueryBuilder) fetchEntries(withCount bool) (model.Entries, int, er
+ 			e.status,
+ 			e.starred,
+ 			e.reading_time,
++			e.word_count,
+ 			e.created_at,
+ 			e.changed_at,
+ 			e.tags,
+@@ -417,6 +418,7 @@ func (e *EntryQueryBuilder) fetchEntries(withCount bool) (model.Entries, int, er
+ 			&entry.Status,
+ 			&entry.Starred,
+ 			&entry.ReadingTime,
++			&entry.WordCount,
+ 			&entry.CreatedAt,
+ 			&entry.ChangedAt,
+ 			pq.Array(&entry.Tags),

@@ -1,0 +1,7 @@
+Task:
+
+Compute and store a word count when an entry is saved, and expose it in the API. Entries that
+already exist are either backfilled or left null; new entries are always populated.
+
+The API entry object has an integer field `word_count` (null where unknown). Words
+are counted on the entry content with HTML tags removed.

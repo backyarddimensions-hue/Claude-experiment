@@ -1,0 +1,705 @@
+diff --git a/client/model.go b/client/model.go
+index bcfcde9e..2c83d82d 100644
+--- a/client/model.go
++++ b/client/model.go
+@@ -186,6 +186,7 @@ type Feed struct {
+ 	NtfyTopic                   string    `json:"ntfy_topic"`
+ 	PushoverEnabled             bool      `json:"pushover_enabled"`
+ 	PushoverPriority            int       `json:"pushover_priority"`
++	RefreshInterval             int       `json:"refresh_interval"`
+ 	Icon                        *FeedIcon `json:"icon"`
+ }
+ 
+@@ -244,6 +245,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	RefreshInterval             *int    `json:"refresh_interval,omitempty"`
+ }
+ 
+ // FeedIcon represents the feed icon.
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..c3fea900 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,9 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// Per-feed polling interval in minutes, 0 means "use the global interval".
++		_, err = tx.Exec(`ALTER TABLE feeds ADD COLUMN refresh_interval int not null default 0`)
++		return err
++	},
+ }
+diff --git a/internal/locale/translations/ar_SA.json b/internal/locale/translations/ar_SA.json
+index 521d23d7..f86b8253 100644
+--- a/internal/locale/translations/ar_SA.json
++++ b/internal/locale/translations/ar_SA.json
+@@ -148,6 +148,7 @@
+     "error.invalid_entry_direction": "اتجاه المقال غير صالح.",
+     "error.invalid_entry_order": "ترتيب المقال غير صالح.",
+     "error.invalid_feed_proxy_url": "رابط الوكيل (Proxy) غير صالح.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "رابط المصدر غير صالح.",
+     "error.invalid_gesture_nav": "تصفح الإيماءات غير صالح.",
+     "error.invalid_language": "اللغة غير صالحة.",
+@@ -224,6 +225,7 @@
+     "form.feed.label.ntfy_priority": "أولوية Ntfy",
+     "form.feed.label.ntfy_topic": "موضوع Ntfy (اختياري)",
+     "form.feed.label.proxy_url": "رابط الوكيل (Proxy)",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "إرسال المقالات إلى Pushover",
+     "form.feed.label.pushover_default_priority": "الأولوية الافتراضية",
+     "form.feed.label.pushover_high_priority": "أولوية عالية",
+diff --git a/internal/locale/translations/de_DE.json b/internal/locale/translations/de_DE.json
+index 52c03a1b..17aaa497 100644
+--- a/internal/locale/translations/de_DE.json
++++ b/internal/locale/translations/de_DE.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Ungültige Sortierreihenfolge.",
+     "error.invalid_entry_order": "Ungültige Sortierreihenfolge.",
+     "error.invalid_feed_proxy_url": "Ungültige Proxy-URL.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Ungültiger Feed-URL.",
+     "error.invalid_gesture_nav": "Ungültige Gestennavigation.",
+     "error.invalid_language": "Ungültige Sprache.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy-Priorität",
+     "form.feed.label.ntfy_topic": "Ntfy-Thema (optional)",
+     "form.feed.label.proxy_url": "Proxy-URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Artikel an pushover.net senden",
+     "form.feed.label.pushover_default_priority": "Pushover-Standardpriorität",
+     "form.feed.label.pushover_high_priority": "Hohe Pushoverpriorität",
+diff --git a/internal/locale/translations/el_EL.json b/internal/locale/translations/el_EL.json
+index 455ac247..88e3a046 100644
+--- a/internal/locale/translations/el_EL.json
++++ b/internal/locale/translations/el_EL.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Μη έγκυρη κατεύθυνση ταξινόμησης άρθρων.",
+     "error.invalid_entry_order": "Η σειρά των καταχωρήσεων είναι μη έγκυρη.",
+     "error.invalid_feed_proxy_url": "Μη έγκυρη διεύθυνση URL διακομιστή μεσολάβησης.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Μη έγκυρη διεύθυνση URL ροής.",
+     "error.invalid_gesture_nav": "Μη έγκυρη πλοήγηση με χειρονομίες.",
+     "error.invalid_language": "Μη έγκυρη γλώσσα.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Προτεραιότητα Ntfy",
+     "form.feed.label.ntfy_topic": "Θέμα Ntfy (προαιρετικό)",
+     "form.feed.label.proxy_url": "Διεύθυνση URL διακομιστή μεσολάβησης",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Προώθηση καταχωρήσεων στο pushover.net",
+     "form.feed.label.pushover_default_priority": "Προεπιλεγμένη προτεραιότητα Pushover",
+     "form.feed.label.pushover_high_priority": "Υψηλή προτεραιότητα Pushover",
+diff --git a/internal/locale/translations/en_US.json b/internal/locale/translations/en_US.json
+index 036bac0f..33afebb8 100644
+--- a/internal/locale/translations/en_US.json
++++ b/internal/locale/translations/en_US.json
+@@ -136,6 +136,7 @@
+     "error.invalid_entry_direction": "Invalid entry direction.",
+     "error.invalid_entry_order": "Invalid entry order.",
+     "error.invalid_feed_proxy_url": "Invalid proxy URL.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Invalid feed URL.",
+     "error.invalid_gesture_nav": "Invalid gesture navigation.",
+     "error.invalid_language": "Invalid language.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy priority",
+     "form.feed.label.ntfy_topic": "Ntfy topic (optional)",
+     "form.feed.label.proxy_url": "Proxy URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Push entries to Pushover",
+     "form.feed.label.pushover_default_priority": "Default priority",
+     "form.feed.label.pushover_high_priority": "High priority",
+diff --git a/internal/locale/translations/es_ES.json b/internal/locale/translations/es_ES.json
+index 481c81e1..2c628e7e 100644
+--- a/internal/locale/translations/es_ES.json
++++ b/internal/locale/translations/es_ES.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Dirección de artículo no válida.",
+     "error.invalid_entry_order": "Orden de artículo no válido.",
+     "error.invalid_feed_proxy_url": "URL de proxy inválida.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL de feed no válida.",
+     "error.invalid_gesture_nav": "Navegación por gestos no válida.",
+     "error.invalid_language": "Idioma no válido.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Prioridad Ntfy",
+     "form.feed.label.ntfy_topic": "Tema Ntfy (opcional)",
+     "form.feed.label.proxy_url": "URL del Proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Enviar artículos a pushover.net",
+     "form.feed.label.pushover_default_priority": "Prioridad predeterminada de Pushover",
+     "form.feed.label.pushover_high_priority": "Prioridad alta de Pushover",
+diff --git a/internal/locale/translations/fi_FI.json b/internal/locale/translations/fi_FI.json
+index 01926082..387e4fa8 100644
+--- a/internal/locale/translations/fi_FI.json
++++ b/internal/locale/translations/fi_FI.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Virheellinen merkintäsuunta.",
+     "error.invalid_entry_order": "Virheellinen artikkelin lajittelu.",
+     "error.invalid_feed_proxy_url": "Virheellinen välityspalvelimen URL.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Virheellinen syötteen URL-osoite.",
+     "error.invalid_gesture_nav": "Virheellinen ele-navigointi.",
+     "error.invalid_language": "Virheellinen kieli.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy-prioriteetti",
+     "form.feed.label.ntfy_topic": "Ntfy-aihe (valinnainen)",
+     "form.feed.label.proxy_url": "Välityspalvelimen URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Lähetä merkinnät pushover.net-palveluun",
+     "form.feed.label.pushover_default_priority": "Pushover-oletusprioriteetti",
+     "form.feed.label.pushover_high_priority": "Pushover-korkea prioriteetti",
+diff --git a/internal/locale/translations/fr_FR.json b/internal/locale/translations/fr_FR.json
+index 85af2444..d46a5cff 100644
+--- a/internal/locale/translations/fr_FR.json
++++ b/internal/locale/translations/fr_FR.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Ordre de trie non valide.",
+     "error.invalid_entry_order": "Ordre de tri non valide.",
+     "error.invalid_feed_proxy_url": "L'URL du proxy n'est pas valide.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL de flux non valide.",
+     "error.invalid_gesture_nav": "Navigation gestuelle non valide.",
+     "error.invalid_language": "Langue non valide.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Priorité de notification",
+     "form.feed.label.ntfy_topic": "Sujet Ntfy (facultatif)",
+     "form.feed.label.proxy_url": "URL du proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Activer les notifications vers Pushover",
+     "form.feed.label.pushover_default_priority": "Priorité par défaut",
+     "form.feed.label.pushover_high_priority": "Priorité élevée",
+diff --git a/internal/locale/translations/gl_ES.json b/internal/locale/translations/gl_ES.json
+index c6275c3d..77e9c91a 100644
+--- a/internal/locale/translations/gl_ES.json
++++ b/internal/locale/translations/gl_ES.json
+@@ -136,6 +136,7 @@
+     "error.invalid_entry_direction": "Dirección da entrada non válida.",
+     "error.invalid_entry_order": "Orde da entrada non válida.",
+     "error.invalid_feed_proxy_url": "URL do mandatario non válido.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL da canle non válido.",
+     "error.invalid_gesture_nav": "Xesto de navegación non válido.",
+     "error.invalid_language": "Idioma non válido.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Prioridade en Ntfy",
+     "form.feed.label.ntfy_topic": "Tema en Ntfy (optativo)",
+     "form.feed.label.proxy_url": "URL do mandatario",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Enviar novidades a Pushover",
+     "form.feed.label.pushover_default_priority": "Prioridade predeterminada",
+     "form.feed.label.pushover_high_priority": "Alta prioridade",
+diff --git a/internal/locale/translations/hi_IN.json b/internal/locale/translations/hi_IN.json
+index ad3dcdaa..b709db80 100644
+--- a/internal/locale/translations/hi_IN.json
++++ b/internal/locale/translations/hi_IN.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "अमान्य प्रवेश दिशा।",
+     "error.invalid_entry_order": "अमान्य प्रविष्टि क्रम।",
+     "error.invalid_feed_proxy_url": "अमान्य प्रॉक्सी यूआरएल।",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "दृष्टिकोण यूआरएल.",
+     "error.invalid_gesture_nav": "अमान्य इशारा नेविगेशन।",
+     "error.invalid_language": "अमान्य भाषा.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy प्राथमिकता",
+     "form.feed.label.ntfy_topic": "Ntfy विषय (वैकल्पिक)",
+     "form.feed.label.proxy_url": "प्रॉक्सी URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "प्रविष्टियाँ pushover.net पर भेजें",
+     "form.feed.label.pushover_default_priority": "Pushover डिफ़ॉल्ट प्राथमिकता",
+     "form.feed.label.pushover_high_priority": "Pushover उच्च प्राथमिकता",
+diff --git a/internal/locale/translations/id_ID.json b/internal/locale/translations/id_ID.json
+index de180c17..ad3b4afb 100644
+--- a/internal/locale/translations/id_ID.json
++++ b/internal/locale/translations/id_ID.json
+@@ -131,6 +131,7 @@
+     "error.invalid_entry_direction": "Urutan entri tidak valid.",
+     "error.invalid_entry_order": "Urutan entri tidak valid.",
+     "error.invalid_feed_proxy_url": "URL proksi tidak valid.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL umpan tidak valid.",
+     "error.invalid_gesture_nav": "Navigasi gestur tidak valid.",
+     "error.invalid_language": "Bahasa tidak valid.",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "Prioritas Ntfy",
+     "form.feed.label.ntfy_topic": "Topik Ntfy (opsional)",
+     "form.feed.label.proxy_url": "URL Proksi",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Kirim artikel ke pushover.net",
+     "form.feed.label.pushover_default_priority": "Prioritas baku Pushover",
+     "form.feed.label.pushover_high_priority": "Prioritas tinggi Pushover",
+diff --git a/internal/locale/translations/it_IT.json b/internal/locale/translations/it_IT.json
+index dc5e758c..07f89169 100644
+--- a/internal/locale/translations/it_IT.json
++++ b/internal/locale/translations/it_IT.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Ordinamento non valido.",
+     "error.invalid_entry_order": "L'ordinamento delle voci non è valido.",
+     "error.invalid_feed_proxy_url": "URL del proxy non valido.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL del feed non valido.",
+     "error.invalid_gesture_nav": "Navigazione gestuale non valida.",
+     "error.invalid_language": "Lingua non valida.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Priorità ntfy",
+     "form.feed.label.ntfy_topic": "Topic ntfy (opzionale)",
+     "form.feed.label.proxy_url": "URL del proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Invia le voci a pushover.net",
+     "form.feed.label.pushover_default_priority": "Priorità predefinita Pushover",
+     "form.feed.label.pushover_high_priority": "Priorità alta Pushover",
+diff --git a/internal/locale/translations/ja_JP.json b/internal/locale/translations/ja_JP.json
+index da97852e..dc8ad808 100644
+--- a/internal/locale/translations/ja_JP.json
++++ b/internal/locale/translations/ja_JP.json
+@@ -131,6 +131,7 @@
+     "error.invalid_entry_direction": "記事の表示順が無効です。",
+     "error.invalid_entry_order": "記事の表示順が無効です。",
+     "error.invalid_feed_proxy_url": "プロキシURLが無効です。",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "フィード URL が無効です。",
+     "error.invalid_gesture_nav": "ジェスチャー ナビゲーションが無効です。",
+     "error.invalid_language": "言語が無効です。",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "ntfy 優先度",
+     "form.feed.label.ntfy_topic": "ntfy トピック（任意）",
+     "form.feed.label.proxy_url": "プロキシ URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "エントリを pushover.net に送信",
+     "form.feed.label.pushover_default_priority": "Pushover 既定の優先度",
+     "form.feed.label.pushover_high_priority": "Pushover 高優先度",
+diff --git a/internal/locale/translations/ko_KR.json b/internal/locale/translations/ko_KR.json
+index 5fec56e9..28440cb9 100644
+--- a/internal/locale/translations/ko_KR.json
++++ b/internal/locale/translations/ko_KR.json
+@@ -131,6 +131,7 @@
+     "error.invalid_entry_direction": "게시물 표시 방향이 유효하지 않습니다.",
+     "error.invalid_entry_order": "게시물 표시 순서가 유효하지 않습니다.",
+     "error.invalid_feed_proxy_url": "프록시 URL이 유효하지 않습니다.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "피드 URL이 유효하지 않습니다.",
+     "error.invalid_gesture_nav": "제스처 내비게이션이 유효하지 않습니다.",
+     "error.invalid_language": "언어가 유효하지 않습니다.",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "ntfy 우선순위",
+     "form.feed.label.ntfy_topic": "ntfy 토픽(선택 사항)",
+     "form.feed.label.proxy_url": "프록시 URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "게시물을 pushover.net으로 전송",
+     "form.feed.label.pushover_default_priority": "Pushover 기본 우선순위",
+     "form.feed.label.pushover_high_priority": "Pushover 높은 우선순위",
+diff --git a/internal/locale/translations/nan_Latn_pehoeji.json b/internal/locale/translations/nan_Latn_pehoeji.json
+index 93ac38cb..d296cc54 100644
+--- a/internal/locale/translations/nan_Latn_pehoeji.json
++++ b/internal/locale/translations/nan_Latn_pehoeji.json
+@@ -131,6 +131,7 @@
+     "error.invalid_entry_direction": "Ū būn-tôe ê su-li̍p hong-hiòng.",
+     "error.invalid_entry_order": "Siau-sit ê chōe pái bô-hāu, chhiáⁿ tán-hāu %d hun-cheng āu koh chhì-khòaⁿ-māi.",
+     "error.invalid_feed_proxy_url": "Proxy URL ū būn-tôe.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Beh tēng ê siau-sit lâi-goân ê bāng-chí ū būn-tôe.",
+     "error.invalid_gesture_nav": "Chhiú-sè tō-lám ū būn-tôe.",
+     "error.invalid_language": "Ū būn-tôe ê gú-giân.",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy iu-sian sūn-sū",
+     "form.feed.label.ntfy_topic": "Ntfy topic (soán thiⁿ)",
+     "form.feed.label.proxy_url": "Proxy ê URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Pó-chûn siau-sit kàu pushover.net",
+     "form.feed.label.pushover_default_priority": "Pushover ū-siat iu-sian sūn-sū",
+     "form.feed.label.pushover_high_priority": "Pushover koân iu-sian sūn-sū",
+diff --git a/internal/locale/translations/nl_NL.json b/internal/locale/translations/nl_NL.json
+index 116943f0..e21eb0ca 100644
+--- a/internal/locale/translations/nl_NL.json
++++ b/internal/locale/translations/nl_NL.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Ongeldige sorteervolgorde.",
+     "error.invalid_entry_order": "Ongeldige volgorde van artikelen.",
+     "error.invalid_feed_proxy_url": "Ongeldige proxy-URL.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Ongeldige feed URL.",
+     "error.invalid_gesture_nav": "Ongeldige gebarennavigatie.",
+     "error.invalid_language": "Ongeldige taal.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy prioriteit",
+     "form.feed.label.ntfy_topic": "Ntfy onderwerp (optioneel)",
+     "form.feed.label.proxy_url": "Proxy-URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Stuur artikelen naar pushover.net",
+     "form.feed.label.pushover_default_priority": "Pushover standaard prioriteit",
+     "form.feed.label.pushover_high_priority": "Pushover hoge prioriteit",
+diff --git a/internal/locale/translations/pl_PL.json b/internal/locale/translations/pl_PL.json
+index 980833b8..835dca61 100644
+--- a/internal/locale/translations/pl_PL.json
++++ b/internal/locale/translations/pl_PL.json
+@@ -137,6 +137,7 @@
+     "error.invalid_entry_direction": "Nieprawidłowa kolejność sortowania.",
+     "error.invalid_entry_order": "Nieprawidłowa kolejność sortowania wpisów.",
+     "error.invalid_feed_proxy_url": "Nieprawidłowy adres URL serwera proxy.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Nieprawidłowy adres URL kanału.",
+     "error.invalid_gesture_nav": "Nieprawidłowa nawigacja gestami.",
+     "error.invalid_language": "Nieprawidłowy język.",
+@@ -215,6 +216,7 @@
+     "form.feed.label.ntfy_priority": "Priorytet ntfy",
+     "form.feed.label.ntfy_topic": "Temat ntfy (opcjonalny)",
+     "form.feed.label.proxy_url": "Adres URL serwera proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Przesyłaj wpisy do pushover.net",
+     "form.feed.label.pushover_default_priority": "Domyślny priorytet Pushover",
+     "form.feed.label.pushover_high_priority": "Wysoki priorytet Pushover",
+diff --git a/internal/locale/translations/pt_BR.json b/internal/locale/translations/pt_BR.json
+index 4ea804d3..f84a98e9 100644
+--- a/internal/locale/translations/pt_BR.json
++++ b/internal/locale/translations/pt_BR.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Direção de entrada inválida.",
+     "error.invalid_entry_order": "A ordem de entrada é inválida.",
+     "error.invalid_feed_proxy_url": "URL de proxy inválido.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL de feed inválido.",
+     "error.invalid_gesture_nav": "Navegação por gestos inválida.",
+     "error.invalid_language": "Idioma inválido.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Prioridade do ntfy",
+     "form.feed.label.ntfy_topic": "Tópico do ntfy (opcional)",
+     "form.feed.label.proxy_url": "Proxy URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Enviar itens para o pushover.net",
+     "form.feed.label.pushover_default_priority": "Prioridade padrão do Pushover",
+     "form.feed.label.pushover_high_priority": "Alta prioridade do Pushover",
+diff --git a/internal/locale/translations/ro_RO.json b/internal/locale/translations/ro_RO.json
+index 214b618a..e4759121 100644
+--- a/internal/locale/translations/ro_RO.json
++++ b/internal/locale/translations/ro_RO.json
+@@ -137,6 +137,7 @@
+     "error.invalid_entry_direction": "Direcție invalidă ăn intrare.",
+     "error.invalid_entry_order": "Direcție de sortare invalidă.",
+     "error.invalid_feed_proxy_url": "URL proxy invalid.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Adresa URL a fluxului este invalidă.",
+     "error.invalid_gesture_nav": "Gest de navigare invalid.",
+     "error.invalid_language": "Limbă invalidă.",
+@@ -215,6 +216,7 @@
+     "form.feed.label.ntfy_priority": "Prioritate Ntfy",
+     "form.feed.label.ntfy_topic": "Subiect Ntfy (opțional)",
+     "form.feed.label.proxy_url": "URL Proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Activează Pushover",
+     "form.feed.label.pushover_default_priority": "Prioritate implicită Pushover",
+     "form.feed.label.pushover_high_priority": "Prioritate ridicată Pushover",
+diff --git a/internal/locale/translations/ru_RU.json b/internal/locale/translations/ru_RU.json
+index 9f2e5abe..56b46875 100644
+--- a/internal/locale/translations/ru_RU.json
++++ b/internal/locale/translations/ru_RU.json
+@@ -137,6 +137,7 @@
+     "error.invalid_entry_direction": "Недопустимая сортировка записей.",
+     "error.invalid_entry_order": "Недопустимый порядок статей.",
+     "error.invalid_feed_proxy_url": "Недействительный URL прокси.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Недействительная ссылка подписки.",
+     "error.invalid_gesture_nav": "Недопустимая навигация жестами.",
+     "error.invalid_language": "Недопустимый язык.",
+@@ -215,6 +216,7 @@
+     "form.feed.label.ntfy_priority": "Приоритет ntfy",
+     "form.feed.label.ntfy_topic": "Топик ntfy (опционально)",
+     "form.feed.label.proxy_url": "URL прокси",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Отправлять статьи в pushover.net",
+     "form.feed.label.pushover_default_priority": "По умолчанию",
+     "form.feed.label.pushover_high_priority": "Высокий",
+diff --git a/internal/locale/translations/tr_TR.json b/internal/locale/translations/tr_TR.json
+index ab54c4cb..0df6e97a 100644
+--- a/internal/locale/translations/tr_TR.json
++++ b/internal/locale/translations/tr_TR.json
+@@ -134,6 +134,7 @@
+     "error.invalid_entry_direction": "Geçersiz makele sıralaması.",
+     "error.invalid_entry_order": "Geçersiz makele sıralaması.",
+     "error.invalid_feed_proxy_url": "Geçersiz proxy URL'si.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Geçersiz besleme URL'si.",
+     "error.invalid_gesture_nav": "Hareketle gezinme geçersiz.",
+     "error.invalid_language": "Geçersiz dil.",
+@@ -212,6 +213,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy öncelik",
+     "form.feed.label.ntfy_topic": "Ntfy konusu (isteğe bağlı)",
+     "form.feed.label.proxy_url": "Proxy URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Makaleleri pushover.net'e gönder",
+     "form.feed.label.pushover_default_priority": "Pushover varsayılan öncelik",
+     "form.feed.label.pushover_high_priority": "Pushover yüksek öncelik",
+diff --git a/internal/locale/translations/uk_UA.json b/internal/locale/translations/uk_UA.json
+index 9b2affb9..ea25f21d 100644
+--- a/internal/locale/translations/uk_UA.json
++++ b/internal/locale/translations/uk_UA.json
+@@ -137,6 +137,7 @@
+     "error.invalid_entry_direction": "Недійсний напрямок запису.",
+     "error.invalid_entry_order": "Недійсний порядок запису.",
+     "error.invalid_feed_proxy_url": "Недійсний proxy URL.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "Недійсна URL-адреса стрічки.",
+     "error.invalid_gesture_nav": "Недійсна навігація жестами.",
+     "error.invalid_language": "Недійсна мова.",
+@@ -215,6 +216,7 @@
+     "form.feed.label.ntfy_priority": "Пріоритет ntfy",
+     "form.feed.label.ntfy_topic": "Тема ntfy (необов’язково)",
+     "form.feed.label.proxy_url": "URL-адреса проксі",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Надсилати записи у pushover.net",
+     "form.feed.label.pushover_default_priority": "Стандартний пріоритет Pushover",
+     "form.feed.label.pushover_high_priority": "Високий пріоритет Pushover",
+diff --git a/internal/locale/translations/vi_VN.json b/internal/locale/translations/vi_VN.json
+index 9fd040ca..b2605169 100644
+--- a/internal/locale/translations/vi_VN.json
++++ b/internal/locale/translations/vi_VN.json
+@@ -133,6 +133,7 @@
+     "error.invalid_entry_direction": "Hướng sắp xếp bài viết không hợp lệ.",
+     "error.invalid_entry_order": "Thứ tự bài viết không hợp lệ.",
+     "error.invalid_feed_proxy_url": "URL proxy không hợp lệ.",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "URL nguồn tin không hợp lệ.",
+     "error.invalid_gesture_nav": "Cử chỉ điều hướng không hợp lệ.",
+     "error.invalid_language": "Ngôn ngữ không hợp lệ.",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "Mức ưu tiên Ntfy",
+     "form.feed.label.ntfy_topic": "Chủ đề Ntfy (không bắt buộc)",
+     "form.feed.label.proxy_url": "URL proxy",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "Gửi bài viết tới Pushover",
+     "form.feed.label.pushover_default_priority": "Mức ưu tiên mặc định",
+     "form.feed.label.pushover_high_priority": "Mức ưu tiên cao",
+diff --git a/internal/locale/translations/zh_CN.json b/internal/locale/translations/zh_CN.json
+index 18997c9d..346a502a 100644
+--- a/internal/locale/translations/zh_CN.json
++++ b/internal/locale/translations/zh_CN.json
+@@ -131,6 +131,7 @@
+     "error.invalid_entry_direction": "无效的条目方向。",
+     "error.invalid_entry_order": "无效的条目排序。",
+     "error.invalid_feed_proxy_url": "无效的代理 URL。",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "无效的订阅源 URL。",
+     "error.invalid_gesture_nav": "无效的手势导航。",
+     "error.invalid_language": "无效的语言。",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy 优先级",
+     "form.feed.label.ntfy_topic": "Ntfy 主题（可选）",
+     "form.feed.label.proxy_url": "代理 URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "推送条目到 Pushover",
+     "form.feed.label.pushover_default_priority": "Pushover 默认优先级",
+     "form.feed.label.pushover_high_priority": "Pushover 高优先级",
+diff --git a/internal/locale/translations/zh_TW.json b/internal/locale/translations/zh_TW.json
+index 8af94f7c..f6a1d48a 100644
+--- a/internal/locale/translations/zh_TW.json
++++ b/internal/locale/translations/zh_TW.json
+@@ -131,6 +131,7 @@
+     "error.invalid_entry_direction": "無效的輸入方向。",
+     "error.invalid_entry_order": "無效的文章排序依據。",
+     "error.invalid_feed_proxy_url": "代理伺服器網址無效。",
++    "error.invalid_feed_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
+     "error.invalid_feed_url": "訂閱網址無效。",
+     "error.invalid_gesture_nav": "手勢導覽無效。",
+     "error.invalid_language": "無效的語言。",
+@@ -209,6 +210,7 @@
+     "form.feed.label.ntfy_priority": "Ntfy 優先順序",
+     "form.feed.label.ntfy_topic": "Ntfy topic (選填)",
+     "form.feed.label.proxy_url": "代理 URL",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 to use the global interval)",
+     "form.feed.label.pushover_activate": "推送文章到 Pushover",
+     "form.feed.label.pushover_default_priority": "Pushover 預設優先順序",
+     "form.feed.label.pushover_high_priority": "Pushover 高優先順序",
+diff --git a/internal/model/feed.go b/internal/model/feed.go
+index 502ddaf1..07e9648b 100644
+--- a/internal/model/feed.go
++++ b/internal/model/feed.go
+@@ -63,6 +63,8 @@ type Feed struct {
+ 	NtfyTopic                   string    `json:"ntfy_topic"`
+ 	PushoverPriority            int       `json:"pushover_priority"`
+ 	ProxyURL                    string    `json:"proxy_url"`
++	// RefreshInterval is the per-feed polling interval in minutes, 0 means "use the global interval".
++	RefreshInterval int `json:"refresh_interval"`
+ 
+ 	// Non-persisted attributes
+ 	Category *Category `json:"category,omitempty"`
+@@ -127,6 +129,14 @@ func (f *Feed) CheckedNow() {
+ // ScheduleNextCheck set "next_check_at" of a feed based on the scheduler selected from the configuration.
+ // @effects: mut
+ func (f *Feed) ScheduleNextCheck(weeklyCount int, refreshDelay time.Duration) time.Duration {
++	// A per-feed interval overrides the global scheduler interval and its limits.
++	// Delays requested by the server (Retry-After, TTL, Cache-Control, Expires) are still honored.
++	if f.RefreshInterval > 0 {
++		feedInterval := max(time.Duration(f.RefreshInterval)*time.Minute, refreshDelay)
++		f.NextCheckAt = time.Now().Add(feedInterval)
++		return feedInterval
++	}
++
+ 	// Default to the global config Polling Frequency.
+ 	interval := config.Opts.SchedulerRoundRobinMinInterval()
+ 
+@@ -155,6 +165,22 @@ func (f *Feed) ScheduleNextCheck(weeklyCount int, refreshDelay time.Duration) ti
+ 	return interval
+ }
+ 
++// SetRefreshInterval changes the per-feed polling interval (in minutes, 0 means "use the global interval").
++// When a new interval is set, the next check is brought forward if it is further away than that interval.
++// @effects: mut
++func (f *Feed) SetRefreshInterval(minutes int) {
++	minutes = max(minutes, 0)
++	if minutes == f.RefreshInterval {
++		return
++	}
++	f.RefreshInterval = minutes
++	if minutes > 0 && !f.NextCheckAt.IsZero() {
++		if next := time.Now().Add(time.Duration(minutes) * time.Minute); next.Before(f.NextCheckAt) {
++			f.NextCheckAt = next
++		}
++	}
++}
++
+ // FeedCreationRequest represents the request to create a feed.
+ type FeedCreationRequest struct {
+ 	FeedURL                     string `json:"feed_url"`
+@@ -218,6 +244,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	RefreshInterval             *int    `json:"refresh_interval"`
+ }
+ 
+ // Patch updates a feed with modified values.
+@@ -326,6 +353,10 @@ func (f *FeedModificationRequest) Patch(feed *Feed) {
+ 	if f.ProxyURL != nil {
+ 		feed.ProxyURL = *f.ProxyURL
+ 	}
++
++	if f.RefreshInterval != nil {
++		feed.SetRefreshInterval(*f.RefreshInterval)
++	}
+ }
+ 
+ // Feeds is a list of feed
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index d8e58a2b..c0104d89 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -402,9 +402,10 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 			pushover_priority=$37,
+ 			proxy_url=$38,
+ 			ignore_entry_updates=$39,
+-			language=$40
++			language=$40,
++			refresh_interval=$41
+ 		WHERE
+-			id=$41 AND user_id=$42
++			id=$42 AND user_id=$43
+ 	`
+ 	_, err = s.db.Exec(query,
+ 		feed.FeedURL,
+@@ -447,6 +448,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		feed.ProxyURL,
+ 		feed.IgnoreEntryUpdates,
+ 		feed.Language,
++		feed.RefreshInterval,
+ 		feed.ID,
+ 		feed.UserID,
+ 	)
+diff --git a/internal/storage/feed_query_builder.go b/internal/storage/feed_query_builder.go
+index b12d4af2..9ca1bf62 100644
+--- a/internal/storage/feed_query_builder.go
++++ b/internal/storage/feed_query_builder.go
+@@ -197,7 +197,8 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			f.pushover_enabled,
+ 			f.pushover_priority,
+ 			f.proxy_url,
+-			f.ignore_entry_updates
++			f.ignore_entry_updates,
++			f.refresh_interval
+ 		FROM
+ 			feeds f
+ 		LEFT JOIN
+@@ -281,6 +282,7 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			&feed.PushoverPriority,
+ 			&feed.ProxyURL,
+ 			&feed.IgnoreEntryUpdates,
++			&feed.RefreshInterval,
+ 		)
+ 		if err != nil {
+ 			return nil, fmt.Errorf(`store: unable to fetch feeds row: %w`, err)
+diff --git a/internal/template/templates/views/edit_feed.html b/internal/template/templates/views/edit_feed.html
+index a264237e..440ffacf 100644
+--- a/internal/template/templates/views/edit_feed.html
++++ b/internal/template/templates/views/edit_feed.html
+@@ -100,6 +100,9 @@
+             <label for="form-proxy-url">{{ t "form.feed.label.proxy_url" }}</label>
+             <input type="url" name="proxy_url" id="form-proxy-url" value="{{ .form.ProxyURL }}" spellcheck="false">
+ 
++            <label for="form-refresh-interval">{{ t "form.feed.label.refresh_interval" }}</label>
++            <input type="number" name="refresh_interval" id="form-refresh-interval" min="0" step="1" value="{{ .form.RefreshInterval }}">
++
+             <label for="form-cookie">{{ t "form.feed.label.cookie" }}</label>
+             <input type="text" name="cookie" id="form-cookie" value="{{ .form.Cookie }}" spellcheck="false">
+ 
+diff --git a/internal/ui/feed_edit.go b/internal/ui/feed_edit.go
+index 056dc7aa..5da931e3 100644
+--- a/internal/ui/feed_edit.go
++++ b/internal/ui/feed_edit.go
+@@ -74,6 +74,7 @@ func (h *handler) showEditFeedPage(w http.ResponseWriter, r *http.Request) {
+ 		PushoverEnabled:             feed.PushoverEnabled,
+ 		PushoverPriority:            feed.PushoverPriority,
+ 		ProxyURL:                    feed.ProxyURL,
++		RefreshInterval:             feed.RefreshInterval,
+ 	}
+ 
+ 	view := view.New(h.tpl, r)
+diff --git a/internal/ui/form/feed.go b/internal/ui/form/feed.go
+index 4680aa08..d6ced8ff 100644
+--- a/internal/ui/form/feed.go
++++ b/internal/ui/form/feed.go
+@@ -49,6 +49,7 @@ type FeedForm struct {
+ 	PushoverEnabled  bool
+ 	PushoverPriority int
+ 	ProxyURL         string
++	RefreshInterval  int
+ }
+ 
+ // Merge updates the fields of the given feed.
+@@ -89,6 +90,7 @@ func (f FeedForm) Merge(feed *model.Feed) *model.Feed {
+ 	feed.PushoverEnabled = f.PushoverEnabled
+ 	feed.PushoverPriority = f.PushoverPriority
+ 	feed.ProxyURL = f.ProxyURL
++	feed.SetRefreshInterval(f.RefreshInterval)
+ 	return feed
+ }
+ 
+@@ -110,7 +112,13 @@ func NewFeedForm(r *http.Request) *FeedForm {
+ 		pushoverPriority = 0
+ 	}
+ 
++	refreshInterval, err := strconv.Atoi(r.FormValue("refresh_interval"))
++	if err != nil || refreshInterval < 0 {
++		refreshInterval = 0
++	}
++
+ 	return &FeedForm{
++		RefreshInterval:             refreshInterval,
+ 		FeedURL:                     r.FormValue("feed_url"),
+ 		SiteURL:                     r.FormValue("site_url"),
+ 		Title:                       r.FormValue("title"),
+diff --git a/internal/validator/feed.go b/internal/validator/feed.go
+index b6963e96..97e9b3bf 100644
+--- a/internal/validator/feed.go
++++ b/internal/validator/feed.go
+@@ -183,5 +183,9 @@ func ValidateFeedModification(store *storage.Storage, userID, feedID int64, requ
+ 		}
+ 	}
+ 
++	if request.RefreshInterval != nil && *request.RefreshInterval < 0 {
++		return locale.NewLocalizedError("error.invalid_feed_refresh_interval")
++	}
++
+ 	return nil
+ }

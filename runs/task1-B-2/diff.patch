@@ -1,0 +1,604 @@
+diff --git a/client/model.go b/client/model.go
+index bcfcde9e..2c83d82d 100644
+--- a/client/model.go
++++ b/client/model.go
+@@ -186,6 +186,7 @@ type Feed struct {
+ 	NtfyTopic                   string    `json:"ntfy_topic"`
+ 	PushoverEnabled             bool      `json:"pushover_enabled"`
+ 	PushoverPriority            int       `json:"pushover_priority"`
++	RefreshInterval             int       `json:"refresh_interval"`
+ 	Icon                        *FeedIcon `json:"icon"`
+ }
+ 
+@@ -244,6 +245,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	RefreshInterval             *int    `json:"refresh_interval,omitempty"`
+ }
+ 
+ // FeedIcon represents the feed icon.
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..bf911984 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,11 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// Per-feed polling interval in minutes; 0 means "use the global interval".
++		_, err = tx.Exec(`
++			ALTER TABLE feeds ADD COLUMN refresh_interval int not null default 0;
++		`)
++		return err
++	},
+ }
+diff --git a/internal/locale/translations/ar_SA.json b/internal/locale/translations/ar_SA.json
+index 521d23d7..42001550 100644
+--- a/internal/locale/translations/ar_SA.json
++++ b/internal/locale/translations/ar_SA.json
+@@ -231,6 +231,8 @@
+     "form.feed.label.pushover_max_priority": "أولوية قصوى",
+     "form.feed.label.pushover_min_priority": "أولوية دنيا",
+     "form.feed.label.pushover_priority": "أولوية رسالة Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "قواعد إعادة كتابة المحتوى",
+     "form.feed.label.scraper_rules": "قواعد الكاشط (Scraper)",
+     "form.feed.label.site_url": "رابط الموقع",
+diff --git a/internal/locale/translations/de_DE.json b/internal/locale/translations/de_DE.json
+index 52c03a1b..5a8822b1 100644
+--- a/internal/locale/translations/de_DE.json
++++ b/internal/locale/translations/de_DE.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Höchste Pushoverpriorität",
+     "form.feed.label.pushover_min_priority": "Niedrigste Pushoverpriorität",
+     "form.feed.label.pushover_priority": "Pushover-Nachrichtenpriorität",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Inhalts-Umschreibregeln",
+     "form.feed.label.scraper_rules": "Extraktionsregeln",
+     "form.feed.label.site_url": "URL der Webseite",
+diff --git a/internal/locale/translations/el_EL.json b/internal/locale/translations/el_EL.json
+index 455ac247..238b487e 100644
+--- a/internal/locale/translations/el_EL.json
++++ b/internal/locale/translations/el_EL.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Μέγιστη προτεραιότητα Pushover",
+     "form.feed.label.pushover_min_priority": "Ελάχιστη προτεραιότητα Pushover",
+     "form.feed.label.pushover_priority": "Προτεραιότητα μηνύματος Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Κανόνες Επανασύνταξης Περιεχομένου",
+     "form.feed.label.scraper_rules": "Κανόνες Scraper",
+     "form.feed.label.site_url": "Διεύθυνση URL ιστότοπου",
+diff --git a/internal/locale/translations/en_US.json b/internal/locale/translations/en_US.json
+index 036bac0f..9d5452e5 100644
+--- a/internal/locale/translations/en_US.json
++++ b/internal/locale/translations/en_US.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Max priority",
+     "form.feed.label.pushover_min_priority": "Minimal priority",
+     "form.feed.label.pushover_priority": "Pushover message priority",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Content Rewrite Rules",
+     "form.feed.label.scraper_rules": "Scraper Rules",
+     "form.feed.label.site_url": "Site URL",
+diff --git a/internal/locale/translations/es_ES.json b/internal/locale/translations/es_ES.json
+index 481c81e1..12f62445 100644
+--- a/internal/locale/translations/es_ES.json
++++ b/internal/locale/translations/es_ES.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Prioridad máxima de Pushover",
+     "form.feed.label.pushover_min_priority": "Prioridad mínima de Pushover",
+     "form.feed.label.pushover_priority": "Prioridad del mensaje de Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Reglas de Reescritura de Contenido",
+     "form.feed.label.scraper_rules": "Reglas de extracción de información",
+     "form.feed.label.site_url": "URL del sitio",
+diff --git a/internal/locale/translations/fi_FI.json b/internal/locale/translations/fi_FI.json
+index 01926082..93b4cf2a 100644
+--- a/internal/locale/translations/fi_FI.json
++++ b/internal/locale/translations/fi_FI.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover-enimmäisprioriteetti",
+     "form.feed.label.pushover_min_priority": "Pushover-vähimmäisprioriteetti",
+     "form.feed.label.pushover_priority": "Pushover-viestin prioriteetti",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Sisällön uudelleenkirjoitussäännöt",
+     "form.feed.label.scraper_rules": "Scraper-säännöt",
+     "form.feed.label.site_url": "Sivuston URL-osoite",
+diff --git a/internal/locale/translations/fr_FR.json b/internal/locale/translations/fr_FR.json
+index 85af2444..4a6842f2 100644
+--- a/internal/locale/translations/fr_FR.json
++++ b/internal/locale/translations/fr_FR.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Priorité maximale",
+     "form.feed.label.pushover_min_priority": "Priorité minimale",
+     "form.feed.label.pushover_priority": "Priorité des notifications Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Règles de réécriture du contenu",
+     "form.feed.label.scraper_rules": "Règles pour récupérer le contenu original",
+     "form.feed.label.site_url": "URL du site web",
+diff --git a/internal/locale/translations/gl_ES.json b/internal/locale/translations/gl_ES.json
+index c6275c3d..fc75a32e 100644
+--- a/internal/locale/translations/gl_ES.json
++++ b/internal/locale/translations/gl_ES.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Prioridade máx.",
+     "form.feed.label.pushover_min_priority": "Prioridade mín.",
+     "form.feed.label.pushover_priority": "Prioridade da mensaxe Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Regras de Reescritura do contido",
+     "form.feed.label.scraper_rules": "Regras ao obter contido",
+     "form.feed.label.site_url": "URL do sitio",
+diff --git a/internal/locale/translations/hi_IN.json b/internal/locale/translations/hi_IN.json
+index ad3dcdaa..8b22c1cc 100644
+--- a/internal/locale/translations/hi_IN.json
++++ b/internal/locale/translations/hi_IN.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover अधिकतम प्राथमिकता",
+     "form.feed.label.pushover_min_priority": "Pushover न्यूनतम प्राथमिकता",
+     "form.feed.label.pushover_priority": "Pushover संदेश प्राथमिकता",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "सामग्री पुनर्लेखन नियम",
+     "form.feed.label.scraper_rules": "खुरचनी नियम",
+     "form.feed.label.site_url": "साइट यूआरएल",
+diff --git a/internal/locale/translations/id_ID.json b/internal/locale/translations/id_ID.json
+index de180c17..c9e54410 100644
+--- a/internal/locale/translations/id_ID.json
++++ b/internal/locale/translations/id_ID.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Prioritas maksimal Pushover",
+     "form.feed.label.pushover_min_priority": "Prioritas minimal Pushover",
+     "form.feed.label.pushover_priority": "Prioritas pesan Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Aturan Penulisan Ulang Konten",
+     "form.feed.label.scraper_rules": "Aturan Pengambil Data",
+     "form.feed.label.site_url": "URL Situs",
+diff --git a/internal/locale/translations/it_IT.json b/internal/locale/translations/it_IT.json
+index dc5e758c..401bf289 100644
+--- a/internal/locale/translations/it_IT.json
++++ b/internal/locale/translations/it_IT.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Priorità massima Pushover",
+     "form.feed.label.pushover_min_priority": "Priorità minima Pushover",
+     "form.feed.label.pushover_priority": "Priorità del messaggio Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Regole di Riscrittura del Contenuto",
+     "form.feed.label.scraper_rules": "Regole di estrazione del contenuto",
+     "form.feed.label.site_url": "URL del sito",
+diff --git a/internal/locale/translations/ja_JP.json b/internal/locale/translations/ja_JP.json
+index da97852e..5e12d0f6 100644
+--- a/internal/locale/translations/ja_JP.json
++++ b/internal/locale/translations/ja_JP.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover 最大優先度",
+     "form.feed.label.pushover_min_priority": "Pushover 最小優先度",
+     "form.feed.label.pushover_priority": "Pushover メッセージ優先度",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "コンテンツ書き換えルール",
+     "form.feed.label.scraper_rules": "Scraper ルール",
+     "form.feed.label.site_url": "サイト URL",
+diff --git a/internal/locale/translations/ko_KR.json b/internal/locale/translations/ko_KR.json
+index 5fec56e9..56e707e2 100644
+--- a/internal/locale/translations/ko_KR.json
++++ b/internal/locale/translations/ko_KR.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover 최대 우선순위",
+     "form.feed.label.pushover_min_priority": "Pushover 최소 우선순위",
+     "form.feed.label.pushover_priority": "Pushover 메시지 우선순위",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "본문 재작성 규칙",
+     "form.feed.label.scraper_rules": "본문 추출 규칙",
+     "form.feed.label.site_url": "사이트 URL",
+diff --git a/internal/locale/translations/nan_Latn_pehoeji.json b/internal/locale/translations/nan_Latn_pehoeji.json
+index 93ac38cb..1eb09b63 100644
+--- a/internal/locale/translations/nan_Latn_pehoeji.json
++++ b/internal/locale/translations/nan_Latn_pehoeji.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover siōng koân iu-sian sūn-sū",
+     "form.feed.label.pushover_min_priority": "Pushover siōng kē iu-sian sūn-sū",
+     "form.feed.label.pushover_priority": "Pushover siau-sit iu-sian sūn-sū",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Lōe-iông têng-siá kui-chek",
+     "form.feed.label.scraper_rules": "Lia̍h ê kui-chek",
+     "form.feed.label.site_url": "Bāng-chām bāng-chí",
+diff --git a/internal/locale/translations/nl_NL.json b/internal/locale/translations/nl_NL.json
+index 116943f0..ff4ae8de 100644
+--- a/internal/locale/translations/nl_NL.json
++++ b/internal/locale/translations/nl_NL.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover maximale prioriteit",
+     "form.feed.label.pushover_min_priority": "Pushover minimale prioriteit",
+     "form.feed.label.pushover_priority": "Pushover berichtprioriteit",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Inhoud Herschrijfregels",
+     "form.feed.label.scraper_rules": "Extractieregels",
+     "form.feed.label.site_url": "Website URL",
+diff --git a/internal/locale/translations/pl_PL.json b/internal/locale/translations/pl_PL.json
+index 980833b8..cb5eba2b 100644
+--- a/internal/locale/translations/pl_PL.json
++++ b/internal/locale/translations/pl_PL.json
+@@ -222,6 +222,8 @@
+     "form.feed.label.pushover_max_priority": "Maksymalny priorytet Pushover",
+     "form.feed.label.pushover_min_priority": "Minimalny priorytet Pushover",
+     "form.feed.label.pushover_priority": "Priorytet wiadomości Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Reguły przepisywania treści",
+     "form.feed.label.scraper_rules": "Reguły ekstrakcji",
+     "form.feed.label.site_url": "Adres URL strony",
+diff --git a/internal/locale/translations/pt_BR.json b/internal/locale/translations/pt_BR.json
+index 4ea804d3..a7c1acc8 100644
+--- a/internal/locale/translations/pt_BR.json
++++ b/internal/locale/translations/pt_BR.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Prioridade máxima do Pushover",
+     "form.feed.label.pushover_min_priority": "Prioridade mínima do Pushover",
+     "form.feed.label.pushover_priority": "Prioridade da mensagem do Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Regras de Reescrita de Conteúdo",
+     "form.feed.label.scraper_rules": "Regras do scraper",
+     "form.feed.label.site_url": "URL do site",
+diff --git a/internal/locale/translations/ro_RO.json b/internal/locale/translations/ro_RO.json
+index 214b618a..a76d9012 100644
+--- a/internal/locale/translations/ro_RO.json
++++ b/internal/locale/translations/ro_RO.json
+@@ -222,6 +222,8 @@
+     "form.feed.label.pushover_max_priority": "Prioritate maximă Pushover",
+     "form.feed.label.pushover_min_priority": "Prioritate minimă Pushover",
+     "form.feed.label.pushover_priority": "Prioritate Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Reguli de Rescriere a Conținutului",
+     "form.feed.label.scraper_rules": "Reguli de Eliminare",
+     "form.feed.label.site_url": "Adresă URL",
+diff --git a/internal/locale/translations/ru_RU.json b/internal/locale/translations/ru_RU.json
+index 9f2e5abe..54c94833 100644
+--- a/internal/locale/translations/ru_RU.json
++++ b/internal/locale/translations/ru_RU.json
+@@ -222,6 +222,8 @@
+     "form.feed.label.pushover_max_priority": "Высший",
+     "form.feed.label.pushover_min_priority": "Минимальный",
+     "form.feed.label.pushover_priority": "Приоритет сообщений Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Правила переписывания содержимого",
+     "form.feed.label.scraper_rules": "Правила сборщика",
+     "form.feed.label.site_url": "Адрес сайта",
+diff --git a/internal/locale/translations/tr_TR.json b/internal/locale/translations/tr_TR.json
+index ab54c4cb..874d5b2b 100644
+--- a/internal/locale/translations/tr_TR.json
++++ b/internal/locale/translations/tr_TR.json
+@@ -219,6 +219,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover maksimum öncelik",
+     "form.feed.label.pushover_min_priority": "Pushover minimum öncelik",
+     "form.feed.label.pushover_priority": "Pushover mesaj önceliği",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "İçerik Yeniden Yazma Kuralları",
+     "form.feed.label.scraper_rules": "Scrapper Kuralları",
+     "form.feed.label.site_url": "Site URL'si",
+diff --git a/internal/locale/translations/uk_UA.json b/internal/locale/translations/uk_UA.json
+index 9b2affb9..d055236f 100644
+--- a/internal/locale/translations/uk_UA.json
++++ b/internal/locale/translations/uk_UA.json
+@@ -222,6 +222,8 @@
+     "form.feed.label.pushover_max_priority": "Максимальний пріоритет Pushover",
+     "form.feed.label.pushover_min_priority": "Мінімальний пріоритет Pushover",
+     "form.feed.label.pushover_priority": "Пріоритет повідомлення Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Правила перезапису вмісту",
+     "form.feed.label.scraper_rules": "Правила Scraper",
+     "form.feed.label.site_url": "URL-адреса сайту",
+diff --git a/internal/locale/translations/vi_VN.json b/internal/locale/translations/vi_VN.json
+index 9fd040ca..145a15d8 100644
+--- a/internal/locale/translations/vi_VN.json
++++ b/internal/locale/translations/vi_VN.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Mức ưu tiên tối đa",
+     "form.feed.label.pushover_min_priority": "Mức ưu tiên tối thiểu",
+     "form.feed.label.pushover_priority": "Mức ưu tiên tin nhắn Pushover",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "Quy tắc viết lại nội dung",
+     "form.feed.label.scraper_rules": "Quy tắc trích xuất nội dung",
+     "form.feed.label.site_url": "URL trang web",
+diff --git a/internal/locale/translations/zh_CN.json b/internal/locale/translations/zh_CN.json
+index 18997c9d..d813ad82 100644
+--- a/internal/locale/translations/zh_CN.json
++++ b/internal/locale/translations/zh_CN.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover 最高优先级",
+     "form.feed.label.pushover_min_priority": "Pushover 最低优先级",
+     "form.feed.label.pushover_priority": "Pushover 消息优先级",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "内容重写规则",
+     "form.feed.label.scraper_rules": "抓取规则",
+     "form.feed.label.site_url": "站点 URL",
+diff --git a/internal/locale/translations/zh_TW.json b/internal/locale/translations/zh_TW.json
+index 8af94f7c..8873be63 100644
+--- a/internal/locale/translations/zh_TW.json
++++ b/internal/locale/translations/zh_TW.json
+@@ -216,6 +216,8 @@
+     "form.feed.label.pushover_max_priority": "Pushover 最高優先順序",
+     "form.feed.label.pushover_min_priority": "Pushover 最低優先順序",
+     "form.feed.label.pushover_priority": "Pushover 訊息優先順序",
++    "error.feed_invalid_refresh_interval": "The refresh interval must be a positive number of minutes, or 0 to use the global interval.",
++    "form.feed.label.refresh_interval": "Refresh interval in minutes (0 = use the global interval)",
+     "form.feed.label.rewrite_rules": "內容重寫規則",
+     "form.feed.label.scraper_rules": "抓取規則",
+     "form.feed.label.site_url": "網站網址",
+diff --git a/internal/model/feed.go b/internal/model/feed.go
+index 502ddaf1..122e6f68 100644
+--- a/internal/model/feed.go
++++ b/internal/model/feed.go
+@@ -64,6 +64,10 @@ type Feed struct {
+ 	PushoverPriority            int       `json:"pushover_priority"`
+ 	ProxyURL                    string    `json:"proxy_url"`
+ 
++	// RefreshInterval is the per-feed polling interval in minutes.
++	// 0 means that the global polling interval is used.
++	RefreshInterval int `json:"refresh_interval"`
++
+ 	// Non-persisted attributes
+ 	Category *Category `json:"category,omitempty"`
+ 	Icon     *FeedIcon `json:"icon"`
+@@ -127,6 +131,14 @@ func (f *Feed) CheckedNow() {
+ // ScheduleNextCheck set "next_check_at" of a feed based on the scheduler selected from the configuration.
+ // @effects: mut
+ func (f *Feed) ScheduleNextCheck(weeklyCount int, refreshDelay time.Duration) time.Duration {
++	// A per-feed refresh interval overrides the interval computed from the global configuration.
++	// The delay requested by the remote server (Retry-After, TTL, Cache-Control, Expires) is still honored.
++	if f.RefreshInterval > 0 {
++		interval := max(time.Duration(f.RefreshInterval)*time.Minute, refreshDelay)
++		f.NextCheckAt = time.Now().Add(interval)
++		return interval
++	}
++
+ 	// Default to the global config Polling Frequency.
+ 	interval := config.Opts.SchedulerRoundRobinMinInterval()
+ 
+@@ -155,6 +167,24 @@ func (f *Feed) ScheduleNextCheck(weeklyCount int, refreshDelay time.Duration) ti
+ 	return interval
+ }
+ 
++// SetRefreshInterval changes the per-feed polling interval (in minutes).
++// When a shorter interval is set, the next check is brought forward so the
++// new interval takes effect without waiting for the previously scheduled check.
++// @effects: mut
++func (f *Feed) SetRefreshInterval(minutes int) {
++	if minutes == f.RefreshInterval {
++		return
++	}
++
++	f.RefreshInterval = minutes
++	if minutes > 0 {
++		nextCheckAt := time.Now().Add(time.Duration(minutes) * time.Minute)
++		if f.NextCheckAt.After(nextCheckAt) {
++			f.NextCheckAt = nextCheckAt
++		}
++	}
++}
++
+ // FeedCreationRequest represents the request to create a feed.
+ type FeedCreationRequest struct {
+ 	FeedURL                     string `json:"feed_url"`
+@@ -218,6 +248,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	RefreshInterval             *int    `json:"refresh_interval"`
+ }
+ 
+ // Patch updates a feed with modified values.
+@@ -326,6 +357,10 @@ func (f *FeedModificationRequest) Patch(feed *Feed) {
+ 	if f.ProxyURL != nil {
+ 		feed.ProxyURL = *f.ProxyURL
+ 	}
++
++	if f.RefreshInterval != nil {
++		feed.SetRefreshInterval(*f.RefreshInterval)
++	}
+ }
+ 
+ // Feeds is a list of feed
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index d8e58a2b..63b1d0af 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -276,10 +276,11 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 			description,
+ 			proxy_url,
+ 			ignore_entry_updates,
+-			language
++			language,
++			refresh_interval
+ 		)
+ 		VALUES
+-			($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32)
++			($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33)
+ 		RETURNING
+ 			id
+ 	`
+@@ -317,6 +318,7 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		feed.ProxyURL,
+ 		feed.IgnoreEntryUpdates,
+ 		feed.Language,
++		feed.RefreshInterval,
+ 	).Scan(&feed.ID)
+ 	if err != nil {
+ 		return fmt.Errorf(`store: unable to create feed %q: %v`, feed.FeedURL, err)
+@@ -402,9 +404,10 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 			pushover_priority=$37,
+ 			proxy_url=$38,
+ 			ignore_entry_updates=$39,
+-			language=$40
++			language=$40,
++			refresh_interval=$41
+ 		WHERE
+-			id=$41 AND user_id=$42
++			id=$42 AND user_id=$43
+ 	`
+ 	_, err = s.db.Exec(query,
+ 		feed.FeedURL,
+@@ -447,6 +450,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		feed.ProxyURL,
+ 		feed.IgnoreEntryUpdates,
+ 		feed.Language,
++		feed.RefreshInterval,
+ 		feed.ID,
+ 		feed.UserID,
+ 	)
+diff --git a/internal/storage/feed_query_builder.go b/internal/storage/feed_query_builder.go
+index b12d4af2..9ca1bf62 100644
+--- a/internal/storage/feed_query_builder.go
++++ b/internal/storage/feed_query_builder.go
+@@ -197,7 +197,8 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			f.pushover_enabled,
+ 			f.pushover_priority,
+ 			f.proxy_url,
+-			f.ignore_entry_updates
++			f.ignore_entry_updates,
++			f.refresh_interval
+ 		FROM
+ 			feeds f
+ 		LEFT JOIN
+@@ -281,6 +282,7 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			&feed.PushoverPriority,
+ 			&feed.ProxyURL,
+ 			&feed.IgnoreEntryUpdates,
++			&feed.RefreshInterval,
+ 		)
+ 		if err != nil {
+ 			return nil, fmt.Errorf(`store: unable to fetch feeds row: %w`, err)
+diff --git a/internal/template/templates/views/edit_feed.html b/internal/template/templates/views/edit_feed.html
+index a264237e..440ffacf 100644
+--- a/internal/template/templates/views/edit_feed.html
++++ b/internal/template/templates/views/edit_feed.html
+@@ -100,6 +100,9 @@
+             <label for="form-proxy-url">{{ t "form.feed.label.proxy_url" }}</label>
+             <input type="url" name="proxy_url" id="form-proxy-url" value="{{ .form.ProxyURL }}" spellcheck="false">
+ 
++            <label for="form-refresh-interval">{{ t "form.feed.label.refresh_interval" }}</label>
++            <input type="number" name="refresh_interval" id="form-refresh-interval" min="0" step="1" value="{{ .form.RefreshInterval }}">
++
+             <label for="form-cookie">{{ t "form.feed.label.cookie" }}</label>
+             <input type="text" name="cookie" id="form-cookie" value="{{ .form.Cookie }}" spellcheck="false">
+ 
+diff --git a/internal/ui/feed_edit.go b/internal/ui/feed_edit.go
+index 056dc7aa..5da931e3 100644
+--- a/internal/ui/feed_edit.go
++++ b/internal/ui/feed_edit.go
+@@ -74,6 +74,7 @@ func (h *handler) showEditFeedPage(w http.ResponseWriter, r *http.Request) {
+ 		PushoverEnabled:             feed.PushoverEnabled,
+ 		PushoverPriority:            feed.PushoverPriority,
+ 		ProxyURL:                    feed.ProxyURL,
++		RefreshInterval:             feed.RefreshInterval,
+ 	}
+ 
+ 	view := view.New(h.tpl, r)
+diff --git a/internal/ui/feed_update.go b/internal/ui/feed_update.go
+index ff9f096e..3c6d85b4 100644
+--- a/internal/ui/feed_update.go
++++ b/internal/ui/feed_update.go
+@@ -68,6 +68,7 @@ func (h *handler) updateFeed(w http.ResponseWriter, r *http.Request) {
+ 		ProxyURL:              model.OptionalString(feedForm.ProxyURL),
+ 		BlockFilterEntryRules: model.OptionalString(feedForm.BlockFilterEntryRules),
+ 		KeepFilterEntryRules:  model.OptionalString(feedForm.KeepFilterEntryRules),
++		RefreshInterval:       model.SetOptionalField(feedForm.RefreshInterval),
+ 	}
+ 
+ 	if validationErr := validator.ValidateFeedModification(h.store, loggedUser.ID, feed.ID, feedModificationRequest); validationErr != nil {
+diff --git a/internal/ui/form/feed.go b/internal/ui/form/feed.go
+index 4680aa08..7268a669 100644
+--- a/internal/ui/form/feed.go
++++ b/internal/ui/form/feed.go
+@@ -6,6 +6,7 @@ package form // import "miniflux.app/v2/internal/ui/form"
+ import (
+ 	"net/http"
+ 	"strconv"
++	"strings"
+ 
+ 	"miniflux.app/v2/internal/model"
+ )
+@@ -49,6 +50,9 @@ type FeedForm struct {
+ 	PushoverEnabled  bool
+ 	PushoverPriority int
+ 	ProxyURL         string
++
++	// RefreshInterval is the per-feed polling interval in minutes (0 = use the global interval).
++	RefreshInterval int
+ }
+ 
+ // Merge updates the fields of the given feed.
+@@ -89,6 +93,7 @@ func (f FeedForm) Merge(feed *model.Feed) *model.Feed {
+ 	feed.PushoverEnabled = f.PushoverEnabled
+ 	feed.PushoverPriority = f.PushoverPriority
+ 	feed.ProxyURL = f.ProxyURL
++	feed.SetRefreshInterval(f.RefreshInterval)
+ 	return feed
+ }
+ 
+@@ -110,7 +115,18 @@ func NewFeedForm(r *http.Request) *FeedForm {
+ 		pushoverPriority = 0
+ 	}
+ 
++	// An empty value means "use the global interval".
++	// An unparsable value is kept invalid (-1) so that it is rejected by the validation.
++	refreshInterval := 0
++	if rawRefreshInterval := strings.TrimSpace(r.FormValue("refresh_interval")); rawRefreshInterval != "" {
++		refreshInterval, err = strconv.Atoi(rawRefreshInterval)
++		if err != nil {
++			refreshInterval = -1
++		}
++	}
++
+ 	return &FeedForm{
++		RefreshInterval:             refreshInterval,
+ 		FeedURL:                     r.FormValue("feed_url"),
+ 		SiteURL:                     r.FormValue("site_url"),
+ 		Title:                       r.FormValue("title"),
+diff --git a/internal/validator/feed.go b/internal/validator/feed.go
+index b6963e96..8c0844e0 100644
+--- a/internal/validator/feed.go
++++ b/internal/validator/feed.go
+@@ -5,6 +5,7 @@ package validator // import "miniflux.app/v2/internal/validator"
+ 
+ import (
+ 	"log/slog"
++	"math"
+ 
+ 	"miniflux.app/v2/internal/locale"
+ 	"miniflux.app/v2/internal/model"
+@@ -135,6 +136,13 @@ func ValidateFeedModification(store *storage.Storage, userID, feedID int64, requ
+ 		}
+ 	}
+ 
++	if request.RefreshInterval != nil {
++		// The value is a number of minutes stored in a 32-bit integer column.
++		if *request.RefreshInterval < 0 || *request.RefreshInterval > math.MaxInt32 {
++			return locale.NewLocalizedError("error.feed_invalid_refresh_interval")
++		}
++	}
++
+ 	if request.BlocklistRules != nil {
+ 		if !IsValidRegex(*request.BlocklistRules) {
+ 			return locale.NewLocalizedError("error.feed_invalid_blocklist_rule")

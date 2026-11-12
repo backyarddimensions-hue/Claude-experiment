@@ -1,0 +1,7 @@
+Task:
+
+Allow a per-feed HTTP timeout that overrides the global one. A slow server triggers the timeout at
+the per-feed value, not the global one.
+
+The field is an integer number of seconds named `fetch_timeout`; 0 means "use the
+global timeout". It appears in the API feed object and is accepted by `PUT /v1/feeds/{feedID}`.

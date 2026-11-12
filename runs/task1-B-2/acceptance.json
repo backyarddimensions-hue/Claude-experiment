@@ -1,0 +1,52 @@
+{
+ "task": "1",
+ "pass": true,
+ "checks": [
+  {
+   "name": "migration added a column to feeds",
+   "ok": true,
+   "gating": true,
+   "detail": "{'refresh_interval'}"
+  },
+  {
+   "name": "API exposes refresh_interval, 0 by default",
+   "ok": true,
+   "gating": true,
+   "detail": "0"
+  },
+  {
+   "name": "API accepts refresh_interval on update",
+   "ok": true,
+   "gating": true,
+   "detail": "201 137"
+  },
+  {
+   "name": "value persists",
+   "ok": true,
+   "gating": true,
+   "detail": "200"
+  },
+  {
+   "name": "UI edit form has a refresh_interval input",
+   "ok": true,
+   "gating": true,
+   "detail": "not found in /feed/{id}/edit"
+  },
+  {
+   "name": "scheduler uses the per-feed interval (137 min)",
+   "ok": true,
+   "gating": true,
+   "detail": "137.0 min"
+  },
+  {
+   "name": "feeds without an override keep the global interval",
+   "ok": true,
+   "gating": true,
+   "detail": "60.0 min"
+  }
+ ],
+ "info": {
+  "next_check_minutes_override": 137.0,
+  "next_check_minutes_default": 60.0
+ }
+}

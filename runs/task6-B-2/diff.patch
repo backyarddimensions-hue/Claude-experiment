@@ -1,0 +1,499 @@
+diff --git a/internal/api/.agentpolicy b/internal/api/.agentpolicy
+index 8f60180f..9cf16246 100644
+--- a/internal/api/.agentpolicy
++++ b/internal/api/.agentpolicy
+@@ -1,3 +1,3 @@
+-nouns: users, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations
++nouns: users, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations, audit_log
+ priority: correctness
+ boundary: ingress
+diff --git a/internal/api/audit.go b/internal/api/audit.go
+new file mode 100644
+index 00000000..a94d2fb4
+--- /dev/null
++++ b/internal/api/audit.go
+@@ -0,0 +1,23 @@
++// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
++// SPDX-License-Identifier: Apache-2.0
++
++package api // import "miniflux.app/v2/internal/api"
++
++import (
++	"net/http"
++
++	"miniflux.app/v2/internal/http/request"
++	"miniflux.app/v2/internal/http/response"
++)
++
++// audit appends a row to audit_log for the current request. Every API request
++// that modifies a row in users or feeds must call it. It writes a server error
++// and returns false when the row cannot be appended.
++// @effects: writes audit_log
++func (h *handler) audit(w http.ResponseWriter, r *http.Request, action, tableName string, rowID int64) bool {
++	if err := h.store.AppendAuditLog(request.UserID(r), action, tableName, rowID); err != nil {
++		response.JSONServerError(w, r, err)
++		return false
++	}
++	return true
++}
+diff --git a/internal/api/category_handlers.go b/internal/api/category_handlers.go
+index 72040793..5af7d9bf 100644
+--- a/internal/api/category_handlers.go
++++ b/internal/api/category_handlers.go
+@@ -141,7 +141,7 @@ func (h *handler) getCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, categories)
+ }
+ 
+-// @effects: reads categories, writes categories
++// @effects: reads categories, reads feeds, writes audit_log, writes categories
+ func (h *handler) removeCategoryHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 
+@@ -161,15 +161,26 @@ func (h *handler) removeCategoryHandler(w http.ResponseWriter, r *http.Request)
+ 		return
+ 	}
+ 
++	// Removing a category also deletes its feeds (ON DELETE CASCADE).
++	feedCount, err := h.store.AuditFeedCount(userID, categoryID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	if err := h.store.RemoveCategory(userID, categoryID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+ 
++	if feedCount > 0 && !h.audit(w, r, "delete", "feeds", 0) {
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+ 
+-// @effects: reads feeds
++// @effects: reads feeds, writes audit_log
+ func (h *handler) refreshCategoryHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 
+@@ -199,6 +210,11 @@ func (h *handler) refreshCategoryHandler(w http.ResponseWriter, r *http.Request)
+ 		slog.Int("nb_jobs", len(jobs)),
+ 	)
+ 
++	// The background workers update the feed rows of every pushed job.
++	if len(jobs) > 0 && !h.audit(w, r, "refresh", "feeds", 0) {
++		return
++	}
++
+ 	go h.pool.Push(jobs)
+ 
+ 	response.NoContent(w, r)
+diff --git a/internal/api/feed_handlers.go b/internal/api/feed_handlers.go
+index cc11f4e8..ee396686 100644
+--- a/internal/api/feed_handlers.go
++++ b/internal/api/feed_handlers.go
+@@ -20,7 +20,7 @@ import (
+ 	"miniflux.app/v2/internal/validator"
+ )
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes audit_log, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 
+@@ -59,10 +59,14 @@ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if !h.audit(w, r, "create", "feeds", feed.ID) {
++		return
++	}
++
+ 	response.JSONCreated(w, r, &feedCreationResponse{FeedID: feed.ID})
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes audit_log, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	feedID := request.RouteInt64Param(r, "feedID")
+ 	if feedID == 0 {
+@@ -84,6 +88,13 @@ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	// force=true mirrors the web UI's forced refresh: it bypasses the HTTP cache
+ 	// and reprocesses (and re-scrapes) entries that are already stored.
+ 	forceRefresh := request.QueryBoolParam(r, "force", false)
++
++	// The refresh updates the feed row even when it fails (error counters),
++	// so the audit row is appended before the refresh starts.
++	if !h.audit(w, r, "refresh", "feeds", feedID) {
++		return
++	}
++
+ 	localizedError := feedHandler.RefreshFeed(h.store, userID, feedID, forceRefresh)
+ 	if localizedError != nil {
+ 		response.JSONServerError(w, r, localizedError.Error())
+@@ -93,7 +104,7 @@ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.NoContent(w, r)
+ }
+ 
+-// @effects: reads feeds
++// @effects: reads feeds, writes audit_log
+ func (h *handler) refreshAllFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 
+@@ -115,12 +126,17 @@ func (h *handler) refreshAllFeedsHandler(w http.ResponseWriter, r *http.Request)
+ 		slog.Int("nb_jobs", len(jobs)),
+ 	)
+ 
++	// The background workers update the feed rows of every pushed job.
++	if len(jobs) > 0 && !h.audit(w, r, "refresh", "feeds", 0) {
++		return
++	}
++
+ 	go h.pool.Push(jobs)
+ 
+ 	response.NoContent(w, r)
+ }
+ 
+-// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes feeds
+ func (h *handler) updateFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	feedID := request.RouteInt64Param(r, "feedID")
+ 	if feedID == 0 {
+@@ -158,6 +174,10 @@ func (h *handler) updateFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if !h.audit(w, r, "update", "feeds", feedID) {
++		return
++	}
++
+ 	originalFeed, err = h.store.FeedByID(userID, feedID)
+ 	if err != nil {
+ 		response.JSONServerError(w, r, err)
+@@ -269,7 +289,7 @@ func (h *handler) getFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, feed)
+ }
+ 
+-// @effects: reads feeds, writes feeds
++// @effects: reads feeds, writes audit_log, writes feeds
+ func (h *handler) removeFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	feedID := request.RouteInt64Param(r, "feedID")
+ 	if feedID == 0 {
+@@ -293,5 +313,9 @@ func (h *handler) removeFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if !h.audit(w, r, "delete", "feeds", feedID) {
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+diff --git a/internal/api/opml_handlers.go b/internal/api/opml_handlers.go
+index 5800d429..c8e548cb 100644
+--- a/internal/api/opml_handlers.go
++++ b/internal/api/opml_handlers.go
+@@ -26,11 +26,28 @@ func (h *handler) exportFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.XML(w, r, opmlExport)
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes categories, writes enclosures, writes entries, writes feeds
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes audit_log, writes categories, writes enclosures, writes entries, writes feeds
+ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
++	userID := request.UserID(r)
++	feedsBefore, err := h.store.AuditFeedCount(userID, 0)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	opmlHandler := opml.NewHandler(h.store)
+-	err := opmlHandler.Import(request.UserID(r), r.Body)
++	err = opmlHandler.Import(userID, r.Body)
+ 	defer r.Body.Close()
++
++	// An import can create feeds even when it fails part-way through, so the
++	// audit row depends on what was written, not on the import result.
++	feedsAfter, countErr := h.store.AuditFeedCount(userID, 0)
++	if countErr != nil || feedsAfter != feedsBefore {
++		if !h.audit(w, r, "import", "feeds", 0) {
++			return
++		}
++	}
++
+ 	if err != nil {
+ 		if errors.Is(err, storage.ErrNoCategory) {
+ 			response.JSONBadRequest(w, r, locale.NewLocalizedError("error.feed_category_not_found").Error())
+diff --git a/internal/api/user_handlers.go b/internal/api/user_handlers.go
+index 6592ed3e..3a5090e1 100644
+--- a/internal/api/user_handlers.go
++++ b/internal/api/user_handlers.go
+@@ -30,7 +30,7 @@ func (h *handler) currentUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, user)
+ }
+ 
+-// @effects: reads users, writes categories, writes integrations, writes users
++// @effects: reads users, writes audit_log, writes categories, writes integrations, writes users
+ func (h *handler) createUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	if !request.IsAdminUser(r) {
+ 		response.JSONForbidden(w, r)
+@@ -54,10 +54,14 @@ func (h *handler) createUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if !h.audit(w, r, "create", "users", user.ID) {
++		return
++	}
++
+ 	response.JSONCreated(w, r, user)
+ }
+ 
+-// @effects: reads users, writes users, writes web_sessions, mut
++// @effects: reads users, writes audit_log, writes users, writes web_sessions, mut
+ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.RouteInt64Param(r, "userID")
+ 	if userID == 0 {
+@@ -105,6 +109,10 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if !h.audit(w, r, "update", "users", originalUser.ID) {
++		return
++	}
++
+ 	if userModificationRequest.Password != nil {
+ 		if err := h.store.RemoveUserWebSessionsExcept(originalUser.ID, ""); err != nil {
+ 			response.JSONServerError(w, r, err)
+@@ -247,7 +255,7 @@ func (h *handler) userByUsernameHandler(w http.ResponseWriter, r *http.Request)
+ 	response.JSON(w, r, user)
+ }
+ 
+-// @effects: reads users, writes users
++// @effects: reads users, writes audit_log, writes users
+ func (h *handler) removeUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	if !request.IsAdminUser(r) {
+ 		response.JSONForbidden(w, r)
+@@ -281,5 +289,9 @@ func (h *handler) removeUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if !h.audit(w, r, "delete", "users", user.ID) {
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..c6df756b 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,21 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// audit_log deliberately has no foreign keys: audit rows must
++		// outlive the users and feeds they describe.
++		_, err = tx.Exec(`
++			CREATE TABLE audit_log (
++				id bigserial not null,
++				user_id bigint,
++				action text not null,
++				table_name text not null,
++				row_id bigint,
++				created_at timestamp with time zone not null default now(),
++				primary key (id)
++			);
++			CREATE INDEX audit_log_user_id_idx ON audit_log (user_id);
++		`)
++		return err
++	},
+ }
+diff --git a/internal/googlereader/.agentpolicy b/internal/googlereader/.agentpolicy
+index 861efc69..6eefba2c 100644
+--- a/internal/googlereader/.agentpolicy
++++ b/internal/googlereader/.agentpolicy
+@@ -1,3 +1,3 @@
+-nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures
++nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures, audit_log
+ priority: correctness
+ boundary: ingress
+diff --git a/internal/googlereader/handler.go b/internal/googlereader/handler.go
+index 0346718c..118d0d4a 100644
+--- a/internal/googlereader/handler.go
++++ b/internal/googlereader/handler.go
+@@ -322,7 +322,7 @@ func (h *greaderHandler) editTagHandler(w http.ResponseWriter, r *http.Request)
+ 	response.Text(w, r, "OK")
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads integrations, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads integrations, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *greaderHandler) quickAddHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 	clientIP := request.ClientIP(r)
+@@ -422,7 +422,7 @@ func getOrCreateCategory(streamCategory Stream, store *storage.Storage, userID i
+ 	}
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func subscribe(newFeed Stream, category Stream, title string, store *storage.Storage, userID int64) (*model.Feed, error) {
+ 	destCategory, err := getOrCreateCategory(category, store, userID)
+ 	if err != nil {
+@@ -449,6 +449,10 @@ func subscribe(newFeed Stream, category Stream, title string, store *storage.Sto
+ 		return nil, localizedError.Error()
+ 	}
+ 
++	if err := store.AppendAuditLog(userID, "create", "feeds", created.ID); err != nil {
++		return nil, err
++	}
++
+ 	if title != "" {
+ 		feedModification := model.FeedModificationRequest{
+ 			Title: &title,
+@@ -462,7 +466,7 @@ func subscribe(newFeed Stream, category Stream, title string, store *storage.Sto
+ 	return created, nil
+ }
+ 
+-// @effects: writes feeds
++// @effects: writes audit_log, writes feeds
+ func unsubscribe(streams []Stream, store *storage.Storage, userID int64) error {
+ 	for _, stream := range streams {
+ 		feedID, err := strconv.ParseInt(stream.ID, 10, 64)
+@@ -473,11 +477,14 @@ func unsubscribe(streams []Stream, store *storage.Storage, userID int64) error {
+ 		if err != nil {
+ 			return err
+ 		}
++		if err := store.AppendAuditLog(userID, "delete", "feeds", feedID); err != nil {
++			return err
++		}
+ 	}
+ 	return nil
+ }
+ 
+-// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes feeds
+ func rename(feedStream Stream, title string, store *storage.Storage, userID int64) error {
+ 	slog.Debug("[GoogleReader] Renaming feed",
+ 		slog.Int64("user_id", userID),
+@@ -501,10 +508,13 @@ func rename(feedStream Stream, title string, store *storage.Storage, userID int6
+ 		Title: &title,
+ 	}
+ 	feedModification.Patch(feed)
+-	return store.UpdateFeed(feed)
++	if err := store.UpdateFeed(feed); err != nil {
++		return err
++	}
++	return store.AppendAuditLog(userID, "update", "feeds", feed.ID)
+ }
+ 
+-// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes categories, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes feeds
+ func move(feedStream Stream, labelStream Stream, store *storage.Storage, userID int64) error {
+ 	slog.Debug("[GoogleReader] Moving feed",
+ 		slog.Int64("user_id", userID),
+@@ -532,7 +542,10 @@ func move(feedStream Stream, labelStream Stream, store *storage.Storage, userID
+ 		CategoryID: &category.ID,
+ 	}
+ 	feedModification.Patch(feed)
+-	return store.UpdateFeed(feed)
++	if err := store.UpdateFeed(feed); err != nil {
++		return err
++	}
++	return store.AppendAuditLog(userID, "update", "feeds", feed.ID)
+ }
+ 
+ func (h *greaderHandler) feedIconURL(f *model.Feed) string {
+@@ -542,7 +555,7 @@ func (h *greaderHandler) feedIconURL(f *model.Feed) string {
+ 	return ""
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *greaderHandler) editSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 	clientIP := request.ClientIP(r)
+@@ -759,7 +772,7 @@ func (h *greaderHandler) streamItemContentsHandler(w http.ResponseWriter, r *htt
+ 	response.JSON(w, r, result)
+ }
+ 
+-// @effects: reads categories, writes categories, writes feeds
++// @effects: reads categories, writes audit_log, writes categories, writes feeds
+ func (h *greaderHandler) disableTagHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 	clientIP := request.ClientIP(r)
+@@ -798,6 +811,12 @@ func (h *greaderHandler) disableTagHandler(w http.ResponseWriter, r *http.Reques
+ 		return
+ 	}
+ 
++	// Feeds of the removed categories are reassigned to another category.
++	if err := h.store.AppendAuditLog(userID, "update", "feeds", 0); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.Text(w, r, "OK")
+ }
+ 
+diff --git a/internal/storage/.agentpolicy b/internal/storage/.agentpolicy
+index 58c7059f..05e27edb 100644
+--- a/internal/storage/.agentpolicy
++++ b/internal/storage/.agentpolicy
+@@ -1,3 +1,3 @@
+-nouns: acme_cache, api_keys, categories, enclosures, entries, entry_tombstones, feed_icons, feeds, icons, integrations, user_sessions, users, webauthn_credentials, web_sessions
++nouns: acme_cache, api_keys, audit_log, categories, enclosures, entries, entry_tombstones, feed_icons, feeds, icons, integrations, user_sessions, users, webauthn_credentials, web_sessions
+ priority: correctness
+ boundary: storage
+diff --git a/internal/storage/audit.go b/internal/storage/audit.go
+new file mode 100644
+index 00000000..1a1be311
+--- /dev/null
++++ b/internal/storage/audit.go
+@@ -0,0 +1,46 @@
++// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
++// SPDX-License-Identifier: Apache-2.0
++
++package storage // import "miniflux.app/v2/internal/storage"
++
++import (
++	"database/sql"
++	"fmt"
++)
++
++// AppendAuditLog appends a row to the audit log.
++//
++// userID is the user who made the request, action describes the operation
++// (for example "create", "update", "delete"), tableName is the modified table
++// and rowID is the modified row (0 when the request touched several rows).
++// @effects: writes audit_log
++func (s *Storage) AppendAuditLog(userID int64, action, tableName string, rowID int64) error {
++	var actor, row sql.NullInt64
++	if userID != 0 {
++		actor = sql.NullInt64{Int64: userID, Valid: true}
++	}
++	if rowID != 0 {
++		row = sql.NullInt64{Int64: rowID, Valid: true}
++	}
++
++	query := `INSERT INTO audit_log (user_id, action, table_name, row_id) VALUES ($1, $2, $3, $4)`
++	if _, err := s.db.Exec(query, actor, action, tableName, row); err != nil {
++		return fmt.Errorf(`store: unable to append audit log: %v`, err)
++	}
++
++	return nil
++}
++
++// AuditFeedCount returns the number of feeds owned by the user, restricted to
++// the given category when categoryID is not 0. It is used to decide whether a
++// request modified the feeds table indirectly.
++// @effects: reads feeds
++func (s *Storage) AuditFeedCount(userID, categoryID int64) (int, error) {
++	var count int
++	query := `SELECT count(*) FROM feeds WHERE user_id=$1 AND ($2::bigint = 0 OR category_id = $2::bigint)`
++	if err := s.db.QueryRow(query, userID, categoryID).Scan(&count); err != nil {
++		return 0, fmt.Errorf(`store: unable to count feeds: %v`, err)
++	}
++
++	return count, nil
++}

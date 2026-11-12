@@ -1,0 +1,40 @@
+You are making one change to Miniflux, a feed reader written in Go and backed by PostgreSQL.
+
+You work only through the tools provided. There is no shell.
+
+The repository carries an annotation layer:
+- Every declared function has a comment `// @effects: ...` directly above it. The tag lists what
+  the function does, directly or through anything it calls:
+    pure                 proven to have no effects
+    ambient              only logging, clock, concurrency or stream/HTTP-response output
+    reads <table>        reads that database table
+    writes <table>       writes that database table
+    net                  makes outbound network calls
+    fs                   touches the filesystem
+    mut                  mutates its receiver or an argument
+  A function with no tag could not be machine-checked (it uses global state or a call that cannot
+  be resolved); treat its effects as unknown.
+- Each package directory has, or inherits from a parent directory, a `.agentpolicy` file: `nouns`
+  (the tables the package may touch), `priority`, and `boundary` (ingress, egress, interior or
+  storage).
+- A call graph records, for every function, its callers, its callees, where each direct effect
+  happens, and which functions reference it as a value (for example route registration).
+
+Access: you cannot list or search the repository. You are given the task, every policy file, and a
+summary of every package. To find code, use:
+- signatures(pkg): every function in a package with its effect tag, signature, file and line, plus
+  the names of the files and subdirectories in that package directory.
+- graph(function_id): callers, callees and effects of one function.
+- where(effect, pkg): every function with a given effect, optionally within one package.
+Read function bodies and other files with open_file.
+
+Tools every run has:
+- open_file(path, start_line, end_line): read a file or part of one. Every call is logged.
+- edit(path, old_text, new_text) and create_file(path, content): make the change.
+- check(): build the project and run its existing unit and integration tests. At most 10 calls.
+- finish(): submit. Call it once, when the change is complete.
+
+The existing tests must still pass. They do not cover the new behaviour: after you finish, hidden
+acceptance tests are run against your change.
+
+Correctness is scored first, context used second.

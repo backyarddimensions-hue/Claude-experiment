@@ -1,177 +1,232 @@
-# Report: checkpoint 2, harness built, acceptance tests written, shakedown done
+# Report: checkpoint 3, the 54 scored runs
 
-Date: 2026-11-11. Stop point: before any scored run. The previous report is
-`reports/checkpoint1.md`; the rulings it led to are in `DECISIONS.md`.
+Date: 2026-11-12. Earlier reports: `reports/checkpoint1.md`, `reports/checkpoint2.md`. Rulings:
+`DECISIONS.md`.
 
-## Status against the thirteen rulings
+## Result
 
-| # | Ruling | State |
-|---|---|---|
-| 1 | Tag unexported named functions | Done. 1,304 of 1,454 declared functions tagged in source |
-| 2 | edit + harness-taken diff | Done |
-| 3 | No shell; check() in every arm, cap 10 | Done. check() takes 14 s |
-| 4 | Three arms, tool sets as specified | Done, with two additions listed under "Deviations" |
-| 5 | Task 6 reworded, path 7 counts, score 8 of 8 | Done |
-| 6 | Drop Conduit; shakedown task 0, one run per arm | Done. All three runs correct |
-| 7 | B's initial context: task, policies, package summary | Done. 6.7k tokens at B's first call |
-| 8 | Same scoring sentence in every arm | Done |
-| 9 | Context at finish primary, cumulative input secondary | Done |
-| 10 | error.Error() ambient; `ambient` tag; `pure` means proven | Done |
-| 11 | Checker fails closed on reflection and subprocess | Done. Mutation test now 12 of 12 |
-| 12 | Executable acceptance tests for tasks 1 to 6 | Written. **Not validated against a correct solution** (see below) |
-| 13 | Integration tests three times | 102 of 102 passed in all three runs. Nothing excluded |
+**All 54 runs are correct.** Every arm passed the existing suite and every gating acceptance
+check on every task, 3 of 3. There are no failures to classify.
 
-## Decisions needed before scored runs
+**The predicted context saving did not appear.** Measured against the criteria written before
+the runs:
 
-1. **Task 3 is already implemented in Miniflux.** `EntryAuthor=<regex>` is a supported rule in
-   `block_filter_entry_rules` at the pinned commit (`internal/reader/filter/filter.go:204`). The
-   acceptance test for task 3 passes on the unmodified tree. The task needs replacing or
-   dropping; as written it would score every arm correct for doing nothing.
-2. **Interface lines added to tasks 1, 2, 4 and 5.** The original task text does not name the
-   new field or route, so a test written "from the task text only" has nothing fixed to call. I
-   added one **Interface** paragraph to each (see `TASKS.md`): `refresh_interval` in minutes,
-   `word_count`, `POST /v1/api-keys/{apiKeyID}/regenerate`, `fetch_timeout` in seconds. Every arm
-   gets the same text. Approve, or change the names and I will update tests to match.
-3. **The acceptance tests have only been proven to fail.** Each of tasks 1, 2, 4, 5, 6 fails on
-   the unmodified tree for the intended reason, and the task 0 test passed on three independent
-   real solutions. No test for tasks 1 to 6 has been run against a correct implementation,
-   because none exists yet. The risk is a test that rejects a correct change. The two most
-   exposed are task 1 (expects `next_check_at` to be 137 minutes ahead, within 3) and task 5
-   (timing windows around a 6-second slow server). Options: (a) I write reference solutions for
-   those tasks first, which also gives the "minimal correct diff" the blast-radius metric needs;
-   (b) run as is and I hand-review every acceptance failure before it is scored. I recommend (a)
-   for tasks 1, 5 and 6.
-4. **Escalation for B.** The original design gives B one escalation with free file access after
-   a failed first attempt. The harness does not implement it. With check() now available in every
-   arm, does it still apply, and if so what triggers it: a failed acceptance test, which B cannot
-   see?
-5. **Hand-tag list.** 150 declared functions are untagged (77 exported, 73 unexported). Nobody
-   has hand-tagged them. B is shown them as `UNTAGGED; inferred: ...; not machine-checkable
-   because: ...`. Run as is, or hand-tag first?
-
-## Deviations from the rulings, for you to accept or reverse
-
-- **A1's tree contains `graph.json` and the `.agentpolicy` files**, not only the tags. A1 can
-  open and grep them like any file. Reasoning: A1 then has everything B has plus free access, so
-  B against A1 isolates the restriction. Remove them if "annotated tree" meant tags only.
-- **`signatures(pkg)` also lists the file and subdirectory names of that package directory.**
-  Without it B has no way to learn the path of a non-Go file, and task 1 requires editing an HTML
-  template and translation files. The original design gave B "the list of files"; ruling 7
-  removed the inline index, so I moved the file names into this tool.
-- **"process-control" was split.** Ruling 11 names reflection and process-control. My
-  process-control category also held `os.Exit`, flag parsing and signal handling, which do not
-  defeat the analysis. Only `reflection` and a new `subprocess` category (os/exec, fork/exec)
-  fail closed. No Miniflux function is in either.
-- **Temperature** cannot be set through the CLI. All arms use the same default.
-- **The plain and annotated trees differ by 8 lines beyond the tags**: gofmt realigned a few
-  one-line method declarations once comment lines were inserted between them.
-
-## Correction to checkpoint 1
-
-I wrote that the 22 `http/response` helpers were blocked only by an `error.Error()` call. That
-was wrong. Making `error.Error()` ambient did not clear them. Their actual blockers are a call
-through a compression-writer interface that the call graph cannot resolve, and a builder pointer
-returned from a constructor, which the tool cannot prove is freshly allocated. They remain on the
-hand-tag list.
-
-## Tag state after rulings 1, 10 and 11
-
-| Declared functions | Count |
+| Criterion (Experiment1.txt) | Outcome |
 |---|---|
-| Tagged with effects | 698 |
-| `pure` (proven) | 515 |
-| `ambient` | 91 |
-| Untagged, hand-tag list | 150 |
-| Total | 1,454 (885 exported, 569 unexported) |
+| B within ten points of A on correctness | Met: 100% in every arm on every task |
+| B uses less than half the input tokens | Not met on any task. B used more context than A0 on five tasks and less on one |
+| B opens fewer than half the files | Not met on any task. B opened between 0.87 and 1.33 times as many files as A0 |
 
-Reasons on the hand-tag list (a function can have several): unresolved dynamic call 72, write
-through a pointer of unknown origin 65, reads a reassigned package variable 42, writes a package
-variable 12, reads process environment 8, process control 6, table-less database call 5, metrics
-3, unknown external call 3. List: `out/miniflux-untagged.json`.
+So the outcome is neither "thesis supported" nor "thesis weakened" as those were defined.
+Correctness held under restriction, but restriction plus the layer did not make the work
+cheaper; on most tasks it made it more expensive.
 
-Checker: 0 tag failures. Policy row zero is unchanged from checkpoint 1 (59 hits, 29 pairs).
+Two limits on reading this:
 
-## Harness
+- **Correctness is at ceiling.** With 54 of 54 correct, the tasks cannot show a correctness
+  difference between arms in either direction. They were not hard enough for this model.
+- **Three runs per cell.** Where the ranges of two arms overlap, I do not claim a difference.
 
-Each run is `python3 harness/run.py <arm> <task> <n>`:
+## Context by task
 
-1. Fresh git worktree at the pinned commit: `1af9501` for A0, branch `annotated` for A1 and B.
-2. `claude -p` with `--model claude-fable-5-2`, the arm's system prompt replacing the default,
-   built-in tools disabled, user settings and plugins not loaded, and one tool server
-   (`harness/mcp_server.py`). Verified from the run's init event: the only tools present are the
-   arm's own. Working directory is an empty folder.
-3. When the model stops, the harness takes `git diff`, runs the existing suite, runs the hidden
-   acceptance test, and writes one row to the results sheet.
+Median of three runs. Ratios are B divided by A0.
 
-**Tools**
+| Task | A0 context at finish | A1 | B | B / A0 | Do the B and A0 ranges overlap? | B / A0 files opened | B / A0 lines read |
+|---|---|---|---|---|---|---|---|
+| 1 per-feed fetch interval | 58,710 | 70,254 | 98,865 | 1.68 | no, B higher | 1.18 | 1.17 |
+| 2 entry word count | 37,590 | 38,712 | 53,830 | 1.43 | no, B higher | 1.33 | 0.76 |
+| 3 per-user feed limit | 57,290 | 62,314 | 81,519 | 1.42 | yes | 0.92 | 0.87 |
+| 4 rotate API keys | 19,036 | 18,250 | 23,892 | 1.26 | yes | 1.00 | 1.59 |
+| 5 fetch timeout per feed | 37,163 | 39,606 | 58,453 | 1.57 | no, B higher | 0.89 | 1.41 |
+| 6 audit log | 75,189 | 81,931 | 60,725 | 0.81 | yes | 0.87 | 0.59 |
 
-| Arm | Locating code | Common to all |
-|---|---|---|
-| A0, A1 | `open_file`, `grep`, `list_dir` | `edit`, `create_file`, `check` (cap 10), `finish` |
-| B | `signatures(pkg)`, `graph(function_id)`, `where(effect, pkg?)`, `open_file` | same |
+- On tasks 1, 2 and 5 B's context was higher than A0's in every run.
+- On tasks 3 and 4 B's median was higher but the ranges overlap.
+- On task 6, the task built to test the thesis, B's median was lower (0.81 of A0, 0.74 of A1) and
+  B read 41% fewer lines. The ranges overlap: one A0 run finished at 39,564 tokens after opening
+  7 files, below every B run. Three runs cannot separate these.
+- A1 (tags present, free access) finished between 0.96 and 1.20 times A0's context. The layer
+  did not reduce A1's cost on any task.
 
-**Prompts.** Exact text for each arm of the shakedown is in
-`runs/task0-<arm>-1/system_prompt.txt` and `user_prompt.txt`; the source is `harness/prompts.py`.
-The system prompt is the same in all arms except the access paragraph. A1 and B share the same
-description of the layer. B's user prompt adds 41 policy lines and an 86-line package summary.
+## Why B cost more: where the tool output went
 
-**Correct** means: existing unit and integration suite passes, and every gating check of the
-hidden acceptance test passes.
+Characters returned by tools, median per run, in thousands.
 
-## Acceptance tests (`acceptance/`)
+| Task | A0 total (grep + open_file) | B total | B: `signatures` | B: `open_file` | B: `graph` + `where` |
+|---|---|---|---|---|---|
+| 1 | 85 (21 + 66) | 156 | 68 | 85 | 11 |
+| 2 | 62 (25 + 34) | 90 | 62 | 26 | 0 |
+| 3 | 91 (19 + 71) | 136 | 64 | 61 | 6 |
+| 4 | 29 (19 + 9) | 32 | 14 | 17 | 2 |
+| 5 | 57 (17 + 38) | 100 | 49 | 57 | 4 |
+| 6 | 110 (23 + 81) | 80 | 15 | 50 | 5 |
 
-Python, run against a real server built from the run's tree, a fresh Postgres database, and a
-local RSS server the test controls (items, delay, status code). No internet.
+- **`signatures(pkg)` is B's main cost.** On tasks 1, 2, 3 and 5 it returned 49k to 68k
+  characters per run, two to three times what A0 spent on grep. One call on `internal/storage`
+  or `internal/ui` lists well over a hundred functions, each with a tag that can name a dozen
+  tables.
+- **B did not read fewer file bodies.** Its `open_file` volume was about the same as A0's on
+  tasks 1, 3 and 5. The index was paid for on top of the reading, not instead of it.
+- **Task 6 is where it reversed.** B used `where("writes users")` and `where("writes feeds")`
+  (4 to 7 calls, about 5k characters) and then opened 38% less file text than A0. This is the
+  one task whose question is "which functions have this effect", which is what the layer
+  answers directly.
+- B also starts 4,700 tokens behind: its first call is 6,694 tokens against A0's 2,018, for the
+  policies and package summary.
 
-| Task | What the test does |
-|---|---|
-| 0 | Count endpoint returns 3 for a 3-entry feed; 404 for unknown feed and for another user's feed |
-| 1 | New column on `feeds`; `refresh_interval` readable, writable, persisted; input present in the UI edit form; after a refresh `next_check_at` is 137 min ahead for the overridden feed and not for a plain one |
-| 2 | Entries are first created by the unmodified binary, then the modified binary migrates the same database: old entry is null or 4; new entries are 7 and 3; single-entry endpoint has the field |
-| 3 | Feed with `EntryAuthor=^Blocked Bob$` stores only the other author's entry |
-| 4 | Old token works, regenerate returns a different token, old token gets 401, new token gets 200 |
-| 5 | Global 30 s, per-feed 2 s, server sleeps 6 s: override feed fails in 1.5 to 5 s, plain feed succeeds. Then global 3 s, per-feed 20 s: override feed succeeds |
-| 6 | Row count of `audit_log` before and after each of the 8 ground-truth requests; path 7 is exercised on both its success and its fetch-failure writer. Records paths found out of 8. Non-gating: two GETs add no rows |
+This points at the index being too verbose rather than at the idea being wrong, but that is an
+inference from one design of `signatures`, not something these runs tested.
 
-## Shakedown (task 0, unscored, one run per arm)
+## Task 6 in detail
 
-| Arm | Correct | Context at finish | Cumulative input | Output tokens | Tool calls | Files opened | Lines read | check() | Cost | Wall |
-|---|---|---|---|---|---|---|---|---|---|---|
-| A0 | yes | 8,751 | 35,655 | 2,030 | 9 | 3 | 254 | 1 | $0.21 | 44 s |
-| A1 | yes | 11,349 | 55,502 | 2,974 | 14 | 5 | 228 | 1 | $0.29 | 51 s |
-| B | yes | 22,409 | 86,531 | 2,141 | 10 | 4 | 274 | 1 | $0.46 | 44 s |
+- Paths found out of 8: A0 8, 8, 8; A1 8, 8, 8; B 8, 8, 8. Every run logged exactly one row for
+  each of the nine test requests, including both writers of the refresh path.
+- Non-gating check: no run added audit rows for read-only requests. Nobody took the
+  log-everything shortcut.
+- A1 opened or searched `graph.json` in 2 of its 3 task-6 runs, and in no run of any other task.
+- The unrestricted arms found all eight paths with grep. The effect tags were not needed to
+  find them; on this evidence they made finding them somewhat cheaper for B.
 
-One run per arm on a two-file change, so this says the harness works, not which arm is better.
-Three things it did show:
+## Task 3 non-gating check
 
-- **B started at 6.7k tokens and A0 at 2.0k.** The policies and package summary cost about 4.3k
-  before B does anything.
-- **B's tool results were three times the size of A0's** (29.6k characters against 9.7k). Most of
-  that is one `signatures(internal/api)` call: 64 functions, each with a tag that can list a
-  dozen effects. On a small task the layer costs more context than grep does. Whether that
-  reverses on tasks with cross-module reach is what the scored runs test.
-- **B opened one more file than A0** and read about the same number of lines. The restriction did
-  not reduce reading here.
+`CreateFeedFromSubscriptionDiscovery` is covered in 9 of 9 runs. I read the diffs: every run
+enforces the limit inside `storage.CreateFeed`, where the single INSERT into `feeds` lives, so
+the discovery path, the web UI and the Google Reader API are covered whichever handler calls it.
+Several runs also added an early check in the API handler. This was established from the diffs,
+not by exercising the discovery route.
 
-B also wrote an `@effects` tag on the handler it added, unprompted, and the tag was correct.
+## B and untagged functions (ruling 5)
 
-Sheet: `results/shakedown.csv`. Per run: `runs/task0-*/` (prompts, full model stream, tool log,
-diff, suite output, acceptance result).
+Per run, functions on the hand-tag list that B queried with `graph` / opened with `open_file`:
 
-## What scored runs will cost
+| Task | Run 1 | Run 2 | Run 3 |
+|---|---|---|---|
+| 1 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 2 | 0 / 4 | 1 / 2 | 0 / 2 |
+| 3 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 4 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 5 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 6 | 0 / 5 | 0 / 1 | 0 / 5 |
 
-Shakedown runs cost $0.21 to $0.46 each at list price and took under a minute. Tasks 1 to 6 are
-larger. With task 3 unresolved there are 5 tasks x 3 arms x 3 repeats = 45 runs (54 with a
-replacement task 3). Three runs in parallel worked without port or database collisions.
+"Opened" means the range B read overlapped the function, which includes reading a whole file
+that happens to contain one. All of these runs were correct, so the untagged functions cost
+nothing measurable here.
 
-## Files added since checkpoint 1
+## Other observations
+
+- **Tools.** B called `graph` in 12 of 18 runs, but its output was small (0 to 7k characters
+  per run). Most of B's locating was done with `signatures`, and with `where` on task 6.
+- **Layer upkeep.** B and A1 runs updated or added `@effects` comments on functions they
+  changed, without being asked. I did not run the checker over the 36 annotated-tree diffs, so I
+  cannot say how many of those tags are correct.
+- **Blast radius.** Diffs touched 0 to 3 files outside the reference set on tasks 1 to 5 in every
+  arm, mostly `client/model.go` and a test file. On task 6 it was 0 to 8 with no arm standing out;
+  designs differed (the reference threads an opt-in through storage, most runs added an audit
+  helper and called it from handlers).
+- **check().** 47 runs called it once, 7 called it twice, none more. The cap of 10 never bound.
+- **Validity.** No run timed out, hit a rate limit or was repeated. All 54 called `finish`.
+
+## Per-task tables
+
+Correct means existing suite passes and every gating acceptance check passes. Cost is list price
+as reported by the CLI.
+### Task 1: per-feed fetch interval
+
+| Arm | Correct | Context at finish (median; range) | Cumulative input (median) | Files opened (median; range) | Lines read (median) | Tool calls (median) | check() (median) | Diff files (median; reference 32) | Cost (median) |
+|---|---|---|---|---|---|---|---|---|---|
+| A0 | 3 of 3 | 58,710; 56,781-69,412 | 396,712 | 11; 10-12 | 1,788 | 67 | 1 | 34 | $1.64 |
+| A1 | 3 of 3 | 70,254; 59,479-71,683 | 427,040 | 10; 10-14 | 1,300 | 97 | 1 | 34 | $2.02 |
+| B | 3 of 3 | 98,865; 88,222-108,646 | 549,902 | 13; 12-15 | 2,084 | 97 | 1 | 34 | $2.39 |
+
+B and untagged functions (queried / opened per run): 0 / 0, 0 / 0, 0 / 0
+
+Files touched outside the reference set (per run): A0: 2, 2, 2; A1: 1, 2, 2; B: 2, 2, 2
+
+### Task 2: entry word count
+
+| Arm | Correct | Context at finish (median; range) | Cumulative input (median) | Files opened (median; range) | Lines read (median) | Tool calls (median) | check() (median) | Diff files (median; reference 5) | Cost (median) |
+|---|---|---|---|---|---|---|---|---|---|
+| A0 | 3 of 3 | 37,590; 32,998-38,017 | 194,284 | 6; 6-7 | 1,094 | 33 | 1 | 5 | $0.81 |
+| A1 | 3 of 3 | 38,712; 38,408-40,290 | 237,097 | 8; 6-8 | 1,156 | 38 | 1 | 5 | $0.90 |
+| B | 3 of 3 | 53,830; 47,831-64,803 | 368,798 | 8; 6-9 | 826 | 33 | 1 | 5 | $1.09 |
+
+B and untagged functions (queried / opened per run): 0 / 4, 1 / 2, 0 / 2
+
+Files touched outside the reference set (per run): A0: 1, 1, 1; A1: 1, 1, 1; B: 1, 1, 0
+
+### Task 3: per-user feed limit
+
+| Arm | Correct | Context at finish (median; range) | Cumulative input (median) | Files opened (median; range) | Lines read (median) | Tool calls (median) | check() (median) | Diff files (median; reference 8) | Cost (median) |
+|---|---|---|---|---|---|---|---|---|---|
+| A0 | 3 of 3 | 57,290; 47,988-60,039 | 332,119 | 12; 10-13 | 2,062 | 54 | 1 | 10 | $1.45 |
+| A1 | 3 of 3 | 62,314; 52,792-64,533 | 331,692 | 10; 9-10 | 1,949 | 48 | 1 | 9 | $1.58 |
+| B | 3 of 3 | 81,519; 54,366-85,354 | 489,218 | 11; 9-13 | 1,784 | 50 | 1 | 9 | $1.81 |
+
+B and untagged functions (queried / opened per run): 0 / 0, 0 / 0, 0 / 0
+
+Files touched outside the reference set (per run): A0: 2, 2, 2; A1: 3, 1, 0; B: 0, 2, 1
+
+### Task 4: rotate API keys
+
+| Arm | Correct | Context at finish (median; range) | Cumulative input (median) | Files opened (median; range) | Lines read (median) | Tool calls (median) | check() (median) | Diff files (median; reference 3) | Cost (median) |
+|---|---|---|---|---|---|---|---|---|---|
+| A0 | 3 of 3 | 19,036; 18,915-20,153 | 102,012 | 4; 4-5 | 294 | 16 | 1 | 4 | $0.44 |
+| A1 | 3 of 3 | 18,250; 15,397-21,630 | 86,397 | 4; 4-5 | 473 | 16 | 1 | 4 | $0.43 |
+| B | 3 of 3 | 23,892; 18,870-29,104 | 89,164 | 4; 4-5 | 467 | 13 | 1 | 3 | $0.40 |
+
+B and untagged functions (queried / opened per run): 0 / 0, 0 / 0, 0 / 0
+
+Files touched outside the reference set (per run): A0: 1, 1, 1; A1: 0, 1, 1; B: 0, 0, 1
+
+### Task 5: fetch timeout per feed
+
+| Arm | Correct | Context at finish (median; range) | Cumulative input (median) | Files opened (median; range) | Lines read (median) | Tool calls (median) | check() (median) | Diff files (median; reference 8) | Cost (median) |
+|---|---|---|---|---|---|---|---|---|---|
+| A0 | 3 of 3 | 37,163; 23,885-38,335 | 170,905 | 9; 5-9 | 1,036 | 33 | 1 | 9 | $0.89 |
+| A1 | 3 of 3 | 39,606; 35,449-51,045 | 209,599 | 9; 7-10 | 1,141 | 35 | 1 | 9 | $0.96 |
+| B | 3 of 3 | 58,453; 55,304-63,049 | 393,801 | 8; 8-8 | 1,464 | 34 | 1 | 7 | $1.17 |
+
+B and untagged functions (queried / opened per run): 0 / 0, 0 / 0, 0 / 0
+
+Files touched outside the reference set (per run): A0: 0, 1, 1; A1: 1, 1, 1; B: 1, 1, 1
+
+### Task 6: audit log
+
+| Arm | Correct | Context at finish (median; range) | Cumulative input (median) | Files opened (median; range) | Lines read (median) | Tool calls (median) | check() (median) | Diff files (median; reference 8) | Cost (median) |
+|---|---|---|---|---|---|---|---|---|---|
+| A0 | 3 of 3 | 75,189; 39,564-81,296 | 422,321 | 15; 7-16 | 2,646 | 66 | 1 | 12 | $2.11 |
+| A1 | 3 of 3 | 81,931; 72,056-93,456 | 490,104 | 15; 15-16 | 2,893 | 71 | 1 | 11 | $2.21 |
+| B | 3 of 3 | 60,725; 57,079-83,225 | 365,772 | 13; 12-14 | 1,553 | 71 | 1 | 11 | $1.71 |
+
+Paths found out of 8: A0: 8, 8, 8; A1: 8, 8, 8; B: 8, 8, 8
+
+B and untagged functions (queried / opened per run): 0 / 5, 0 / 1, 0 / 5
+
+Files touched outside the reference set (per run): A0: 5, 0, 8; A1: 6, 6, 3; B: 5, 7, 6
+
+## Before the runs: what changed since checkpoint 2
+
+- Task 3 replaced with the per-user feed limit, and its test written, before any reference
+  existed.
+- Reference solutions written for all six tasks by separate agents (`reference/`). All six
+  acceptance tests passed against their references as first written; I re-ran each twice
+  myself with the same result. **No test was changed.** The log is in `reference/README.md`.
+- No acceptance failure occurred in the scored runs, so the hand-review backstop was not
+  triggered.
+- grep skips `graph.json` unless named; A1's prompt says so.
+
+## Cost and time
+
+54 runs, 46 minutes wall clock at three in parallel, $70.71 at list price. Median run 107 s,
+longest 211 s.
+
+## Files
 
 | Path | What |
 |---|---|
-| `DECISIONS.md` | Rulings |
-| `TASKS.md` | Exact task text per task, with the proposed Interface lines |
-| `harness/mcp_server.py`, `run.py`, `prompts.py`, `check.sh` | Tool server, runner, prompts, build-and-test |
-| `acceptance/lib.py`, `tests.py`, `run.py` | Hidden acceptance tests |
-| `results/shakedown.csv`, `runs/task0-*/` | Shakedown results and artifacts |
-| `baseline/miniflux-integration-run{1,2,3}.txt` | The three integration runs |
-| `reports/checkpoint1.md` | Previous report |
+| `results/results.csv` | One row per scored run |
+| `results/per-task.md`, `results/analyze.py` | The tables above and the script that makes them |
+| `results/batch.log` | Run order and one summary line per run |
+| `runs/task<T>-<arm>-<n>/` | Prompts, model stream, tool log, diff, suite output, acceptance result |
+| `reference/` | Reference diffs and the test change log |
+| `TASKS.md` | Exact task text |

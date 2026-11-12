@@ -1,0 +1,134 @@
+diff --git a/client/client.go b/client/client.go
+index ea58401e..8d3b0c22 100644
+--- a/client/client.go
++++ b/client/client.go
+@@ -338,6 +338,31 @@ func (c *Client) CreateAPIKeyContext(ctx context.Context, description string) (*
+ 	return apiKey, nil
+ }
+ 
++// RegenerateAPIKey replaces the token of an API key and invalidates the old one.
++// @effects: net, mut
++func (c *Client) RegenerateAPIKey(apiKeyID int64) (*APIKey, error) {
++	ctx, cancel := withDefaultTimeout()
++	defer cancel()
++	return c.RegenerateAPIKeyContext(ctx, apiKeyID)
++}
++
++// RegenerateAPIKeyContext replaces the token of an API key and invalidates the old one.
++// @effects: net, mut
++func (c *Client) RegenerateAPIKeyContext(ctx context.Context, apiKeyID int64) (*APIKey, error) {
++	body, err := c.request.Post(ctx, fmt.Sprintf("/v1/api-keys/%d/regenerate", apiKeyID), nil)
++	if err != nil {
++		return nil, err
++	}
++	defer body.Close()
++
++	var apiKey *APIKey
++	if err := json.NewDecoder(body).Decode(&apiKey); err != nil {
++		return nil, fmt.Errorf("miniflux: response error (%v)", err)
++	}
++
++	return apiKey, nil
++}
++
+ // DeleteAPIKey removes an API key for the authenticated user.
+ // @effects: net, mut
+ func (c *Client) DeleteAPIKey(apiKeyID int64) error {
+diff --git a/internal/api/api.go b/internal/api/api.go
+index 12e022e2..7589275b 100644
+--- a/internal/api/api.go
++++ b/internal/api/api.go
+@@ -74,6 +74,7 @@ func NewHandler(store *storage.Storage, pool *worker.Pool) http.Handler {
+ 	mux.HandleFunc("POST /v1/api-keys", handler.createAPIKeyHandler)
+ 	mux.HandleFunc("GET /v1/api-keys", handler.getAPIKeysHandler)
+ 	mux.HandleFunc("DELETE /v1/api-keys/{apiKeyID}", handler.deleteAPIKeyHandler)
++	mux.HandleFunc("POST /v1/api-keys/{apiKeyID}/regenerate", handler.regenerateAPIKeyHandler)
+ 
+ 	return middleware.withCORSHeaders(middleware.validateAPIKeyAuth(middleware.validateBasicAuth(mux)))
+ }
+diff --git a/internal/api/api_key_handlers.go b/internal/api/api_key_handlers.go
+index fba36a6a..2b49a128 100644
+--- a/internal/api/api_key_handlers.go
++++ b/internal/api/api_key_handlers.go
+@@ -50,6 +50,28 @@ func (h *handler) getAPIKeysHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, apiKeys)
+ }
+ 
++// @effects: writes api_keys
++func (h *handler) regenerateAPIKeyHandler(w http.ResponseWriter, r *http.Request) {
++	userID := request.UserID(r)
++	apiKeyID := request.RouteInt64Param(r, "apiKeyID")
++	if apiKeyID == 0 {
++		response.JSONBadRequest(w, r, errors.New("invalid API key ID"))
++		return
++	}
++
++	apiKey, err := h.store.RegenerateAPIKey(userID, apiKeyID)
++	if err != nil {
++		if errors.Is(err, storage.ErrAPIKeyNotFound) {
++			response.JSONNotFound(w, r)
++			return
++		}
++		response.JSONServerError(w, r, err)
++		return
++	}
++
++	response.JSON(w, r, apiKey)
++}
++
+ // @effects: writes api_keys
+ func (h *handler) deleteAPIKeyHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+diff --git a/internal/storage/api_key.go b/internal/storage/api_key.go
+index 2149bbd2..8eabfb50 100644
+--- a/internal/storage/api_key.go
++++ b/internal/storage/api_key.go
+@@ -4,6 +4,7 @@
+ package storage // import "miniflux.app/v2/internal/storage"
+ 
+ import (
++	"database/sql"
+ 	"errors"
+ 	"fmt"
+ 
+@@ -104,6 +105,40 @@ func (s *Storage) CreateAPIKey(userID int64, description string) (*model.APIKey,
+ 	return &apiKey, nil
+ }
+ 
++// RegenerateAPIKey replaces the token of an API Key by a new one.
++// @effects: writes api_keys
++func (s *Storage) RegenerateAPIKey(userID, keyID int64) (*model.APIKey, error) {
++	query := `
++		UPDATE api_keys
++		SET token=$1, last_used_at=NULL
++		WHERE id=$2 AND user_id=$3
++		RETURNING
++			id, user_id, token, description, last_used_at, created_at
++	`
++	var apiKey model.APIKey
++	err := s.db.QueryRow(
++		query,
++		crypto.GenerateRandomStringHex(32),
++		keyID,
++		userID,
++	).Scan(
++		&apiKey.ID,
++		&apiKey.UserID,
++		&apiKey.Token,
++		&apiKey.Description,
++		&apiKey.LastUsedAt,
++		&apiKey.CreatedAt,
++	)
++	if errors.Is(err, sql.ErrNoRows) {
++		return nil, ErrAPIKeyNotFound
++	}
++	if err != nil {
++		return nil, fmt.Errorf(`store: unable to regenerate API Key: %v`, err)
++	}
++
++	return &apiKey, nil
++}
++
+ // DeleteAPIKey deletes an API Key.
+ // @effects: writes api_keys
+ func (s *Storage) DeleteAPIKey(userID, keyID int64) error {

@@ -1,0 +1,168 @@
+{"tool": "signatures", "pkg": "internal/model", "functions": 62, "t": 1794462402.492}
+{"tool": "_result", "name": "signatures", "chars": 8953, "t": 1794462402.492}
+{"tool": "signatures", "pkg": "internal/database", "functions": 3, "t": 1794462403.087}
+{"tool": "_result", "name": "signatures", "chars": 1075, "t": 1794462403.087}
+{"tool": "signatures", "pkg": "internal/ui/form", "functions": 26, "t": 1794462403.096}
+{"tool": "_result", "name": "signatures", "chars": 4375, "t": 1794462403.096}
+{"tool": "where", "effect": "reads feeds", "pkg": "internal/storage", "hits": 32, "t": 1794462403.676}
+{"tool": "_result", "name": "where", "chars": 3405, "t": 1794462403.677}
+{"tool": "where", "effect": "writes feeds", "pkg": "internal/storage", "hits": 7, "t": 1794462404.328}
+{"tool": "_result", "name": "where", "chars": 811, "t": 1794462404.328}
+{"tool": "open_file", "path": "internal/model/feed.go", "start": 1, "end": 333, "lines": 333, "file_lines": 333, "t": 1794462405.705}
+{"tool": "_result", "name": "open_file", "chars": 12600, "t": 1794462405.705}
+{"tool": "open_file", "path": "internal/storage/feed.go", "start": 240, "end": 465, "lines": 226, "file_lines": 511, "t": 1794462406.304}
+{"tool": "_result", "name": "open_file", "chars": 5977, "t": 1794462406.304}
+{"tool": "open_file", "path": "internal/storage/feed_query_builder.go", "start": 130, "end": 320, "lines": 191, "file_lines": 366, "t": 1794462407.04}
+{"tool": "_result", "name": "open_file", "chars": 5331, "t": 1794462407.041}
+{"tool": "open_file", "path": "internal/ui/form/feed.go", "start": 1, "end": 149, "lines": 149, "file_lines": 149, "t": 1794462407.462}
+{"tool": "_result", "name": "open_file", "chars": 5889, "t": 1794462407.462}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1, "end": 40, "lines": 40, "file_lines": 1594, "t": 1794462408.199}
+{"tool": "_result", "name": "open_file", "chars": 1162, "t": 1794462408.199}
+{"tool": "graph", "id": "internal/model.(*Feed).ScheduleNextCheck", "found": true, "t": 1794462408.554}
+{"tool": "_result", "name": "graph", "chars": 873, "t": 1794462408.554}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1555, "end": 1594, "lines": 40, "file_lines": 1594, "t": 1794462411.1}
+{"tool": "_result", "name": "open_file", "chars": 1633, "t": 1794462411.1}
+{"tool": "graph", "id": "internal/reader/handler.RefreshFeed", "found": true, "t": 1794462411.575}
+{"tool": "_result", "name": "graph", "chars": 4130, "t": 1794462411.575}
+{"tool": "graph", "id": "internal/ui/form.NewFeedForm", "found": true, "t": 1794462412.049}
+{"tool": "_result", "name": "graph", "chars": 315, "t": 1794462412.049}
+{"tool": "signatures", "pkg": "internal/template", "functions": 15, "t": 1794462412.418}
+{"tool": "_result", "name": "signatures", "chars": 2166, "t": 1794462412.418}
+{"tool": "graph", "id": "internal/model.(*FeedModificationRequest).Patch", "found": true, "t": 1794462412.733}
+{"tool": "_result", "name": "graph", "chars": 442, "t": 1794462412.733}
+{"tool": "graph", "id": "internal/ui.(*handler).updateFeed", "found": true, "t": 1794462414.607}
+{"tool": "_result", "name": "graph", "chars": 1806, "t": 1794462414.607}
+{"tool": "graph", "id": "internal/api.(*handler).updateFeedHandler", "found": true, "t": 1794462415.082}
+{"tool": "_result", "name": "graph", "chars": 1322, "t": 1794462415.082}
+{"tool": "open_file", "path": "internal/reader/handler/handler.go", "start": 205, "end": 300, "lines": 96, "file_lines": 386, "t": 1794462415.821}
+{"tool": "_result", "name": "open_file", "chars": 4593, "t": 1794462415.821}
+{"tool": "open_file", "path": "internal/template/templates/views/edit_feed.html", "start": 1, "end": 308, "lines": 308, "file_lines": 308, "t": 1794462416.295}
+{"tool": "_result", "name": "open_file", "chars": 20253, "t": 1794462416.295}
+{"tool": "open_file", "path": "internal/storage/batch.go", "start": 1, "end": 147, "lines": 147, "file_lines": 147, "t": 1794462416.555}
+{"tool": "_result", "name": "open_file", "chars": 4131, "t": 1794462416.555}
+{"tool": "open_file", "path": "internal/ui/feed_update.go", "start": 1, "end": 87, "lines": 87, "file_lines": 87, "t": 1794462424.665}
+{"tool": "_result", "name": "open_file", "chars": 3303, "t": 1794462424.665}
+{"tool": "signatures", "pkg": "internal/ui", "functions": 128, "t": 1794462425.036}
+{"tool": "_result", "name": "signatures", "chars": 31450, "t": 1794462425.036}
+{"tool": "open_file", "path": "internal/api/feed_handlers.go", "start": 120, "end": 175, "lines": 56, "file_lines": 298, "t": 1794462425.774}
+{"tool": "_result", "name": "open_file", "chars": 1851, "t": 1794462425.774}
+{"tool": "signatures", "pkg": "internal/validator", "functions": 36, "t": 1794462426.149}
+{"tool": "_result", "name": "signatures", "chars": 6625, "t": 1794462426.149}
+{"tool": "open_file", "path": "internal/reader/handler/handler.go", "start": 300, "end": 386, "lines": 87, "file_lines": 386, "t": 1794462426.883}
+{"tool": "_result", "name": "open_file", "chars": 4258, "t": 1794462426.883}
+{"tool": "signatures", "pkg": "internal/locale", "functions": 18, "t": 1794462427.149}
+{"tool": "_result", "name": "signatures", "chars": 3403, "t": 1794462427.149}
+{"tool": "signatures", "pkg": "internal/locale/translations", "functions": 0, "t": 1794462434.893}
+{"tool": "_result", "name": "signatures", "chars": 387, "t": 1794462434.893}
+{"tool": "open_file", "path": "internal/ui/feed_edit.go", "start": 40, "end": 93, "lines": 54, "file_lines": 93, "t": 1794462435.634}
+{"tool": "_result", "name": "open_file", "chars": 2488, "t": 1794462435.634}
+{"tool": "open_file", "path": "internal/validator/feed.go", "start": 88, "end": 180, "lines": 93, "file_lines": 188, "t": 1794462436.373}
+{"tool": "_result", "name": "open_file", "chars": 3142, "t": 1794462436.373}
+{"tool": "open_file", "path": "internal/locale/catalog_test.go", "start": 1, "end": 170, "lines": 170, "file_lines": 170, "t": 1794462436.682}
+{"tool": "_result", "name": "open_file", "chars": 5239, "t": 1794462436.682}
+{"tool": "signatures", "pkg": "client", "functions": 132, "t": 1794462463.516}
+{"tool": "_result", "name": "signatures", "chars": 20758, "t": 1794462463.516}
+{"tool": "open_file", "path": "internal/locale/translations/en_US.json", "start": 1, "end": 4, "lines": 4, "file_lines": 659, "t": 1794462464.104}
+{"tool": "_result", "name": "open_file", "chars": 192, "t": 1794462464.104}
+{"tool": "open_file", "path": "client/model.go", "start": 142, "end": 262, "lines": 121, "file_lines": 401, "t": 1794462466.732}
+{"tool": "_result", "name": "open_file", "chars": 6870, "t": 1794462466.732}
+{"tool": "edit", "path": "client/model.go", "matches": 1, "t": 1794462470.088}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462470.089}
+{"tool": "edit", "path": "client/model.go", "matches": 1, "t": 1794462471.406}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462471.406}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462472.933}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462472.933}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462475.514}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462475.514}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462478.305}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462478.305}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462479.462}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462479.462}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462480.777}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462480.777}
+{"tool": "edit", "path": "internal/database/migrations.go", "matches": 1, "t": 1794462482.83}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462482.83}
+{"tool": "edit", "path": "internal/storage/feed_query_builder.go", "matches": 1, "t": 1794462483.882}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462483.882}
+{"tool": "edit", "path": "internal/storage/feed_query_builder.go", "matches": 1, "t": 1794462484.989}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462484.989}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462487.363}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462487.363}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462488.409}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462488.409}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462489.514}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462489.515}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462490.461}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462490.461}
+{"tool": "edit", "path": "internal/validator/feed.go", "matches": 1, "t": 1794462494.251}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462494.251}
+{"tool": "open_file", "path": "internal/validator/feed.go", "start": 1, "end": 16, "lines": 16, "file_lines": 195, "t": 1794462494.935}
+{"tool": "_result", "name": "open_file", "chars": 537, "t": 1794462494.935}
+{"tool": "edit", "path": "internal/ui/form/feed.go", "matches": 1, "t": 1794462496.04}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462496.041}
+{"tool": "edit", "path": "internal/ui/form/feed.go", "matches": 1, "t": 1794462497.199}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462497.199}
+{"tool": "edit", "path": "internal/ui/form/feed.go", "matches": 1, "t": 1794462499.725}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462499.725}
+{"tool": "edit", "path": "internal/ui/form/feed.go", "matches": 1, "t": 1794462500.567}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462500.567}
+{"tool": "edit", "path": "internal/ui/feed_update.go", "matches": 1, "t": 1794462501.989}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462501.989}
+{"tool": "edit", "path": "internal/ui/feed_edit.go", "matches": 1, "t": 1794462503.146}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462503.146}
+{"tool": "edit", "path": "internal/template/templates/views/edit_feed.html", "matches": 1, "t": 1794462504.78}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462504.78}
+{"tool": "edit", "path": "internal/validator/feed.go", "matches": 1, "t": 1794462508.138}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462508.138}
+{"tool": "edit", "path": "internal/locale/translations/en_US.json", "matches": 1, "t": 1794462509.665}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462509.665}
+{"tool": "edit", "path": "internal/locale/translations/ar_SA.json", "matches": 1, "t": 1794462511.192}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462511.193}
+{"tool": "edit", "path": "internal/locale/translations/de_DE.json", "matches": 1, "t": 1794462512.67}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462512.67}
+{"tool": "edit", "path": "internal/locale/translations/el_EL.json", "matches": 1, "t": 1794462514.194}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462514.194}
+{"tool": "edit", "path": "internal/locale/translations/es_ES.json", "matches": 1, "t": 1794462515.721}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462515.721}
+{"tool": "edit", "path": "internal/locale/translations/fi_FI.json", "matches": 1, "t": 1794462517.247}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462517.247}
+{"tool": "edit", "path": "internal/locale/translations/fr_FR.json", "matches": 1, "t": 1794462518.773}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462518.773}
+{"tool": "edit", "path": "internal/locale/translations/gl_ES.json", "matches": 1, "t": 1794462520.3}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462520.3}
+{"tool": "edit", "path": "internal/locale/translations/hi_IN.json", "matches": 1, "t": 1794462521.773}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462521.774}
+{"tool": "edit", "path": "internal/locale/translations/id_ID.json", "matches": 1, "t": 1794462523.306}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462523.306}
+{"tool": "edit", "path": "internal/locale/translations/it_IT.json", "matches": 1, "t": 1794462524.827}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462524.827}
+{"tool": "edit", "path": "internal/locale/translations/ja_JP.json", "matches": 1, "t": 1794462526.354}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462526.354}
+{"tool": "edit", "path": "internal/locale/translations/ko_KR.json", "matches": 1, "t": 1794462527.885}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462527.886}
+{"tool": "edit", "path": "internal/locale/translations/nan_Latn_pehoeji.json", "matches": 1, "t": 1794462529.408}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462529.408}
+{"tool": "edit", "path": "internal/locale/translations/nl_NL.json", "matches": 1, "t": 1794462530.94}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462530.944}
+{"tool": "edit", "path": "internal/locale/translations/pl_PL.json", "matches": 1, "t": 1794462532.474}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462532.476}
+{"tool": "edit", "path": "internal/locale/translations/pt_BR.json", "matches": 1, "t": 1794462533.985}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462533.985}
+{"tool": "edit", "path": "internal/locale/translations/ro_RO.json", "matches": 1, "t": 1794462535.513}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462535.514}
+{"tool": "edit", "path": "internal/locale/translations/ru_RU.json", "matches": 1, "t": 1794462537.038}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462537.038}
+{"tool": "edit", "path": "internal/locale/translations/tr_TR.json", "matches": 1, "t": 1794462538.564}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462538.565}
+{"tool": "edit", "path": "internal/locale/translations/uk_UA.json", "matches": 1, "t": 1794462540.092}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462540.093}
+{"tool": "edit", "path": "internal/locale/translations/vi_VN.json", "matches": 1, "t": 1794462541.62}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462541.62}
+{"tool": "edit", "path": "internal/locale/translations/zh_CN.json", "matches": 1, "t": 1794462543.144}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462543.144}
+{"tool": "edit", "path": "internal/locale/translations/zh_TW.json", "matches": 1, "t": 1794462544.67}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462544.67}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 23.8, "chars": 56, "t": 1794462568.507}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462568.507}
+{"tool": "finish", "summary": "Added an optional per-feed polling interval, `refresh_interval` (integer minutes, 0 = use the global interval). The build and all existing unit and integration tests pass; the new behaviour itself has no tests of its own here.\n\nWhat changed:\n- **Migration**: new migration at the end of the list adds `feeds.refresh_interval int not null default 0`.\n- **Model / API**: `Feed.RefreshInterval` appears in the feed JSON as `refresh_interval`; `PUT /v1/feeds/{feedID}` accepts it via `FeedModificationRequest`. The Go client's `Feed` and `FeedModificationRequest` carry the field too (`*int` on the request).\n- **Storage**: the column is read in the feed query and written by `CreateFeed` and `UpdateFeed`.\n- **Scheduler**: `Feed.ScheduleNextCheck` uses the per-feed interval when it is above 0, instead of the round-robin / entry-frequency calculation.\n- **Web UI**: the feed edit form has a number input named `refresh_interval` in the network settings fieldset, pre-filled from the feed and saved on update.\n- **Validation**: negative values (and values above the int32 column range) are rejected with a new error message, in both the API and the UI. A non-numeric value in the web form is rejected rather than silently treated as 0.\n\nBehaviour choices worth knowing:\n- A server-requested delay (Retry-After, feed TTL, Cache-Control, Expires) still wins if it is longer than the per-feed interval. The global maximum-interval clamp is not applied to a per-feed value.\n- Setting a shorter interval pulls `next_check_at` forward, so it takes effect without waiting out the previously scheduled check. This goes through a new `Feed.SetRefreshInterval` helper used by both the API patch and the UI form merge.\n- A web-form submission without the `refresh_interval` field resets the feed to 0 (global), like the form's other fields.\n\nTranslations: the two new keys (`form.feed.label.refresh_interval`, `error.feed_invalid_refresh_interval`) were added to all 24 locale files with English text, since the lo", "t": 1794462577.197}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794462577.197}

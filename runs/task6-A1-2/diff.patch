@@ -1,0 +1,582 @@
+diff --git a/internal/api/.agentpolicy b/internal/api/.agentpolicy
+index 8f60180f..9cf16246 100644
+--- a/internal/api/.agentpolicy
++++ b/internal/api/.agentpolicy
+@@ -1,3 +1,3 @@
+-nouns: users, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations
++nouns: users, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations, audit_log
+ priority: correctness
+ boundary: ingress
+diff --git a/internal/api/category_handlers.go b/internal/api/category_handlers.go
+index 72040793..9ce35542 100644
+--- a/internal/api/category_handlers.go
++++ b/internal/api/category_handlers.go
+@@ -14,6 +14,7 @@ import (
+ 	"miniflux.app/v2/internal/http/request"
+ 	"miniflux.app/v2/internal/http/response"
+ 	"miniflux.app/v2/internal/model"
++	"miniflux.app/v2/internal/storage"
+ 	"miniflux.app/v2/internal/validator"
+ )
+ 
+@@ -141,7 +142,7 @@ func (h *handler) getCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, categories)
+ }
+ 
+-// @effects: reads categories, writes categories
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes categories
+ func (h *handler) removeCategoryHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 
+@@ -161,11 +162,27 @@ func (h *handler) removeCategoryHandler(w http.ResponseWriter, r *http.Request)
+ 		return
+ 	}
+ 
++	// Removing a category also deletes its feeds (cascade), so collect them first.
++	categoryFeeds, err := h.store.FeedsByCategoryWithCounters(userID, categoryID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++	feedIDs := make([]int64, 0, len(categoryFeeds))
++	for _, feed := range categoryFeeds {
++		feedIDs = append(feedIDs, feed.ID)
++	}
++
+ 	if err := h.store.RemoveCategory(userID, categoryID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(userID, storage.AuditActionDelete, storage.AuditTableFeeds, feedIDs...); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+ 
+diff --git a/internal/api/feed_handlers.go b/internal/api/feed_handlers.go
+index cc11f4e8..1536db18 100644
+--- a/internal/api/feed_handlers.go
++++ b/internal/api/feed_handlers.go
+@@ -20,7 +20,7 @@ import (
+ 	"miniflux.app/v2/internal/validator"
+ )
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes audit_log, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 
+@@ -59,10 +59,15 @@ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(userID, storage.AuditActionCreate, storage.AuditTableFeeds, feed.ID); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.JSONCreated(w, r, &feedCreationResponse{FeedID: feed.ID})
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads users, writes audit_log, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	feedID := request.RouteInt64Param(r, "feedID")
+ 	if feedID == 0 {
+@@ -85,11 +90,21 @@ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	// and reprocesses (and re-scrapes) entries that are already stored.
+ 	forceRefresh := request.QueryBoolParam(r, "force", false)
+ 	localizedError := feedHandler.RefreshFeed(h.store, userID, feedID, forceRefresh)
++
++	// A failed refresh still updates the feed row (error counters, check dates),
++	// so the audit entry is appended whatever the outcome.
++	auditErr := h.store.AppendAuditLog(userID, storage.AuditActionUpdate, storage.AuditTableFeeds, feedID)
++
+ 	if localizedError != nil {
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+ 	}
+ 
++	if auditErr != nil {
++		response.JSONServerError(w, r, auditErr)
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+ 
+@@ -120,7 +135,7 @@ func (h *handler) refreshAllFeedsHandler(w http.ResponseWriter, r *http.Request)
+ 	response.NoContent(w, r)
+ }
+ 
+-// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes feeds
+ func (h *handler) updateFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	feedID := request.RouteInt64Param(r, "feedID")
+ 	if feedID == 0 {
+@@ -158,6 +173,11 @@ func (h *handler) updateFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(userID, storage.AuditActionUpdate, storage.AuditTableFeeds, feedID); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	originalFeed, err = h.store.FeedByID(userID, feedID)
+ 	if err != nil {
+ 		response.JSONServerError(w, r, err)
+@@ -269,7 +289,7 @@ func (h *handler) getFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, feed)
+ }
+ 
+-// @effects: reads feeds, writes feeds
++// @effects: reads feeds, writes audit_log, writes feeds
+ func (h *handler) removeFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	feedID := request.RouteInt64Param(r, "feedID")
+ 	if feedID == 0 {
+@@ -293,5 +313,10 @@ func (h *handler) removeFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(userID, storage.AuditActionDelete, storage.AuditTableFeeds, feedID); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+diff --git a/internal/api/opml_handlers.go b/internal/api/opml_handlers.go
+index 5800d429..fff2dcce 100644
+--- a/internal/api/opml_handlers.go
++++ b/internal/api/opml_handlers.go
+@@ -26,11 +26,18 @@ func (h *handler) exportFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.XML(w, r, opmlExport)
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes categories, writes enclosures, writes entries, writes feeds
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes audit_log, writes categories, writes enclosures, writes entries, writes feeds
+ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 	opmlHandler := opml.NewHandler(h.store)
+-	err := opmlHandler.Import(request.UserID(r), r.Body)
++	createdFeedIDs, err := opmlHandler.ImportFeeds(request.UserID(r), r.Body)
+ 	defer r.Body.Close()
++
++	// Feeds created before a failure are kept, so they are audited in every case.
++	auditErr := h.store.AppendAuditLog(request.UserID(r), storage.AuditActionCreate, storage.AuditTableFeeds, createdFeedIDs...)
++	if err == nil {
++		err = auditErr
++	}
++
+ 	if err != nil {
+ 		if errors.Is(err, storage.ErrNoCategory) {
+ 			response.JSONBadRequest(w, r, locale.NewLocalizedError("error.feed_category_not_found").Error())
+diff --git a/internal/api/user_handlers.go b/internal/api/user_handlers.go
+index 6592ed3e..b60e70ae 100644
+--- a/internal/api/user_handlers.go
++++ b/internal/api/user_handlers.go
+@@ -11,6 +11,7 @@ import (
+ 	"miniflux.app/v2/internal/http/request"
+ 	"miniflux.app/v2/internal/http/response"
+ 	"miniflux.app/v2/internal/model"
++	"miniflux.app/v2/internal/storage"
+ 	"miniflux.app/v2/internal/validator"
+ )
+ 
+@@ -30,7 +31,7 @@ func (h *handler) currentUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.JSON(w, r, user)
+ }
+ 
+-// @effects: reads users, writes categories, writes integrations, writes users
++// @effects: reads users, writes audit_log, writes categories, writes integrations, writes users
+ func (h *handler) createUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	if !request.IsAdminUser(r) {
+ 		response.JSONForbidden(w, r)
+@@ -54,10 +55,15 @@ func (h *handler) createUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(request.UserID(r), storage.AuditActionCreate, storage.AuditTableUsers, user.ID); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.JSONCreated(w, r, user)
+ }
+ 
+-// @effects: reads users, writes users, writes web_sessions, mut
++// @effects: reads users, writes audit_log, writes users, writes web_sessions, mut
+ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.RouteInt64Param(r, "userID")
+ 	if userID == 0 {
+@@ -105,6 +111,11 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(request.UserID(r), storage.AuditActionUpdate, storage.AuditTableUsers, originalUser.ID); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	if userModificationRequest.Password != nil {
+ 		if err := h.store.RemoveUserWebSessionsExcept(originalUser.ID, ""); err != nil {
+ 			response.JSONServerError(w, r, err)
+@@ -247,7 +258,7 @@ func (h *handler) userByUsernameHandler(w http.ResponseWriter, r *http.Request)
+ 	response.JSON(w, r, user)
+ }
+ 
+-// @effects: reads users, writes users
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes users
+ func (h *handler) removeUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	if !request.IsAdminUser(r) {
+ 		response.JSONForbidden(w, r)
+@@ -276,10 +287,31 @@ func (h *handler) removeUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	// Removing a user also deletes their feeds (cascade), so collect them first.
++	userFeeds, err := h.store.Feeds(user.ID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++	feedIDs := make([]int64, 0, len(userFeeds))
++	for _, feed := range userFeeds {
++		feedIDs = append(feedIDs, feed.ID)
++	}
++
+ 	if err := h.store.RemoveUser(user.ID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(request.UserID(r), storage.AuditActionDelete, storage.AuditTableUsers, user.ID); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
++	if err := h.store.AppendAuditLog(request.UserID(r), storage.AuditActionDelete, storage.AuditTableFeeds, feedIDs...); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.NoContent(w, r)
+ }
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..0ca5e496 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,23 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// audit_log deliberately has no foreign keys: audit rows must survive
++		// the deletion of the user or feed they refer to.
++		_, err = tx.Exec(`
++			CREATE TABLE audit_log (
++				id bigserial not null,
++				user_id bigint not null,
++				action text not null,
++				table_name text not null,
++				row_id bigint not null,
++				created_at timestamp with time zone not null default now(),
++				primary key (id)
++			);
++
++			CREATE INDEX audit_log_table_row_idx
++				ON audit_log (table_name, row_id);
++		`)
++		return err
++	},
+ }
+diff --git a/internal/googlereader/.agentpolicy b/internal/googlereader/.agentpolicy
+index 861efc69..6eefba2c 100644
+--- a/internal/googlereader/.agentpolicy
++++ b/internal/googlereader/.agentpolicy
+@@ -1,3 +1,3 @@
+-nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures
++nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures, audit_log
+ priority: correctness
+ boundary: ingress
+diff --git a/internal/googlereader/handler.go b/internal/googlereader/handler.go
+index 0346718c..c9e91be9 100644
+--- a/internal/googlereader/handler.go
++++ b/internal/googlereader/handler.go
+@@ -8,6 +8,7 @@ import (
+ 	"fmt"
+ 	"log/slog"
+ 	"net/http"
++	"slices"
+ 	"strconv"
+ 	"time"
+ 
+@@ -322,7 +323,7 @@ func (h *greaderHandler) editTagHandler(w http.ResponseWriter, r *http.Request)
+ 	response.Text(w, r, "OK")
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads integrations, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads integrations, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *greaderHandler) quickAddHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 	clientIP := request.ClientIP(r)
+@@ -422,7 +423,7 @@ func getOrCreateCategory(streamCategory Stream, store *storage.Storage, userID i
+ 	}
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func subscribe(newFeed Stream, category Stream, title string, store *storage.Storage, userID int64) (*model.Feed, error) {
+ 	destCategory, err := getOrCreateCategory(category, store, userID)
+ 	if err != nil {
+@@ -449,6 +450,10 @@ func subscribe(newFeed Stream, category Stream, title string, store *storage.Sto
+ 		return nil, localizedError.Error()
+ 	}
+ 
++	if err := store.AppendAuditLog(userID, storage.AuditActionCreate, storage.AuditTableFeeds, created.ID); err != nil {
++		return nil, err
++	}
++
+ 	if title != "" {
+ 		feedModification := model.FeedModificationRequest{
+ 			Title: &title,
+@@ -457,27 +462,40 @@ func subscribe(newFeed Stream, category Stream, title string, store *storage.Sto
+ 		if err := store.UpdateFeed(created); err != nil {
+ 			return nil, err
+ 		}
++		if err := store.AppendAuditLog(userID, storage.AuditActionUpdate, storage.AuditTableFeeds, created.ID); err != nil {
++			return nil, err
++		}
+ 	}
+ 
+ 	return created, nil
+ }
+ 
+-// @effects: writes feeds
++// @effects: reads feeds, writes audit_log, writes feeds
+ func unsubscribe(streams []Stream, store *storage.Storage, userID int64) error {
+ 	for _, stream := range streams {
+ 		feedID, err := strconv.ParseInt(stream.ID, 10, 64)
+ 		if err != nil {
+ 			return err
+ 		}
++		// Only feeds that really exist are audited: removing an unknown feed changes nothing.
++		exists, err := store.FeedExists(userID, feedID)
++		if err != nil {
++			return err
++		}
+ 		err = store.RemoveFeed(userID, feedID)
+ 		if err != nil {
+ 			return err
+ 		}
++		if exists {
++			if err := store.AppendAuditLog(userID, storage.AuditActionDelete, storage.AuditTableFeeds, feedID); err != nil {
++				return err
++			}
++		}
+ 	}
+ 	return nil
+ }
+ 
+-// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes feeds
+ func rename(feedStream Stream, title string, store *storage.Storage, userID int64) error {
+ 	slog.Debug("[GoogleReader] Renaming feed",
+ 		slog.Int64("user_id", userID),
+@@ -501,10 +519,13 @@ func rename(feedStream Stream, title string, store *storage.Storage, userID int6
+ 		Title: &title,
+ 	}
+ 	feedModification.Patch(feed)
+-	return store.UpdateFeed(feed)
++	if err := store.UpdateFeed(feed); err != nil {
++		return err
++	}
++	return store.AppendAuditLog(userID, storage.AuditActionUpdate, storage.AuditTableFeeds, feed.ID)
+ }
+ 
+-// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes categories, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes feeds
+ func move(feedStream Stream, labelStream Stream, store *storage.Storage, userID int64) error {
+ 	slog.Debug("[GoogleReader] Moving feed",
+ 		slog.Int64("user_id", userID),
+@@ -532,7 +553,10 @@ func move(feedStream Stream, labelStream Stream, store *storage.Storage, userID
+ 		CategoryID: &category.ID,
+ 	}
+ 	feedModification.Patch(feed)
+-	return store.UpdateFeed(feed)
++	if err := store.UpdateFeed(feed); err != nil {
++		return err
++	}
++	return store.AppendAuditLog(userID, storage.AuditActionUpdate, storage.AuditTableFeeds, feed.ID)
+ }
+ 
+ func (h *greaderHandler) feedIconURL(f *model.Feed) string {
+@@ -542,7 +566,7 @@ func (h *greaderHandler) feedIconURL(f *model.Feed) string {
+ 	return ""
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads users, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feed_icons, writes feeds, writes icons, net, mut
+ func (h *greaderHandler) editSubscriptionHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 	clientIP := request.ClientIP(r)
+@@ -759,7 +783,7 @@ func (h *greaderHandler) streamItemContentsHandler(w http.ResponseWriter, r *htt
+ 	response.JSON(w, r, result)
+ }
+ 
+-// @effects: reads categories, writes categories, writes feeds
++// @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes audit_log, writes categories, writes feeds
+ func (h *greaderHandler) disableTagHandler(w http.ResponseWriter, r *http.Request) {
+ 	userID := request.UserID(r)
+ 	clientIP := request.ClientIP(r)
+@@ -792,12 +816,30 @@ func (h *greaderHandler) disableTagHandler(w http.ResponseWriter, r *http.Reques
+ 		titles[i] = stream.ID
+ 	}
+ 
++	// Feeds of the removed categories are moved to another category, so collect them first.
++	userFeeds, err := h.store.Feeds(userID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++	var movedFeedIDs []int64
++	for _, feed := range userFeeds {
++		if feed.Category != nil && slices.Contains(titles, feed.Category.Title) {
++			movedFeedIDs = append(movedFeedIDs, feed.ID)
++		}
++	}
++
+ 	err = h.store.RemoveAndReplaceCategoriesByName(userID, titles)
+ 	if err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+ 
++	if err := h.store.AppendAuditLog(userID, storage.AuditActionUpdate, storage.AuditTableFeeds, movedFeedIDs...); err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++
+ 	response.Text(w, r, "OK")
+ }
+ 
+diff --git a/internal/reader/opml/handler.go b/internal/reader/opml/handler.go
+index a0ce997f..f4096dd7 100644
+--- a/internal/reader/opml/handler.go
++++ b/internal/reader/opml/handler.go
+@@ -60,11 +60,20 @@ func (h *Handler) Export(userID int64) (string, error) {
+ // Import parses and create feeds from an OPML import.
+ // @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes categories, writes enclosures, writes entries, writes feeds, mut
+ func (h *Handler) Import(userID int64, data io.Reader) error {
++	_, err := h.ImportFeeds(userID, data)
++	return err
++}
++
++// ImportFeeds parses and create feeds from an OPML import, and returns the IDs
++// of the feeds that were created, including when an error interrupts the import.
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes categories, writes enclosures, writes entries, writes feeds, mut
++func (h *Handler) ImportFeeds(userID int64, data io.Reader) ([]int64, error) {
+ 	subscriptions, err := parse(data)
+ 	if err != nil {
+-		return err
++		return nil, err
+ 	}
+ 
++	var createdFeedIDs []int64
+ 	for _, subscription := range subscriptions {
+ 		if h.store.FeedURLExists(userID, subscription.FeedURL) {
+ 			continue
+@@ -72,11 +81,11 @@ func (h *Handler) Import(userID int64, data io.Reader) error {
+ 
+ 		category, err := h.resolveCategory(userID, subscription.CategoryName)
+ 		if err != nil {
+-			return err
++			return createdFeedIDs, err
+ 		}
+ 
+ 		if validationErr := validateSubscription(userID, category.ID, h.store, subscription); validationErr != nil {
+-			return fmt.Errorf(`opml: invalid feed settings for %q: %w`, subscription.FeedURL, validationErr)
++			return createdFeedIDs, fmt.Errorf(`opml: invalid feed settings for %q: %w`, subscription.FeedURL, validationErr)
+ 		}
+ 
+ 		feed := &model.Feed{
+@@ -88,12 +97,17 @@ func (h *Handler) Import(userID int64, data io.Reader) error {
+ 			Category:    category,
+ 		}
+ 		applySubscriptionSettings(feed, subscription)
+-		if err := h.store.CreateFeed(feed); err != nil {
+-			return fmt.Errorf(`opml: unable to create this feed: %q`, subscription.FeedURL)
++		err = h.store.CreateFeed(feed)
++		if feed.ID != 0 {
++			// The feed row may exist even when CreateFeed reports an error.
++			createdFeedIDs = append(createdFeedIDs, feed.ID)
++		}
++		if err != nil {
++			return createdFeedIDs, fmt.Errorf(`opml: unable to create this feed: %q`, subscription.FeedURL)
+ 		}
+ 	}
+ 
+-	return nil
++	return createdFeedIDs, nil
+ }
+ 
+ // @effects: reads categories, writes categories
+diff --git a/internal/storage/.agentpolicy b/internal/storage/.agentpolicy
+index 58c7059f..05e27edb 100644
+--- a/internal/storage/.agentpolicy
++++ b/internal/storage/.agentpolicy
+@@ -1,3 +1,3 @@
+-nouns: acme_cache, api_keys, categories, enclosures, entries, entry_tombstones, feed_icons, feeds, icons, integrations, user_sessions, users, webauthn_credentials, web_sessions
++nouns: acme_cache, api_keys, audit_log, categories, enclosures, entries, entry_tombstones, feed_icons, feeds, icons, integrations, user_sessions, users, webauthn_credentials, web_sessions
+ priority: correctness
+ boundary: storage
+diff --git a/internal/storage/audit_log.go b/internal/storage/audit_log.go
+new file mode 100644
+index 00000000..e8fdfdde
+--- /dev/null
++++ b/internal/storage/audit_log.go
+@@ -0,0 +1,41 @@
++// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
++// SPDX-License-Identifier: Apache-2.0
++
++package storage // import "miniflux.app/v2/internal/storage"
++
++import (
++	"fmt"
++
++	"github.com/lib/pq"
++)
++
++// Audit log actions and table names.
++const (
++	AuditActionCreate = "create"
++	AuditActionUpdate = "update"
++	AuditActionDelete = "delete"
++
++	AuditTableUsers = "users"
++	AuditTableFeeds = "feeds"
++)
++
++// AppendAuditLog appends one audit_log row per given row ID, recording that
++// actorUserID performed the action on the given table.
++// @effects: writes audit_log
++func (s *Storage) AppendAuditLog(actorUserID int64, action, tableName string, rowIDs ...int64) error {
++	if len(rowIDs) == 0 {
++		return nil
++	}
++
++	query := `
++		INSERT INTO audit_log
++			(user_id, action, table_name, row_id)
++		SELECT
++			$1, $2, $3, unnest($4::bigint[])
++	`
++	if _, err := s.db.Exec(query, actorUserID, action, tableName, pq.Array(rowIDs)); err != nil {
++		return fmt.Errorf(`store: unable to append audit log for %s (%s): %v`, tableName, action, err)
++	}
++
++	return nil
++}

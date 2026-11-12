@@ -1,0 +1,390 @@
+diff --git a/internal/api/feed_handlers.go b/internal/api/feed_handlers.go
+index cc11f4e8..030b69e6 100644
+--- a/internal/api/feed_handlers.go
++++ b/internal/api/feed_handlers.go
+@@ -53,8 +53,23 @@ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	// Reject early, before fetching the feed. The storage layer enforces the limit again atomically.
++	limitReached, err := h.store.FeedLimitReached(userID)
++	if err != nil {
++		response.JSONServerError(w, r, err)
++		return
++	}
++	if limitReached {
++		response.JSONBadRequest(w, r, storage.ErrFeedLimitReached)
++		return
++	}
++
+ 	feed, localizedError := feedHandler.CreateFeed(h.store, userID, &feedCreationRequest)
+ 	if localizedError != nil {
++		if errors.Is(localizedError.Error(), storage.ErrFeedLimitReached) {
++			response.JSONBadRequest(w, r, storage.ErrFeedLimitReached)
++			return
++		}
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+ 	}
+diff --git a/internal/api/opml_handlers.go b/internal/api/opml_handlers.go
+index 5800d429..a1df14b7 100644
+--- a/internal/api/opml_handlers.go
++++ b/internal/api/opml_handlers.go
+@@ -26,7 +26,7 @@ func (h *handler) exportFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 	response.XML(w, r, opmlExport)
+ }
+ 
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes categories, writes enclosures, writes entries, writes feeds
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads users, writes categories, writes enclosures, writes entries, writes feeds
+ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 	opmlHandler := opml.NewHandler(h.store)
+ 	err := opmlHandler.Import(request.UserID(r), r.Body)
+@@ -36,6 +36,10 @@ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 			response.JSONBadRequest(w, r, locale.NewLocalizedError("error.feed_category_not_found").Error())
+ 			return
+ 		}
++		if errors.Is(err, storage.ErrFeedLimitReached) {
++			response.JSONBadRequest(w, r, storage.ErrFeedLimitReached)
++			return
++		}
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+diff --git a/internal/api/user_handlers.go b/internal/api/user_handlers.go
+index 6592ed3e..f0e7b3df 100644
+--- a/internal/api/user_handlers.go
++++ b/internal/api/user_handlers.go
+@@ -92,6 +92,16 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 			response.JSONBadRequest(w, r, errors.New("only administrators can change permissions of standard users"))
+ 			return
+ 		}
++
++		if userModificationRequest.MaxFeeds != nil {
++			response.JSONForbidden(w, r)
++			return
++		}
++	}
++
++	if userModificationRequest.MaxFeeds != nil && *userModificationRequest.MaxFeeds < 0 {
++		response.JSONBadRequest(w, r, errors.New("max_feeds must be greater than or equal to 0"))
++		return
+ 	}
+ 
+ 	if validationErr := validator.ValidateUserModification(h.store, originalUser.ID, &userModificationRequest); validationErr != nil {
+@@ -105,6 +115,14 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
++	// Only administrators reach this point with a feed limit in the request.
++	if userModificationRequest.MaxFeeds != nil {
++		if err := h.store.SetUserMaxFeeds(originalUser.ID, *userModificationRequest.MaxFeeds); err != nil {
++			response.JSONServerError(w, r, err)
++			return
++		}
++	}
++
+ 	if userModificationRequest.Password != nil {
+ 		if err := h.store.RemoveUserWebSessionsExcept(originalUser.ID, ""); err != nil {
+ 			response.JSONServerError(w, r, err)
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..89a52eeb 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,9 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// Per-user limit on the number of feeds; 0 means unlimited.
++		_, err = tx.Exec(`ALTER TABLE users ADD COLUMN max_feeds int not null default 0`)
++		return err
++	},
+ }
+diff --git a/internal/model/user.go b/internal/model/user.go
+index ace208b4..0ac4f51f 100644
+--- a/internal/model/user.go
++++ b/internal/model/user.go
+@@ -25,6 +25,7 @@ type User struct {
+ 	GoogleID                        string     `json:"google_id"`
+ 	OpenIDConnectID                 string     `json:"openid_connect_id"`
+ 	EntriesPerPage                  int        `json:"entries_per_page"`
++	MaxFeeds                        int        `json:"max_feeds"`
+ 	GestureNav                      string     `json:"gesture_nav"`
+ 	LastLoginAt                     *time.Time `json:"last_login_at"`
+ 	DisplayMode                     string     `json:"display_mode"`
+@@ -67,6 +68,7 @@ type UserModificationRequest struct {
+ 	CustomJS                        *string  `json:"custom_js"`
+ 	ExternalFontHosts               *string  `json:"external_font_hosts"`
+ 	EntriesPerPage                  *int     `json:"entries_per_page"`
++	MaxFeeds                        *int     `json:"max_feeds"`
+ 	IsAdmin                         *bool    `json:"is_admin"`
+ 	KeyboardShortcuts               *bool    `json:"keyboard_shortcuts"`
+ 	ShowReadingTime                 *bool    `json:"show_reading_time"`
+@@ -137,6 +139,10 @@ func (u *UserModificationRequest) Patch(user *User) {
+ 		user.EntriesPerPage = *u.EntriesPerPage
+ 	}
+ 
++	if u.MaxFeeds != nil {
++		user.MaxFeeds = *u.MaxFeeds
++	}
++
+ 	if u.KeyboardShortcuts != nil {
+ 		user.KeyboardShortcuts = *u.KeyboardShortcuts
+ 	}
+diff --git a/internal/reader/opml/handler.go b/internal/reader/opml/handler.go
+index a0ce997f..54f19899 100644
+--- a/internal/reader/opml/handler.go
++++ b/internal/reader/opml/handler.go
+@@ -4,6 +4,7 @@
+ package opml // import "miniflux.app/v2/internal/reader/opml"
+ 
+ import (
++	"errors"
+ 	"fmt"
+ 	"io"
+ 
+@@ -58,7 +59,7 @@ func (h *Handler) Export(userID int64) (string, error) {
+ }
+ 
+ // Import parses and create feeds from an OPML import.
+-// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, writes categories, writes enclosures, writes entries, writes feeds, mut
++// @effects: reads categories, reads entries, reads entry_tombstones, reads feeds, reads users, writes categories, writes enclosures, writes entries, writes feeds, mut
+ func (h *Handler) Import(userID int64, data io.Reader) error {
+ 	subscriptions, err := parse(data)
+ 	if err != nil {
+@@ -70,6 +71,15 @@ func (h *Handler) Import(userID int64, data io.Reader) error {
+ 			continue
+ 		}
+ 
++		// Stop before creating categories for feeds that cannot be imported.
++		limitReached, err := h.store.FeedLimitReached(userID)
++		if err != nil {
++			return err
++		}
++		if limitReached {
++			return fmt.Errorf(`opml: unable to create this feed: %q: %w`, subscription.FeedURL, storage.ErrFeedLimitReached)
++		}
++
+ 		category, err := h.resolveCategory(userID, subscription.CategoryName)
+ 		if err != nil {
+ 			return err
+@@ -89,6 +99,9 @@ func (h *Handler) Import(userID int64, data io.Reader) error {
+ 		}
+ 		applySubscriptionSettings(feed, subscription)
+ 		if err := h.store.CreateFeed(feed); err != nil {
++			if errors.Is(err, storage.ErrFeedLimitReached) {
++				return fmt.Errorf(`opml: unable to create this feed: %q: %w`, subscription.FeedURL, err)
++			}
+ 			return fmt.Errorf(`opml: unable to create this feed: %q`, subscription.FeedURL)
+ 		}
+ 	}
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index d8e58a2b..746e2228 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -223,6 +223,9 @@ func (s *Storage) WeeklyFeedEntryCount(userID, feedID int64) (int, error) {
+ 	return weeklyCount, nil
+ }
+ 
++// ErrFeedLimitReached is returned when a user already has max_feeds feeds.
++var ErrFeedLimitReached = errors.New("store: the maximum number of feeds for this user has been reached")
++
+ // FeedByID returns the feed with the given ID.
+ // @effects: reads categories, reads entries, reads feed_icons, reads feeds, reads icons, reads users
+ func (s *Storage) FeedByID(userID, feedID int64) (*model.Feed, error) {
+@@ -241,9 +244,11 @@ func (s *Storage) FeedByID(userID, feedID int64) (*model.Feed, error) {
+ }
+ 
+ // CreateFeed creates a new feed.
+-// @effects: reads entries, reads entry_tombstones, writes enclosures, writes entries, writes feeds, mut
++// It returns ErrFeedLimitReached, and creates nothing, when the user already
++// has as many feeds as their max_feeds limit allows.
++// @effects: reads entries, reads entry_tombstones, reads feeds, reads users, writes enclosures, writes entries, writes feeds, mut
+ func (s *Storage) CreateFeed(feed *model.Feed) error {
+-	sql := `
++	query := `
+ 		INSERT INTO feeds (
+ 			feed_url,
+ 			site_url,
+@@ -283,8 +288,34 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		RETURNING
+ 			id
+ 	`
+-	err := s.db.QueryRow(
+-		sql,
++	// The limit check and the insert run in one transaction holding a lock on
++	// the user row, so concurrent creations cannot exceed the limit.
++	limitTx, err := s.db.Begin()
++	if err != nil {
++		return fmt.Errorf(`store: unable to start transaction: %v`, err)
++	}
++
++	var maxFeeds int
++	err = limitTx.QueryRow(`SELECT max_feeds FROM users WHERE id=$1 FOR UPDATE`, feed.UserID).Scan(&maxFeeds)
++	if err != nil && !errors.Is(err, sql.ErrNoRows) {
++		limitTx.Rollback()
++		return fmt.Errorf(`store: unable to check feed limit for feed %q: %v`, feed.FeedURL, err)
++	}
++
++	if maxFeeds > 0 {
++		var feedCount int
++		if err := limitTx.QueryRow(`SELECT count(*) FROM feeds WHERE user_id=$1`, feed.UserID).Scan(&feedCount); err != nil {
++			limitTx.Rollback()
++			return fmt.Errorf(`store: unable to count feeds for feed %q: %v`, feed.FeedURL, err)
++		}
++		if feedCount >= maxFeeds {
++			limitTx.Rollback()
++			return ErrFeedLimitReached
++		}
++	}
++
++	err = limitTx.QueryRow(
++		query,
+ 		feed.FeedURL,
+ 		feed.SiteURL,
+ 		feed.Title,
+@@ -319,9 +350,14 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		feed.Language,
+ 	).Scan(&feed.ID)
+ 	if err != nil {
++		limitTx.Rollback()
+ 		return fmt.Errorf(`store: unable to create feed %q: %v`, feed.FeedURL, err)
+ 	}
+ 
++	if err := limitTx.Commit(); err != nil {
++		return fmt.Errorf(`store: unable to commit transaction: %v`, err)
++	}
++
+ 	for _, entry := range feed.Entries {
+ 		entry.FeedID = feed.ID
+ 		entry.UserID = feed.UserID
+diff --git a/internal/storage/user.go b/internal/storage/user.go
+index 54a883ee..79ac22c6 100644
+--- a/internal/storage/user.go
++++ b/internal/storage/user.go
+@@ -104,7 +104,8 @@ func (s *Storage) CreateUser(userCreationRequest *model.UserCreationRequest) (*m
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 	`
+ 
+ 	tx, err := s.db.Begin()
+@@ -150,6 +151,7 @@ func (s *Storage) CreateUser(userCreationRequest *model.UserCreationRequest) (*m
+ 		&user.KeepFilterEntryRules,
+ 		&user.AlwaysOpenExternalLinks,
+ 		&user.OpenExternalLinksInNewTab,
++		&user.MaxFeeds,
+ 	)
+ 	if err != nil {
+ 		tx.Rollback()
+@@ -337,6 +339,41 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 	return nil
+ }
+ 
++// SetUserMaxFeeds sets the maximum number of feeds the user may have; 0 means unlimited.
++// UpdateUser deliberately does not write this column, so that only this
++// administrator-only path can change it.
++// @effects: writes users
++func (s *Storage) SetUserMaxFeeds(userID int64, maxFeeds int) error {
++	if maxFeeds < 0 {
++		return fmt.Errorf(`store: invalid feed limit: %d`, maxFeeds)
++	}
++	if _, err := s.db.Exec(`UPDATE users SET max_feeds=$1 WHERE id=$2`, maxFeeds, userID); err != nil {
++		return fmt.Errorf(`store: unable to update user feed limit: %v`, err)
++	}
++	return nil
++}
++
++// FeedLimitReached returns true if the user has a feed limit and already has that many feeds.
++// @effects: reads feeds, reads users
++func (s *Storage) FeedLimitReached(userID int64) (bool, error) {
++	var reached bool
++	query := `
++		SELECT
++			u.max_feeds > 0 AND (SELECT count(*) FROM feeds f WHERE f.user_id=u.id) >= u.max_feeds
++		FROM
++			users u
++		WHERE
++			u.id=$1
++	`
++	err := s.db.QueryRow(query, userID).Scan(&reached)
++	if errors.Is(err, sql.ErrNoRows) {
++		return false, nil
++	} else if err != nil {
++		return false, fmt.Errorf(`store: unable to check user feed limit: %v`, err)
++	}
++	return reached, nil
++}
++
+ // UserLanguage returns the language of the given user, or "en_US" if the lookup fails.
+ // @effects: reads users
+ func (s *Storage) UserLanguage(userID int64) (language string) {
+@@ -383,7 +420,8 @@ func (s *Storage) UserByID(userID int64) (*model.User, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		WHERE
+@@ -427,7 +465,8 @@ func (s *Storage) UserByUsername(username string) (*model.User, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		WHERE
+@@ -471,7 +510,8 @@ func (s *Storage) UserByField(field, value string) (*model.User, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		WHERE
+@@ -524,7 +564,8 @@ func (s *Storage) UserByAPIKey(token string) (*model.User, error) {
+ 			u.block_filter_entry_rules,
+ 			u.keep_filter_entry_rules,
+ 			u.always_open_external_links,
+-			u.open_external_links_in_new_tab
++			u.open_external_links_in_new_tab,
++			u.max_feeds
+ 		FROM
+ 			users u
+ 		INNER JOIN
+@@ -570,6 +611,7 @@ func (s *Storage) fetchUser(query string, args ...any) (*model.User, error) {
+ 		&user.KeepFilterEntryRules,
+ 		&user.AlwaysOpenExternalLinks,
+ 		&user.OpenExternalLinksInNewTab,
++		&user.MaxFeeds,
+ 	)
+ 
+ 	if errors.Is(err, sql.ErrNoRows) {
+@@ -625,7 +667,8 @@ func (s *Storage) Users() (model.Users, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		ORDER BY username ASC
+@@ -671,6 +714,7 @@ func (s *Storage) Users() (model.Users, error) {
+ 			&user.KeepFilterEntryRules,
+ 			&user.AlwaysOpenExternalLinks,
+ 			&user.OpenExternalLinksInNewTab,
++			&user.MaxFeeds,
+ 		)
+ 
+ 		if err != nil {

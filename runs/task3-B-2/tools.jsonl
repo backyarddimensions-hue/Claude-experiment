@@ -1,0 +1,106 @@
+{"tool": "where", "effect": "writes feeds", "pkg": null, "hits": 69, "t": 1794462713.499}
+{"tool": "_result", "name": "where", "chars": 6158, "t": 1794462713.499}
+{"tool": "signatures", "pkg": "internal/model", "functions": 62, "t": 1794462714.317}
+{"tool": "_result", "name": "signatures", "chars": 8953, "t": 1794462714.317}
+{"tool": "signatures", "pkg": "internal/database", "functions": 3, "t": 1794462714.321}
+{"tool": "_result", "name": "signatures", "chars": 1075, "t": 1794462714.321}
+{"tool": "open_file", "path": "internal/model/user.go", "start": 1, "end": 223, "lines": 223, "file_lines": 223, "t": 1794462716.332}
+{"tool": "_result", "name": "open_file", "chars": 8435, "t": 1794462716.332}
+{"tool": "open_file", "path": "internal/storage/feed.go", "start": 225, "end": 365, "lines": 141, "file_lines": 511, "t": 1794462716.983}
+{"tool": "_result", "name": "open_file", "chars": 3948, "t": 1794462716.983}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1530, "end": 1594, "lines": 65, "file_lines": 1594, "t": 1794462717.721}
+{"tool": "_result", "name": "open_file", "chars": 2718, "t": 1794462717.721}
+{"tool": "signatures", "pkg": "internal/storage", "functions": 201, "t": 1794462717.969}
+{"tool": "_result", "name": "signatures", "chars": 39730, "t": 1794462717.969}
+{"tool": "open_file", "path": "internal/storage/user.go", "start": 60, "end": 690, "lines": 631, "file_lines": 726, "t": 1794462726.333}
+{"tool": "_result", "name": "open_file", "chars": 17010, "t": 1794462726.333}
+{"tool": "open_file", "path": "internal/reader/handler/handler.go", "start": 1, "end": 210, "lines": 210, "file_lines": 386, "t": 1794462727.072}
+{"tool": "_result", "name": "open_file", "chars": 10707, "t": 1794462727.072}
+{"tool": "open_file", "path": "internal/api/feed_handlers.go", "start": 1, "end": 65, "lines": 65, "file_lines": 298, "t": 1794462727.81}
+{"tool": "_result", "name": "open_file", "chars": 2580, "t": 1794462727.81}
+{"tool": "open_file", "path": "internal/reader/opml/handler.go", "start": 1, "end": 184, "lines": 184, "file_lines": 184, "t": 1794462728.232}
+{"tool": "_result", "name": "open_file", "chars": 6866, "t": 1794462728.232}
+{"tool": "open_file", "path": "internal/api/opml_handlers.go", "start": 1, "end": 45, "lines": 45, "file_lines": 45, "t": 1794462728.654}
+{"tool": "_result", "name": "open_file", "chars": 1606, "t": 1794462728.654}
+{"tool": "signatures", "pkg": "internal/api", "functions": 60, "t": 1794462728.924}
+{"tool": "_result", "name": "signatures", "chars": 13943, "t": 1794462728.924}
+{"tool": "open_file", "path": "internal/api/user_handlers.go", "start": 1, "end": 120, "lines": 120, "file_lines": 286, "t": 1794462743.12}
+{"tool": "_result", "name": "open_file", "chars": 3653, "t": 1794462743.12}
+{"tool": "open_file", "path": "internal/storage/integration.go", "start": 33, "end": 62, "lines": 30, "file_lines": 706, "t": 1794462743.807}
+{"tool": "_result", "name": "open_file", "chars": 1140, "t": 1794462743.807}
+{"tool": "signatures", "pkg": "internal/validator", "functions": 36, "t": 1794462744.227}
+{"tool": "_result", "name": "signatures", "chars": 6625, "t": 1794462744.227}
+{"tool": "open_file", "path": "internal/storage/feed.go", "start": 1, "end": 45, "lines": 45, "file_lines": 511, "t": 1794462744.843}
+{"tool": "_result", "name": "open_file", "chars": 1490, "t": 1794462744.844}
+{"tool": "open_file", "path": "internal/validator/user.go", "start": 38, "end": 62, "lines": 25, "file_lines": 291, "t": 1794462751.596}
+{"tool": "_result", "name": "open_file", "chars": 904, "t": 1794462751.596}
+{"tool": "edit", "path": "internal/model/user.go", "matches": 1, "t": 1794462754.235}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462754.235}
+{"tool": "edit", "path": "internal/model/user.go", "matches": 1, "t": 1794462755.531}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462755.532}
+{"tool": "edit", "path": "internal/model/user.go", "matches": 1, "t": 1794462757.006}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462757.006}
+{"tool": "edit", "path": "internal/validator/user.go", "matches": 1, "t": 1794462758.848}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462758.849}
+{"tool": "edit", "path": "internal/database/migrations.go", "matches": 1, "t": 1794462760.696}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462760.696}
+{"tool": "edit", "path": "internal/api/user_handlers.go", "matches": 1, "t": 1794462762.218}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462762.218}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462773.054}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462773.055}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462774.217}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462774.217}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462775.27}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462775.271}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462776.273}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462776.273}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462777.433}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462777.433}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462778.698}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462778.698}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462779.91}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462779.91}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462780.911}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462780.911}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462782.072}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462782.072}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462783.44}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462783.44}
+{"tool": "edit", "path": "internal/storage/user.go", "matches": 1, "t": 1794462784.952}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462784.952}
+{"tool": "graph", "id": "internal/storage.(*Storage).fetchUser", "found": true, "t": 1794462787.955}
+{"tool": "_result", "name": "graph", "chars": 461, "t": 1794462787.956}
+{"tool": "graph", "id": "internal/storage.(*Storage).CreateFeed", "found": true, "t": 1794462788.321}
+{"tool": "_result", "name": "graph", "chars": 956, "t": 1794462788.321}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462800.611}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462800.611}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462802.56}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462802.56}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462806.857}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462806.859}
+{"tool": "edit", "path": "internal/reader/handler/handler.go", "matches": 1, "t": 1794462814.325}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462814.326}
+{"tool": "edit", "path": "internal/reader/handler/handler.go", "matches": 1, "t": 1794462816.386}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462816.387}
+{"tool": "edit", "path": "internal/reader/handler/handler.go", "matches": 1, "t": 1794462818.637}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462818.637}
+{"tool": "edit", "path": "internal/reader/handler/handler.go", "matches": 1, "t": 1794462822.424}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462822.424}
+{"tool": "edit", "path": "internal/reader/handler/handler.go", "matches": 1, "t": 1794462824.319}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462824.319}
+{"tool": "edit", "path": "internal/api/feed_handlers.go", "matches": 1, "t": 1794462827.901}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462827.902}
+{"tool": "edit", "path": "internal/reader/opml/handler.go", "matches": 1, "t": 1794462829.636}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462829.636}
+{"tool": "edit", "path": "internal/reader/opml/handler.go", "matches": 1, "t": 1794462830.53}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462830.53}
+{"tool": "edit", "path": "internal/reader/opml/handler.go", "matches": 1, "t": 1794462832.162}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462832.162}
+{"tool": "edit", "path": "internal/api/opml_handlers.go", "matches": 1, "t": 1794462833.478}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462833.478}
+{"tool": "edit", "path": "internal/api/opml_handlers.go", "matches": 1, "t": 1794462835.004}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462835.005}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 23.1, "chars": 56, "t": 1794462858.176}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462858.176}
+{"tool": "finish", "summary": "Added a per-user feed limit (`max_feeds`, 0 = unlimited). The build and existing tests pass (53 unit packages, 102 integration tests); the new behaviour itself has not been exercised by any test I could run.\n\nWhat changed:\n- **Schema and model**: new migration adds `users.max_feeds int not null default 0`; `User` and `UserModificationRequest` carry `max_feeds`, and every full user query and `UpdateUser` reads/writes it.\n- **Who can change it**: in `PUT /v1/users/{userID}`, a non-admin sending a `max_feeds` different from the current value gets 403. Negative values are rejected with 400.\n- **Enforcement**: `storage.CreateFeed` is the single place feeds are inserted, so the limit is enforced there. It locks the user row, counts the user's feeds and inserts in one transaction, returning `storage.ErrFeedLimitReached` when the user is at the limit. This covers the API, OPML import, the web UI and the Google Reader API, and concurrent requests cannot exceed the limit.\n- **`POST /v1/feeds`**: returns 400 when the limit is reached, checked before any network fetch so an unreachable feed URL still gives 400 rather than 500.\n- **`POST /v1/import`**: imports feeds until the limit is hit, then stops and returns 400. Feeds imported before that point are kept, so the import is partial rather than all-or-nothing.\n\nThings you might trip over:\n- The 403 for a non-admin changing `max_feeds` is my choice; the existing `is_admin` check in the same handler returns 400 instead.\n- The two new error messages (limit reached, negative value) are plain English strings, not keys in the translation files.\n- `max_feeds` is not exposed in the web UI or the Go `client` package.\n- I updated the `@effects` tags on `storage.CreateFeed`, `opml.Import` and `importFeedsHandler` to add `reads users`, but not on the two UI OPML handlers that call `Import`.", "t": 1794462866.646}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794462866.646}

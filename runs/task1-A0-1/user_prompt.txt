@@ -1,0 +1,8 @@
+Task:
+
+Add an optional per-feed polling interval that overrides the global one. A migration adds the
+column, the field is exposed in the API and in the web UI, and the scheduler respects it.
+
+The field is an integer number of minutes named `refresh_interval`; 0 means "use
+the global interval". It appears in the API feed object, is accepted by `PUT /v1/feeds/{feedID}`,
+and the feed edit form in the web UI has an input named `refresh_interval`.

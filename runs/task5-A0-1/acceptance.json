@@ -1,0 +1,35 @@
+{
+ "task": "5",
+ "pass": true,
+ "checks": [
+  {
+   "name": "API accepts fetch_timeout",
+   "ok": true,
+   "gating": true,
+   "detail": "201 2"
+  },
+  {
+   "name": "slow feed times out at the per-feed value (2 s), not the global 30 s",
+   "ok": true,
+   "gating": true,
+   "detail": "status 500 after 2.1s"
+  },
+  {
+   "name": "feed without override still uses the global timeout",
+   "ok": true,
+   "gating": true,
+   "detail": "status 204 after 6.1s"
+  },
+  {
+   "name": "per-feed value also overrides a shorter global timeout",
+   "ok": true,
+   "gating": true,
+   "detail": "status 204 after 6.1s"
+  }
+ ],
+ "info": {
+  "phase1_override_seconds": 2.1,
+  "phase1_default_seconds": 6.1,
+  "phase2_override_seconds": 6.1
+ }
+}

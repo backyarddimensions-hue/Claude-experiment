@@ -1,0 +1,31 @@
+{
+ "task": "4",
+ "pass": true,
+ "checks": [
+  {
+   "name": "original key works",
+   "ok": true,
+   "gating": true,
+   "detail": "200"
+  },
+  {
+   "name": "regenerate endpoint returns a new token",
+   "ok": true,
+   "gating": true,
+   "detail": "200 {'id': 1, 'user_id': 1, 'token': '082310ce671d3d445273b190b7f417cef2423246cab73563bfb381ba5c173745', 'description': 'rotate me', 'last_used_at': None, 'created_at': '2026-11-11T23:40:52.898819-06:00'}"
+  },
+  {
+   "name": "old key fails immediately",
+   "ok": true,
+   "gating": true,
+   "detail": "401"
+  },
+  {
+   "name": "new key works",
+   "ok": true,
+   "gating": true,
+   "detail": "200"
+  }
+ ],
+ "info": {}
+}

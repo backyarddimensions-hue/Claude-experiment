@@ -1,0 +1,68 @@
+{"tool": "signatures", "pkg": "internal/model", "functions": 62, "t": 1794462059.375}
+{"tool": "_result", "name": "signatures", "chars": 8953, "t": 1794462059.375}
+{"tool": "signatures", "pkg": "internal/reader/handler", "functions": 4, "t": 1794462060.542}
+{"tool": "_result", "name": "signatures", "chars": 1751, "t": 1794462060.543}
+{"tool": "signatures", "pkg": "internal/database", "functions": 3, "t": 1794462060.547}
+{"tool": "_result", "name": "signatures", "chars": 1075, "t": 1794462060.547}
+{"tool": "where", "effect": "writes feeds", "pkg": "internal/storage", "hits": 7, "t": 1794462060.616}
+{"tool": "_result", "name": "where", "chars": 811, "t": 1794462060.616}
+{"tool": "open_file", "path": "internal/model/feed.go", "start": 1, "end": 333, "lines": 333, "file_lines": 333, "t": 1794462062.321}
+{"tool": "_result", "name": "open_file", "chars": 12600, "t": 1794462062.321}
+{"tool": "open_file", "path": "internal/reader/handler/handler.go", "start": 1, "end": 386, "lines": 386, "file_lines": 386, "t": 1794462062.844}
+{"tool": "_result", "name": "open_file", "chars": 18884, "t": 1794462062.844}
+{"tool": "open_file", "path": "internal/storage/feed.go", "start": 230, "end": 465, "lines": 236, "file_lines": 511, "t": 1794462063.394}
+{"tool": "_result", "name": "open_file", "chars": 6216, "t": 1794462063.394}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1, "end": 40, "lines": 40, "file_lines": 1594, "t": 1794462064.066}
+{"tool": "_result", "name": "open_file", "chars": 1162, "t": 1794462064.066}
+{"tool": "signatures", "pkg": "internal/reader/fetcher", "functions": 49, "t": 1794462064.372}
+{"tool": "_result", "name": "signatures", "chars": 9437, "t": 1794462064.372}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1540, "end": 1594, "lines": 55, "file_lines": 1594, "t": 1794462067.189}
+{"tool": "_result", "name": "open_file", "chars": 2241, "t": 1794462067.189}
+{"tool": "where", "effect": "reads feeds", "pkg": "internal/storage", "hits": 32, "t": 1794462067.494}
+{"tool": "_result", "name": "where", "chars": 3405, "t": 1794462067.494}
+{"tool": "open_file", "path": "internal/reader/fetcher/request_builder.go", "start": 160, "end": 168, "lines": 9, "file_lines": 463, "t": 1794462068.149}
+{"tool": "_result", "name": "open_file", "chars": 265, "t": 1794462068.149}
+{"tool": "open_file", "path": "internal/storage/feed_query_builder.go", "start": 130, "end": 330, "lines": 201, "file_lines": 366, "t": 1794462070.045}
+{"tool": "_result", "name": "open_file", "chars": 5470, "t": 1794462070.045}
+{"tool": "signatures", "pkg": "internal/validator", "functions": 36, "t": 1794462070.275}
+{"tool": "_result", "name": "signatures", "chars": 6625, "t": 1794462070.275}
+{"tool": "signatures", "pkg": "client", "functions": 132, "t": 1794462074.407}
+{"tool": "_result", "name": "signatures", "chars": 20758, "t": 1794462074.407}
+{"tool": "open_file", "path": "client/model.go", "start": 145, "end": 260, "lines": 116, "file_lines": 401, "t": 1794462076.476}
+{"tool": "_result", "name": "open_file", "chars": 6705, "t": 1794462076.476}
+{"tool": "open_file", "path": "internal/validator/feed.go", "start": 88, "end": 175, "lines": 88, "file_lines": 188, "t": 1794462076.907}
+{"tool": "_result", "name": "open_file", "chars": 3043, "t": 1794462076.907}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462082.956}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462082.956}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462084.079}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462084.079}
+{"tool": "edit", "path": "internal/model/feed.go", "matches": 1, "t": 1794462086.483}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462086.483}
+{"tool": "edit", "path": "internal/reader/handler/handler.go", "matches": 1, "t": 1794462088.118}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462088.118}
+{"tool": "edit", "path": "internal/validator/feed.go", "matches": 1, "t": 1794462091.976}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462091.976}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462093.135}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462093.136}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462094.229}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462094.229}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462096.437}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462096.437}
+{"tool": "edit", "path": "internal/storage/feed.go", "matches": 1, "t": 1794462097.542}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462097.542}
+{"tool": "edit", "path": "internal/storage/feed_query_builder.go", "matches": 1, "t": 1794462098.595}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462098.595}
+{"tool": "edit", "path": "internal/storage/feed_query_builder.go", "matches": 1, "t": 1794462099.701}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462099.701}
+{"tool": "edit", "path": "internal/database/migrations.go", "matches": 1, "t": 1794462101.81}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462101.811}
+{"tool": "edit", "path": "client/model.go", "matches": 1, "t": 1794462103.073}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462103.073}
+{"tool": "edit", "path": "client/model.go", "matches": 1, "t": 1794462104.063}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462104.063}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 21.7, "chars": 56, "t": 1794462127.578}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462127.579}
+{"tool": "graph", "id": "internal/model.(*FeedModificationRequest).Patch", "found": true, "t": 1794462130.543}
+{"tool": "_result", "name": "graph", "chars": 442, "t": 1794462130.543}
+{"tool": "finish", "summary": "Added a per-feed `fetch_timeout` (integer seconds, 0 = use the global timeout). The build and the existing unit and integration tests pass; the new behaviour itself was not exercised by any test I ran (no slow-server run).\n\nWhat changed:\n- **Model**: `Feed.FetchTimeout` (`json:\"fetch_timeout\"`), `FeedModificationRequest.FetchTimeout` (`*int`), applied in `Patch`, plus a small `Feed.EffectiveFetchTimeout(global)` helper.\n- **Refresh**: `RefreshFeed` now passes the per-feed timeout to the request builder when it is above 0, otherwise the global `HTTPClientTimeout`.\n- **Storage**: new migration adds `feeds.fetch_timeout int not null default 0`; the column is included in `CreateFeed`, `UpdateFeed` and the feed query builder's select/scan.\n- **API**: `PUT /v1/feeds/{feedID}` accepts the field through the existing `updateFeedHandler` \u2192 `Patch` path, and it appears in the feed object.\n- **Client**: `fetch_timeout` added to `client.Feed` and `client.FeedModificationRequest`.\n\nThings to know:\n- Negative values are rejected in `ValidateFeedModification` with the key `error.feed_invalid_fetch_timeout`. I did not add that key to the locale files, so the error message will show the raw key until translations are added.\n- The override applies to feed refresh only. Initial feed creation still uses the global timeout, since the creation request has no `fetch_timeout` field; the task only named the feed object and the PUT endpoint.\n- There is no field for it in the web UI feed edit form; it is API-only for now.", "t": 1794462137.319}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794462137.319}

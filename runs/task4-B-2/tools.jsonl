@@ -1,0 +1,24 @@
+{"tool": "signatures", "pkg": "internal/api", "functions": 60, "t": 1794462890.48}
+{"tool": "_result", "name": "signatures", "chars": 13943, "t": 1794462890.48}
+{"tool": "where", "effect": "writes api_keys", "pkg": "internal/storage", "hits": 3, "t": 1794462891.183}
+{"tool": "_result", "name": "where", "chars": 443, "t": 1794462891.183}
+{"tool": "open_file", "path": "internal/storage/api_key.go", "start": 1, "end": 126, "lines": 126, "file_lines": 126, "t": 1794462892.173}
+{"tool": "_result", "name": "open_file", "chars": 3577, "t": 1794462892.173}
+{"tool": "open_file", "path": "internal/api/api_key_handlers.go", "start": 1, "end": 72, "lines": 72, "file_lines": 72, "t": 1794462892.676}
+{"tool": "_result", "name": "open_file", "chars": 2191, "t": 1794462892.676}
+{"tool": "open_file", "path": "internal/api/api.go", "start": 1, "end": 80, "lines": 80, "file_lines": 80, "t": 1794462892.898}
+{"tool": "_result", "name": "open_file", "chars": 4916, "t": 1794462892.898}
+{"tool": "open_file", "path": "internal/api/middleware.go", "start": 1, "end": 189, "lines": 189, "file_lines": 189, "t": 1794462893.15}
+{"tool": "_result", "name": "open_file", "chars": 6529, "t": 1794462893.15}
+{"tool": "edit", "path": "internal/storage/api_key.go", "matches": 1, "t": 1794462898.664}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462898.664}
+{"tool": "edit", "path": "internal/storage/api_key.go", "matches": 1, "t": 1794462899.509}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462899.509}
+{"tool": "edit", "path": "internal/api/api_key_handlers.go", "matches": 1, "t": 1794462902.51}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462902.51}
+{"tool": "edit", "path": "internal/api/api.go", "matches": 1, "t": 1794462904.195}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462904.195}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 19.0, "chars": 56, "t": 1794462923.25}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462923.25}
+{"tool": "finish", "summary": "Added `POST /v1/api-keys/{apiKeyID}/regenerate`. New `Storage.RegenerateAPIKey` (internal/storage/api_key.go) replaces the token in a single UPDATE scoped to the key ID and the calling user, so the old token stops authenticating immediately and the new one works. New `regenerateAPIKeyHandler` (internal/api/api_key_handlers.go) is registered in internal/api/api.go and returns 200 with the API key object including the new `token`; 400 for an invalid ID, 404 if the key does not exist or belongs to another user. Regenerating also resets `last_used_at` to null, since the new token has not been used \u2014 a choice not specified in the task. Existing unit and integration tests pass; the new endpoint itself is not exercised by them.", "t": 1794462926.385}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794462926.385}

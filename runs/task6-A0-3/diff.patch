@@ -1,0 +1,673 @@
+diff --git a/internal/api/api.go b/internal/api/api.go
+index 3cf8f75d..69348351 100644
+--- a/internal/api/api.go
++++ b/internal/api/api.go
+@@ -6,6 +6,8 @@ package api // import "miniflux.app/v2/internal/api"
+ import (
+ 	"net/http"
+ 
++	"miniflux.app/v2/internal/http/request"
++	"miniflux.app/v2/internal/model"
+ 	"miniflux.app/v2/internal/storage"
+ 	"miniflux.app/v2/internal/worker"
+ )
+@@ -15,6 +17,21 @@ type handler struct {
+ 	pool  *worker.Pool
+ }
+ 
++// auditInfo describes the given API request for the audit log.
++func auditInfo(r *http.Request) *model.AuditInfo {
++	return &model.AuditInfo{
++		UserID: request.UserID(r),
++		Method: r.Method,
++		Path:   r.URL.Path,
++	}
++}
++
++// auditedStore returns a store that appends a row to audit_log for every
++// users or feeds row modified on behalf of the given API request.
++func (h *handler) auditedStore(r *http.Request) *storage.Storage {
++	return h.store.WithAudit(auditInfo(r))
++}
++
+ // NewHandler returns an http.Handler that handles API v1 calls.
+ // The returned handler expects the base path to be stripped from the request URL.
+ func NewHandler(store *storage.Storage, pool *worker.Pool) http.Handler {
+diff --git a/internal/api/category_handlers.go b/internal/api/category_handlers.go
+index 49d629ff..a032b5b9 100644
+--- a/internal/api/category_handlers.go
++++ b/internal/api/category_handlers.go
+@@ -156,7 +156,7 @@ func (h *handler) removeCategoryHandler(w http.ResponseWriter, r *http.Request)
+ 		return
+ 	}
+ 
+-	if err := h.store.RemoveCategory(userID, categoryID); err != nil {
++	if err := h.auditedStore(r).RemoveCategory(userID, categoryID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+@@ -193,6 +193,13 @@ func (h *handler) refreshCategoryHandler(w http.ResponseWriter, r *http.Request)
+ 		slog.Int("nb_jobs", len(jobs)),
+ 	)
+ 
++	// The feeds are refreshed (and therefore modified) by the background
++	// workers on behalf of this request.
++	audit := auditInfo(r)
++	for i := range jobs {
++		jobs[i].Audit = audit
++	}
++
+ 	go h.pool.Push(jobs)
+ 
+ 	response.NoContent(w, r)
+diff --git a/internal/api/feed_handlers.go b/internal/api/feed_handlers.go
+index 18f8ed2b..0fa4aa64 100644
+--- a/internal/api/feed_handlers.go
++++ b/internal/api/feed_handlers.go
+@@ -52,7 +52,7 @@ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	feed, localizedError := feedHandler.CreateFeed(h.store, userID, &feedCreationRequest)
++	feed, localizedError := feedHandler.CreateFeed(h.auditedStore(r), userID, &feedCreationRequest)
+ 	if localizedError != nil {
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+@@ -82,7 +82,7 @@ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	// force=true mirrors the web UI's forced refresh: it bypasses the HTTP cache
+ 	// and reprocesses (and re-scrapes) entries that are already stored.
+ 	forceRefresh := request.QueryBoolParam(r, "force", false)
+-	localizedError := feedHandler.RefreshFeed(h.store, userID, feedID, forceRefresh)
++	localizedError := feedHandler.RefreshFeed(h.auditedStore(r), userID, feedID, forceRefresh)
+ 	if localizedError != nil {
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+@@ -112,6 +112,13 @@ func (h *handler) refreshAllFeedsHandler(w http.ResponseWriter, r *http.Request)
+ 		slog.Int("nb_jobs", len(jobs)),
+ 	)
+ 
++	// The feeds are refreshed (and therefore modified) by the background
++	// workers on behalf of this request.
++	audit := auditInfo(r)
++	for i := range jobs {
++		jobs[i].Audit = audit
++	}
++
+ 	go h.pool.Push(jobs)
+ 
+ 	response.NoContent(w, r)
+@@ -149,7 +156,7 @@ func (h *handler) updateFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 
+ 	feedModificationRequest.Patch(originalFeed)
+ 	originalFeed.ResetErrorCounter()
+-	if err := h.store.UpdateFeed(originalFeed); err != nil {
++	if err := h.auditedStore(r).UpdateFeed(originalFeed); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+@@ -278,7 +285,7 @@ func (h *handler) removeFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	if err := h.store.RemoveFeed(userID, feedID); err != nil {
++	if err := h.auditedStore(r).RemoveFeed(userID, feedID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+diff --git a/internal/api/opml_handlers.go b/internal/api/opml_handlers.go
+index 7e13fc33..aa8034ff 100644
+--- a/internal/api/opml_handlers.go
++++ b/internal/api/opml_handlers.go
+@@ -26,7 +26,7 @@ func (h *handler) exportFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ }
+ 
+ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
+-	opmlHandler := opml.NewHandler(h.store)
++	opmlHandler := opml.NewHandler(h.auditedStore(r))
+ 	err := opmlHandler.Import(request.UserID(r), r.Body)
+ 	defer r.Body.Close()
+ 	if err != nil {
+diff --git a/internal/api/user_handlers.go b/internal/api/user_handlers.go
+index 85e82521..43207271 100644
+--- a/internal/api/user_handlers.go
++++ b/internal/api/user_handlers.go
+@@ -46,7 +46,7 @@ func (h *handler) createUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	user, err := h.store.CreateUser(&userCreationRequest)
++	user, err := h.auditedStore(r).CreateUser(&userCreationRequest)
+ 	if err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+@@ -97,7 +97,7 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	}
+ 
+ 	userModificationRequest.Patch(originalUser)
+-	if err = h.store.UpdateUser(originalUser); err != nil {
++	if err = h.auditedStore(r).UpdateUser(originalUser); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+@@ -266,7 +266,7 @@ func (h *handler) removeUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	if err := h.store.RemoveUser(user.ID); err != nil {
++	if err := h.auditedStore(r).RemoveUser(user.ID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..4565e8c7 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,25 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// actor_user_id and row_id are intentionally not foreign keys:
++		// audit rows must outlive the users and feeds they refer to.
++		_, err = tx.Exec(`
++			CREATE TABLE audit_log (
++				id bigserial not null,
++				created_at timestamp with time zone not null default now(),
++				actor_user_id bigint,
++				request_method text not null default '',
++				request_path text not null default '',
++				table_name text not null,
++				action text not null,
++				row_id bigint not null,
++				primary key (id)
++			);
++
++			CREATE INDEX audit_log_table_row_idx
++				ON audit_log (table_name, row_id);
++		`)
++		return err
++	},
+ }
+diff --git a/internal/googlereader/handler.go b/internal/googlereader/handler.go
+index 39572aa8..560f85b4 100644
+--- a/internal/googlereader/handler.go
++++ b/internal/googlereader/handler.go
+@@ -369,7 +369,7 @@ func (h *greaderHandler) quickAddHandler(w http.ResponseWriter, r *http.Request)
+ 
+ 	toSubscribe := Stream{FeedStream, subscriptions[0].URL}
+ 	category := Stream{NoStream, ""}
+-	newFeed, err := subscribe(toSubscribe, category, "", h.store, userID)
++	newFeed, err := subscribe(toSubscribe, category, "", h.auditedStore(r), userID)
+ 	if err != nil {
+ 		if errors.Is(err, errCategoryNotFound) {
+ 			response.JSONBadRequest(w, r, err)
+@@ -525,6 +525,16 @@ func move(feedStream Stream, labelStream Stream, store *storage.Storage, userID
+ 	return store.UpdateFeed(feed)
+ }
+ 
++// auditedStore returns a store that appends a row to audit_log for every
++// users or feeds row modified on behalf of the given API request.
++func (h *greaderHandler) auditedStore(r *http.Request) *storage.Storage {
++	return h.store.WithAudit(&model.AuditInfo{
++		UserID: request.UserID(r),
++		Method: r.Method,
++		Path:   r.URL.Path,
++	})
++}
++
+ func (h *greaderHandler) feedIconURL(f *model.Feed) string {
+ 	if f.Icon != nil && f.Icon.ExternalIconID != "" {
+ 		return config.Opts.BaseURL() + "/feed-icon/" + f.Icon.ExternalIconID
+@@ -565,7 +575,7 @@ func (h *greaderHandler) editSubscriptionHandler(w http.ResponseWriter, r *http.
+ 
+ 	switch action {
+ 	case "subscribe":
+-		_, err := subscribe(streamIds[0], newLabel, title, h.store, userID)
++		_, err := subscribe(streamIds[0], newLabel, title, h.auditedStore(r), userID)
+ 		if err != nil {
+ 			if errors.Is(err, errCategoryNotFound) {
+ 				response.JSONBadRequest(w, r, err)
+@@ -575,14 +585,14 @@ func (h *greaderHandler) editSubscriptionHandler(w http.ResponseWriter, r *http.
+ 			return
+ 		}
+ 	case "unsubscribe":
+-		err := unsubscribe(streamIds, h.store, userID)
++		err := unsubscribe(streamIds, h.auditedStore(r), userID)
+ 		if err != nil {
+ 			response.JSONServerError(w, r, err)
+ 			return
+ 		}
+ 	case "edit":
+ 		if title != "" {
+-			if err := rename(streamIds[0], title, h.store, userID); err != nil {
++			if err := rename(streamIds[0], title, h.auditedStore(r), userID); err != nil {
+ 				if errors.Is(err, errFeedNotFound) || errors.Is(err, errEmptyFeedTitle) {
+ 					response.JSONBadRequest(w, r, err)
+ 				} else {
+@@ -598,7 +608,7 @@ func (h *greaderHandler) editSubscriptionHandler(w http.ResponseWriter, r *http.
+ 				return
+ 			}
+ 
+-			if err := move(streamIds[0], newLabel, h.store, userID); err != nil {
++			if err := move(streamIds[0], newLabel, h.auditedStore(r), userID); err != nil {
+ 				if errors.Is(err, errFeedNotFound) || errors.Is(err, errCategoryNotFound) {
+ 					response.JSONBadRequest(w, r, err)
+ 				} else {
+@@ -779,7 +789,7 @@ func (h *greaderHandler) disableTagHandler(w http.ResponseWriter, r *http.Reques
+ 		titles[i] = stream.ID
+ 	}
+ 
+-	err = h.store.RemoveAndReplaceCategoriesByName(userID, titles)
++	err = h.auditedStore(r).RemoveAndReplaceCategoriesByName(userID, titles)
+ 	if err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+diff --git a/internal/model/audit.go b/internal/model/audit.go
+new file mode 100644
+index 00000000..2f8e088e
+--- /dev/null
++++ b/internal/model/audit.go
+@@ -0,0 +1,15 @@
++// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
++// SPDX-License-Identifier: Apache-2.0
++
++package model // import "miniflux.app/v2/internal/model"
++
++// AuditInfo describes the API request on behalf of which rows of the
++// users and feeds tables are modified.
++type AuditInfo struct {
++	// UserID is the ID of the authenticated user who made the request.
++	UserID int64
++	// Method is the HTTP method of the request.
++	Method string
++	// Path is the URL path of the request.
++	Path string
++}
+diff --git a/internal/model/job.go b/internal/model/job.go
+index d7a82d75..8d3a1c1e 100644
+--- a/internal/model/job.go
++++ b/internal/model/job.go
+@@ -8,6 +8,10 @@ type Job struct {
+ 	UserID  int64
+ 	FeedID  int64
+ 	FeedURL string
++
++	// Audit is set when the job was triggered by an API request, so that
++	// the resulting feed modifications are recorded in the audit log.
++	Audit *AuditInfo
+ }
+ 
+ // JobList represents a list of jobs.
+diff --git a/internal/storage/audit.go b/internal/storage/audit.go
+new file mode 100644
+index 00000000..54c05d30
+--- /dev/null
++++ b/internal/storage/audit.go
+@@ -0,0 +1,100 @@
++// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
++// SPDX-License-Identifier: Apache-2.0
++
++package storage // import "miniflux.app/v2/internal/storage"
++
++import (
++	"database/sql"
++
++	"miniflux.app/v2/internal/model"
++
++	"github.com/lib/pq"
++)
++
++const (
++	auditTableUsers = "users"
++	auditTableFeeds = "feeds"
++
++	auditActionInsert = "insert"
++	auditActionUpdate = "update"
++	auditActionDelete = "delete"
++)
++
++// WithAudit returns a Storage sharing the same database handle that appends a
++// row to audit_log for every row of the users and feeds tables it modifies.
++// Passing nil returns a Storage that does not audit.
++func (s *Storage) WithAudit(info *model.AuditInfo) *Storage {
++	return &Storage{db: s.db, audit: info}
++}
++
++// writeAudit appends one audit_log row per modified row ID. It is a no-op
++// when the Storage is not auditing.
++func (s *Storage) writeAudit(tx *sql.Tx, table, action string, ids []int64) error {
++	if s.audit == nil || len(ids) == 0 {
++		return nil
++	}
++
++	actor := sql.NullInt64{Int64: s.audit.UserID, Valid: s.audit.UserID != 0}
++	_, err := tx.Exec(
++		`
++		INSERT INTO audit_log
++			(actor_user_id, request_method, request_path, table_name, action, row_id)
++		SELECT
++			$1, $2, $3, $4, $5, unnest($6::bigint[])
++		`,
++		actor,
++		s.audit.Method,
++		s.audit.Path,
++		table,
++		action,
++		pq.Array(ids),
++	)
++	return err
++}
++
++// queryIDs runs a query returning a single bigint column and collects it.
++func queryIDs(tx *sql.Tx, query string, args ...any) ([]int64, error) {
++	rows, err := tx.Query(query, args...)
++	if err != nil {
++		return nil, err
++	}
++	defer rows.Close()
++
++	var ids []int64
++	for rows.Next() {
++		var id int64
++		if err := rows.Scan(&id); err != nil {
++			return nil, err
++		}
++		ids = append(ids, id)
++	}
++	return ids, rows.Err()
++}
++
++// execAudited executes a statement modifying rows of the given table. When
++// the Storage is auditing, the statement and the audit rows are written in
++// the same transaction. The query must not have a RETURNING clause.
++func (s *Storage) execAudited(table, action, query string, args ...any) error {
++	if s.audit == nil {
++		_, err := s.db.Exec(query, args...)
++		return err
++	}
++
++	tx, err := s.db.Begin()
++	if err != nil {
++		return err
++	}
++
++	ids, err := queryIDs(tx, query+" RETURNING id", args...)
++	if err != nil {
++		tx.Rollback()
++		return err
++	}
++
++	if err := s.writeAudit(tx, table, action, ids); err != nil {
++		tx.Rollback()
++		return err
++	}
++
++	return tx.Commit()
++}
+diff --git a/internal/storage/category.go b/internal/storage/category.go
+index 6d02bb30..04ac13d3 100644
+--- a/internal/storage/category.go
++++ b/internal/storage/category.go
+@@ -232,6 +232,10 @@ func (s *Storage) UpdateCategory(category *model.Category) error {
+ 
+ // RemoveCategory deletes a category.
+ func (s *Storage) RemoveCategory(userID, categoryID int64) error {
++	if s.audit != nil {
++		return s.removeCategoryAudited(userID, categoryID)
++	}
++
+ 	query := `DELETE FROM categories WHERE id = $1 AND user_id = $2`
+ 	result, err := s.db.Exec(query, categoryID, userID)
+ 	if err != nil {
+@@ -250,6 +254,43 @@ func (s *Storage) RemoveCategory(userID, categoryID int64) error {
+ 	return nil
+ }
+ 
++// removeCategoryAudited deletes a category and audits the feeds that are
++// removed along with it (they would otherwise be deleted by the foreign key cascade).
++func (s *Storage) removeCategoryAudited(userID, categoryID int64) error {
++	tx, err := s.db.Begin()
++	if err != nil {
++		return fmt.Errorf(`store: unable to remove this category: %v`, err)
++	}
++
++	feedIDs, err := queryIDs(tx, `DELETE FROM feeds WHERE category_id = $1 AND user_id = $2 RETURNING id`, categoryID, userID)
++	if err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to remove this category: %v`, err)
++	}
++
++	categoryIDs, err := queryIDs(tx, `DELETE FROM categories WHERE id = $1 AND user_id = $2 RETURNING id`, categoryID, userID)
++	if err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to remove this category: %v`, err)
++	}
++
++	if len(categoryIDs) == 0 {
++		tx.Rollback()
++		return errors.New(`store: no category has been removed`)
++	}
++
++	if err := s.writeAudit(tx, auditTableFeeds, auditActionDelete, feedIDs); err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to remove this category: %v`, err)
++	}
++
++	if err := tx.Commit(); err != nil {
++		return fmt.Errorf(`store: unable to remove this category: %v`, err)
++	}
++
++	return nil
++}
++
+ // RemoveAndReplaceCategoriesByName deletes categories with the given titles and
+ // reassigns affected feeds to the user's first remaining category. It returns
+ // an error if the deletion would leave the user without any categories.
+@@ -282,12 +323,17 @@ func (s *Storage) RemoveAndReplaceCategoriesByName(userid int64, titles []string
+ 			ORDER BY title ASC
+ 			LIMIT 1)
+ 		WHERE user_id = $1 AND category_id IN (SELECT id FROM d_cats)
++		RETURNING id
+ 	`
+-	_, err = tx.Exec(query, userid, titleParam)
++	feedIDs, err := queryIDs(tx, query, userid, titleParam)
+ 	if err != nil {
+ 		tx.Rollback()
+ 		return fmt.Errorf("store: unable to replace categories: %v", err)
+ 	}
++	if err := s.writeAudit(tx, auditTableFeeds, auditActionUpdate, feedIDs); err != nil {
++		tx.Rollback()
++		return fmt.Errorf("store: unable to write audit log: %v", err)
++	}
+ 
+ 	query = "DELETE FROM categories WHERE user_id = $1 AND title = ANY($2)"
+ 	_, err = tx.Exec(query, userid, titleParam)
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index 657d3b99..5dcf9812 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -263,7 +263,12 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		RETURNING
+ 			id
+ 	`
+-	err := s.db.QueryRow(
++	feedTx, err := s.db.Begin()
++	if err != nil {
++		return fmt.Errorf(`store: unable to start transaction: %v`, err)
++	}
++
++	err = feedTx.QueryRow(
+ 		sql,
+ 		feed.FeedURL,
+ 		feed.SiteURL,
+@@ -299,6 +304,16 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		feed.Language,
+ 	).Scan(&feed.ID)
+ 	if err != nil {
++		feedTx.Rollback()
++		return fmt.Errorf(`store: unable to create feed %q: %v`, feed.FeedURL, err)
++	}
++
++	if err := s.writeAudit(feedTx, auditTableFeeds, auditActionInsert, []int64{feed.ID}); err != nil {
++		feedTx.Rollback()
++		return fmt.Errorf(`store: unable to write audit log for feed %q: %v`, feed.FeedURL, err)
++	}
++
++	if err := feedTx.Commit(); err != nil {
+ 		return fmt.Errorf(`store: unable to create feed %q: %v`, feed.FeedURL, err)
+ 	}
+ 
+@@ -385,7 +400,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		WHERE
+ 			id=$41 AND user_id=$42
+ 	`
+-	_, err = s.db.Exec(query,
++	err = s.execAudited(auditTableFeeds, auditActionUpdate, query,
+ 		feed.FeedURL,
+ 		feed.SiteURL,
+ 		feed.Title,
+@@ -449,7 +464,7 @@ func (s *Storage) UpdateFeedError(feed *model.Feed) (err error) {
+ 		WHERE
+ 			id=$5 AND user_id=$6
+ 	`
+-	_, err = s.db.Exec(query,
++	err = s.execAudited(auditTableFeeds, auditActionUpdate, query,
+ 		feed.ParsingErrorMsg,
+ 		feed.ParsingErrorCount,
+ 		feed.CheckedAt,
+@@ -466,7 +481,7 @@ func (s *Storage) UpdateFeedError(feed *model.Feed) (err error) {
+ 
+ // RemoveFeed removes the given feed along with its entries and enclosures.
+ func (s *Storage) RemoveFeed(userID, feedID int64) error {
+-	if _, err := s.db.Exec(`DELETE FROM feeds WHERE id=$1 AND user_id=$2`, feedID, userID); err != nil {
++	if err := s.execAudited(auditTableFeeds, auditActionDelete, `DELETE FROM feeds WHERE id=$1 AND user_id=$2`, feedID, userID); err != nil {
+ 		return fmt.Errorf(`store: unable to delete feed #%d: %v`, feedID, err)
+ 	}
+ 	return nil
+diff --git a/internal/storage/storage.go b/internal/storage/storage.go
+index ffae9692..9df022b6 100644
+--- a/internal/storage/storage.go
++++ b/internal/storage/storage.go
+@@ -7,16 +7,21 @@ import (
+ 	"context"
+ 	"database/sql"
+ 	"time"
++
++	"miniflux.app/v2/internal/model"
+ )
+ 
+ // Storage handles all operations related to the database.
+ type Storage struct {
+ 	db *sql.DB
++
++	// audit, when set, makes modifications of users and feeds rows append to audit_log.
++	audit *model.AuditInfo
+ }
+ 
+ // NewStorage returns a new Storage.
+ func NewStorage(db *sql.DB) *Storage {
+-	return &Storage{db}
++	return &Storage{db: db}
+ }
+ 
+ // DatabaseVersion returns the version of the database which is in use.
+diff --git a/internal/storage/user.go b/internal/storage/user.go
+index 22d0ca92..2d67830f 100644
+--- a/internal/storage/user.go
++++ b/internal/storage/user.go
+@@ -163,6 +163,11 @@ func (s *Storage) CreateUser(userCreationRequest *model.UserCreationRequest) (*m
+ 		return nil, fmt.Errorf(`store: unable to create integration row: %v`, err)
+ 	}
+ 
++	if err := s.writeAudit(tx, auditTableUsers, auditActionInsert, []int64{user.ID}); err != nil {
++		tx.Rollback()
++		return nil, fmt.Errorf(`store: unable to write audit log: %v`, err)
++	}
++
+ 	if err := tx.Commit(); err != nil {
+ 		return nil, fmt.Errorf(`store: unable to commit transaction: %v`, err)
+ 	}
+@@ -216,7 +221,9 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 				id=$31
+ 		`
+ 
+-		_, err = s.db.Exec(
++		err = s.execAudited(
++			auditTableUsers,
++			auditActionUpdate,
+ 			query,
+ 			user.Username,
+ 			hashedPassword,
+@@ -289,7 +296,9 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 				id=$30
+ 		`
+ 
+-		_, err := s.db.Exec(
++		err := s.execAudited(
++			auditTableUsers,
++			auditActionUpdate,
+ 			query,
+ 			user.Username,
+ 			user.IsAdmin,
+@@ -570,7 +579,43 @@ func (s *Storage) fetchUser(query string, args ...any) (*model.User, error) {
+ 
+ // RemoveUser deletes a user and all related data.
+ func (s *Storage) RemoveUser(userID int64) error {
+-	if _, err := s.db.Exec(`DELETE FROM users WHERE id=$1`, userID); err != nil {
++	if s.audit == nil {
++		if _, err := s.db.Exec(`DELETE FROM users WHERE id=$1`, userID); err != nil {
++			return fmt.Errorf(`store: unable to remove user #%d: %v`, userID, err)
++		}
++		return nil
++	}
++
++	tx, err := s.db.Begin()
++	if err != nil {
++		return fmt.Errorf(`store: unable to start transaction: %v`, err)
++	}
++
++	// The user's feeds would be deleted by the foreign key cascade: delete
++	// them explicitly so that each removed row can be audited.
++	feedIDs, err := queryIDs(tx, `DELETE FROM feeds WHERE user_id=$1 RETURNING id`, userID)
++	if err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to remove feeds of user #%d: %v`, userID, err)
++	}
++
++	userIDs, err := queryIDs(tx, `DELETE FROM users WHERE id=$1 RETURNING id`, userID)
++	if err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to remove user #%d: %v`, userID, err)
++	}
++
++	if err := s.writeAudit(tx, auditTableFeeds, auditActionDelete, feedIDs); err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to write audit log: %v`, err)
++	}
++
++	if err := s.writeAudit(tx, auditTableUsers, auditActionDelete, userIDs); err != nil {
++		tx.Rollback()
++		return fmt.Errorf(`store: unable to write audit log: %v`, err)
++	}
++
++	if err := tx.Commit(); err != nil {
+ 		return fmt.Errorf(`store: unable to remove user #%d: %v`, userID, err)
+ 	}
+ 	return nil
+diff --git a/internal/worker/worker.go b/internal/worker/worker.go
+index 01afb1ad..65096d12 100644
+--- a/internal/worker/worker.go
++++ b/internal/worker/worker.go
+@@ -44,7 +44,11 @@ func (w *worker) Run(c <-chan model.Job, shutdown <-chan struct{}, wg *sync.Wait
+ 		)
+ 
+ 		startTime := time.Now()
+-		localizedError := feedHandler.RefreshFeed(w.store, job.UserID, job.FeedID, false)
++		store := w.store
++		if job.Audit != nil {
++			store = w.store.WithAudit(job.Audit)
++		}
++		localizedError := feedHandler.RefreshFeed(store, job.UserID, job.FeedID, false)
+ 
+ 		if config.Opts.HasMetricsCollector() {
+ 			status := metric.StatusSuccess

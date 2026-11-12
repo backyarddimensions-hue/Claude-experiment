@@ -1,0 +1,66 @@
+{"tool": "signatures", "pkg": "internal/storage", "functions": 201, "t": 1794462601.302}
+{"tool": "_result", "name": "signatures", "chars": 39730, "t": 1794462601.303}
+{"tool": "signatures", "pkg": "internal/database", "functions": 3, "t": 1794462601.503}
+{"tool": "_result", "name": "signatures", "chars": 1075, "t": 1794462601.503}
+{"tool": "signatures", "pkg": "internal/reader/readingtime", "functions": 3, "t": 1794462602.112}
+{"tool": "_result", "name": "signatures", "chars": 719, "t": 1794462602.112}
+{"tool": "open_file", "path": "internal/storage/entry.go", "start": 1, "end": 225, "lines": 225, "file_lines": 733, "t": 1794462603.816}
+{"tool": "_result", "name": "open_file", "chars": 6230, "t": 1794462603.816}
+{"tool": "open_file", "path": "internal/storage/entry_query_builder.go", "start": 320, "end": 500, "lines": 181, "file_lines": 594, "t": 1794462604.363}
+{"tool": "_result", "name": "open_file", "chars": 5305, "t": 1794462604.363}
+{"tool": "open_file", "path": "internal/reader/readingtime/readingtime.go", "start": 1, "end": 60, "lines": 60, "file_lines": 60, "t": 1794462604.663}
+{"tool": "_result", "name": "open_file", "chars": 1715, "t": 1794462604.663}
+{"tool": "open_file", "path": "internal/model/entry.go", "start": 1, "end": 105, "lines": 105, "file_lines": 105, "t": 1794462605.082}
+{"tool": "_result", "name": "open_file", "chars": 3515, "t": 1794462605.082}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1, "end": 40, "lines": 40, "file_lines": 1594, "t": 1794462605.661}
+{"tool": "_result", "name": "open_file", "chars": 1162, "t": 1794462605.661}
+{"tool": "open_file", "path": "internal/database/migrations.go", "start": 1550, "end": 1594, "lines": 45, "file_lines": 1594, "t": 1794462611.566}
+{"tool": "_result", "name": "open_file", "chars": 1733, "t": 1794462611.567}
+{"tool": "graph", "id": "internal/storage.(*Storage).UpdateEntryTitleAndContent", "found": true, "t": 1794462612.093}
+{"tool": "_result", "name": "graph", "chars": 688, "t": 1794462612.093}
+{"tool": "open_file", "path": "internal/storage/entry_pagination_builder.go", "start": 190, "end": 215, "lines": 26, "file_lines": 226, "t": 1794462612.832}
+{"tool": "_result", "name": "open_file", "chars": 729, "t": 1794462612.832}
+{"tool": "open_file", "path": "internal/storage/entry_test.go", "start": 1, "end": 98, "lines": 98, "file_lines": 98, "t": 1794462613.088}
+{"tool": "_result", "name": "open_file", "chars": 3742, "t": 1794462613.089}
+{"tool": "edit", "path": "internal/database/migrations.go", "matches": 1, "t": 1794462619.085}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462619.085}
+{"tool": "edit", "path": "internal/model/entry.go", "matches": 1, "t": 1794462620.141}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462620.141}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462626.306}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462626.307}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462627.886}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462627.886}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462628.885}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462628.885}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462629.991}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462629.991}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462631.309}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462631.309}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462632.939}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462632.939}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462633.992}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462633.992}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462634.992}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462634.992}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462636.94}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462636.94}
+{"tool": "edit", "path": "internal/storage/entry.go", "matches": 1, "t": 1794462638.206}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462638.207}
+{"tool": "edit", "path": "internal/storage/entry_query_builder.go", "matches": 1, "t": 1794462639.256}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462639.257}
+{"tool": "edit", "path": "internal/storage/entry_query_builder.go", "matches": 1, "t": 1794462640.415}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462640.415}
+{"tool": "signatures", "pkg": "client", "functions": 132, "t": 1794462640.633}
+{"tool": "_result", "name": "signatures", "chars": 20758, "t": 1794462640.634}
+{"tool": "open_file", "path": "client/model.go", "start": 255, "end": 300, "lines": 46, "file_lines": 401, "t": 1794462642.221}
+{"tool": "_result", "name": "open_file", "chars": 1718, "t": 1794462642.221}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 23.2, "chars": 56, "t": 1794462665.399}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462665.399}
+{"tool": "edit", "path": "client/model.go", "matches": 1, "t": 1794462669.771}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794462669.772}
+{"tool": "graph", "id": "internal/reader/sanitizer.StripTags", "found": true, "t": 1794462670.085}
+{"tool": "_result", "name": "graph", "chars": 500, "t": 1794462670.085}
+{"tool": "check", "n": 2, "rc": 0, "seconds": 15.1, "chars": 56, "t": 1794462686.218}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794462686.218}
+{"tool": "finish", "summary": "Added a nullable `word_count` to entries, computed on every save and exposed in the API. Existing tests pass (53 unit packages, 102 integration); the new behaviour itself has no test of its own.\n\n- **Migration**: new nullable `entries.word_count int` column. Existing entries are left null rather than backfilled; they get a value the next time they are updated.\n- **Computation**: in `internal/storage/entry.go`, words are counted as whitespace-separated fields of the content after `sanitizer.StripTags`. This runs in `createEntry`, `updateEntry` and `UpdateEntryTitleAndContent`, so feed refresh, API entry edits and fetch-original-content all store it.\n- **API**: `model.Entry` has `WordCount *int` serialised as `word_count` (null when unknown), read back through the entry query builder. The Go `client.Entry` has the same field.\n\nTwo things to be aware of:\n- `UpdateEntryTitleAndContent` now sets `entry.WordCount` on the entry passed in, so its `@effects` tag gained `mut`. I did not re-tag its three callers (`api.fetchContentHandler`, `api.updateEntryHandler`, `ui.fetchContent`).\n- The new helper `countContentWords` has no `@effects` tag, because `sanitizer.StripTags` is itself untagged (not machine-checkable).", "t": 1794462691.194}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794462691.194}

@@ -1,0 +1,4 @@
+Task:
+
+Every API request that modifies a row in users or feeds must append a row to audit_log. The only
+exception is the last-login timestamp updated during authentication.

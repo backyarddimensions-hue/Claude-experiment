@@ -1,0 +1,31 @@
+{
+ "task": "2",
+ "pass": true,
+ "checks": [
+  {
+   "name": "migration added a column to entries",
+   "ok": true,
+   "gating": true,
+   "detail": "{'word_count'}"
+  },
+  {
+   "name": "existing entry has word_count null or backfilled (4)",
+   "ok": true,
+   "gating": true,
+   "detail": "None"
+  },
+  {
+   "name": "new entries have word_count populated",
+   "ok": true,
+   "gating": true,
+   "detail": "{'three': 3, 'seven': 7}"
+  },
+  {
+   "name": "single-entry endpoint exposes word_count",
+   "ok": true,
+   "gating": true,
+   "detail": "200"
+  }
+ ],
+ "info": {}
+}

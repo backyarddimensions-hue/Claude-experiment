@@ -1,0 +1,73 @@
+23:31:30 start task 1 repeat 1: A0 A1 B
+23:35:05   task1-A0-1: correct=True suite=True acc=7/7 ctx=58710 cum=312838 files=10 checks=1 cost=1.6382788000000004 wall=146s stop=success
+23:35:05   task1-A1-1: correct=True suite=True acc=7/7 ctx=70254 cum=610207 files=14 checks=2 cost=2.0975858 wall=199s stop=success
+23:35:05   task1-B-1: correct=True suite=True acc=7/7 ctx=88222 cum=529995 files=12 checks=1 cost=2.2450186 wall=165s stop=success
+23:35:05 start task 2 repeat 1: A0 A1 B
+23:36:52   task2-A0-1: correct=True suite=True acc=4/4 ctx=37590 cum=207935 files=7 checks=1 cost=0.8677117999999999 wall=79s stop=success
+23:36:52   task2-A1-1: correct=True suite=True acc=4/4 ctx=38408 cum=237097 files=8 checks=1 cost=0.9042160000000001 wall=80s stop=success
+23:36:52   task2-B-1: correct=True suite=True acc=4/4 ctx=64803 cum=574387 files=9 checks=1 cost=1.4256280000000001 wall=88s stop=success
+23:36:52 start task 3 repeat 1: A0 A1 B
+23:39:44   task3-A0-1: correct=True suite=True acc=9/9 ctx=60039 cum=349025 files=12 checks=1 cost=1.5840396 wall=146s stop=success
+23:39:44   task3-A1-1: correct=True suite=True acc=9/9 ctx=62314 cum=534586 files=10 checks=1 cost=1.6996354 wall=154s stop=success
+23:39:44   task3-B-1: correct=True suite=True acc=9/9 ctx=54366 cum=262128 files=9 checks=1 cost=1.3593936 wall=115s stop=success
+23:39:44 start task 4 repeat 1: A0 A1 B
+23:40:57   task4-A0-1: correct=True suite=True acc=4/4 ctx=18915 cum=111049 files=4 checks=1 cost=0.4434852 wall=54s stop=success
+23:40:57   task4-A1-1: correct=True suite=True acc=4/4 ctx=15397 cum=82472 files=4 checks=1 cost=0.3442616 wall=50s stop=success
+23:40:57   task4-B-1: correct=True suite=True acc=4/4 ctx=18870 cum=79720 files=4 checks=1 cost=0.38949959999999995 wall=46s stop=success
+23:40:57 start task 5 repeat 1: A0 A1 B
+23:42:55   task5-A0-1: correct=True suite=True acc=4/4 ctx=23885 cum=96405 files=5 checks=1 cost=0.5494356 wall=54s stop=success
+23:42:55   task5-A1-1: correct=True suite=True acc=4/4 ctx=39606 cum=209599 files=10 checks=1 cost=0.9562691999999999 wall=87s stop=success
+23:42:55   task5-B-1: correct=True suite=True acc=4/4 ctx=63049 cum=497809 files=8 checks=1 cost=1.3357036 wall=85s stop=success
+23:42:55 start task 6 repeat 1: A0 A1 B
+23:46:40   task6-A0-1: correct=True suite=True acc=11/11 ctx=75189 cum=519560 files=15 checks=1 cost=2.1062678000000004 wall=203s stop=success
+23:46:40   task6-A1-1: correct=True suite=True acc=11/11 ctx=81931 cum=490104 files=15 checks=1 cost=2.2065364 wall=205s stop=success
+23:46:40   task6-B-1: correct=True suite=True acc=11/11 ctx=60725 cum=365772 files=12 checks=1 cost=1.7073857999999997 wall=169s stop=success
+23:46:40 start task 1 repeat 2: A0 A1 B
+23:49:59   task1-A0-2: correct=True suite=True acc=7/7 ctx=69412 cum=413610 files=11 checks=1 cost=1.8928752000000002 wall=176s stop=success
+23:49:59   task1-A1-2: correct=True suite=True acc=7/7 ctx=59479 cum=335241 files=10 checks=1 cost=1.6276718 wall=152s stop=success
+23:49:59   task1-B-2: correct=True suite=True acc=7/7 ctx=108646 cum=796736 files=15 checks=1 cost=2.5477878 wall=182s stop=success
+23:49:59 start task 2 repeat 2: A0 A1 B
+23:51:51   task2-A0-2: correct=True suite=True acc=4/4 ctx=38017 cum=138333 files=6 checks=1 cost=0.8133926 wall=67s stop=success
+23:51:51   task2-A1-2: correct=True suite=True acc=4/4 ctx=40290 cum=178136 files=6 checks=1 cost=0.8925339999999999 wall=76s stop=success
+23:51:51   task2-B-2: correct=True suite=True acc=4/4 ctx=53830 cum=368798 files=8 checks=2 cost=1.0947212 wall=96s stop=success
+23:51:51 start task 3 repeat 2: A0 A1 B
+23:54:48   task3-A0-2: correct=True suite=True acc=9/9 ctx=57290 cum=332119 files=13 checks=1 cost=1.4477462 wall=126s stop=success
+23:54:48   task3-A1-2: correct=True suite=True acc=9/9 ctx=64533 cum=331692 files=10 checks=1 cost=1.5832964 wall=129s stop=success
+23:54:48   task3-B-2: correct=True suite=True acc=9/9 ctx=85354 cum=745107 files=11 checks=1 cost=2.0213051999999996 wall=161s stop=success
+23:54:48 start task 4 repeat 2: A0 A1 B
+23:56:03   task4-A0-2: correct=True suite=True acc=4/4 ctx=19036 cum=82527 files=4 checks=1 cost=0.431881 wall=53s stop=success
+23:56:03   task4-A1-2: correct=True suite=True acc=4/4 ctx=21630 cum=106708 files=5 checks=1 cost=0.4811698 wall=58s stop=success
+23:56:03   task4-B-2: correct=True suite=True acc=4/4 ctx=23892 cum=89164 files=4 checks=1 cost=0.3959654 wall=40s stop=success
+23:56:03 start task 5 repeat 2: A0 A1 B
+23:58:23   task5-A0-2: correct=True suite=True acc=4/4 ctx=37163 cum=244691 files=9 checks=2 cost=0.8983427999999999 wall=102s stop=success
+23:58:23   task5-A1-2: correct=True suite=True acc=4/4 ctx=51045 cum=314781 files=9 checks=2 cost=1.1315082 wall=109s stop=success
+23:58:23   task5-B-2: correct=True suite=True acc=4/4 ctx=55304 cum=300756 files=8 checks=1 cost=1.0712314 wall=76s stop=success
+23:58:23 start task 6 repeat 2: A0 A1 B
+00:02:12   task6-A0-2: correct=True suite=True acc=11/11 ctx=39564 cum=131981 files=7 checks=1 cost=0.8685716 wall=75s stop=success
+00:02:12   task6-A1-2: correct=True suite=True acc=11/11 ctx=93456 cum=644271 files=16 checks=1 cost=2.4526685999999995 wall=211s stop=success
+00:02:12   task6-B-2: correct=True suite=True acc=11/11 ctx=57079 cum=355200 files=13 checks=1 cost=1.6149981999999998 wall=176s stop=success
+00:02:12 start task 1 repeat 3: A0 A1 B
+00:05:33   task1-A0-3: correct=True suite=True acc=7/7 ctx=56781 cum=396712 files=12 checks=2 cost=1.5737414 wall=144s stop=success
+00:05:33   task1-A1-3: correct=True suite=True acc=7/7 ctx=71683 cum=427040 files=10 checks=1 cost=2.0165504000000003 wall=185s stop=success
+00:05:33   task1-B-3: correct=True suite=True acc=7/7 ctx=98865 cum=549902 files=13 checks=1 cost=2.3922344 wall=181s stop=success
+00:05:33 start task 2 repeat 3: A0 A1 B
+00:07:33   task2-A0-3: correct=True suite=True acc=4/4 ctx=32998 cum=194284 files=6 checks=1 cost=0.7956894000000001 wall=80s stop=success
+00:07:33   task2-A1-3: correct=True suite=True acc=4/4 ctx=38712 cum=272004 files=8 checks=2 cost=0.9334620000000001 wall=104s stop=success
+00:07:33   task2-B-3: correct=True suite=True acc=4/4 ctx=47831 cum=254027 files=6 checks=1 cost=0.9273916 wall=69s stop=success
+00:07:33 start task 3 repeat 3: A0 A1 B
+00:10:11   task3-A0-3: correct=True suite=True acc=9/9 ctx=47988 cum=254202 files=10 checks=1 cost=1.2758156 wall=127s stop=success
+00:10:11   task3-A1-3: correct=True suite=True acc=9/9 ctx=52792 cum=275070 files=9 checks=1 cost=1.3919042000000001 wall=138s stop=success
+00:10:11   task3-B-3: correct=True suite=True acc=9/9 ctx=81519 cum=489218 files=13 checks=1 cost=1.8087676 wall=134s stop=success
+00:10:11 start task 4 repeat 3: A0 A1 B
+00:12:07   task4-A0-3: correct=True suite=True acc=4/4 ctx=20153 cum=102012 files=5 checks=1 cost=0.45200219999999997 wall=69s stop=success
+00:12:07   task4-A1-3: correct=True suite=True acc=4/4 ctx=18250 cum=86397 files=4 checks=1 cost=0.42624799999999996 wall=75s stop=success
+00:12:07   task4-B-3: correct=True suite=True acc=4/4 ctx=29104 cum=154414 files=5 checks=1 cost=0.5312762 wall=69s stop=success
+00:12:07 start task 5 repeat 3: A0 A1 B
+00:14:09   task5-A0-3: correct=True suite=True acc=4/4 ctx=38335 cum=170905 files=9 checks=1 cost=0.8877919999999999 wall=85s stop=success
+00:14:09   task5-A1-3: correct=True suite=True acc=4/4 ctx=35449 cum=167436 files=7 checks=1 cost=0.8010711999999999 wall=78s stop=success
+00:14:09   task5-B-3: correct=True suite=True acc=4/4 ctx=58453 cum=393801 files=8 checks=1 cost=1.1681057999999997 wall=86s stop=success
+00:14:09 start task 6 repeat 3: A0 A1 B
+00:17:57   task6-A0-3: correct=True suite=True acc=11/11 ctx=81296 cum=422321 files=16 checks=1 cost=2.247292 wall=208s stop=success
+00:17:57   task6-A1-3: correct=True suite=True acc=11/11 ctx=72056 cum=478694 files=15 checks=1 cost=1.7832576000000002 wall=144s stop=success
+00:17:57   task6-B-3: correct=True suite=True acc=11/11 ctx=83225 cum=838157 files=14 checks=2 cost=2.1716787999999996 wall=209s stop=success
+00:17:57 batch complete

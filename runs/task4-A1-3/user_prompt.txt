@@ -1,0 +1,7 @@
+Task:
+
+Add an endpoint to regenerate a user's API key and invalidate the old one. The old key fails
+immediately and the new key works.
+
+`POST /v1/api-keys/{apiKeyID}/regenerate` returns the API key object with its new
+`token`.

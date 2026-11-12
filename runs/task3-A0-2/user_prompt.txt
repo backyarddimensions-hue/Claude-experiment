@@ -1,0 +1,8 @@
+Task:
+
+Add a per-user limit on the number of feeds.
+
+The user object has an integer field `max_feeds`; 0 means unlimited. Only an
+administrator can change it, with `PUT /v1/users/{userID}`. Once a user has `max_feeds` feeds, no
+request may create another one for that user: `POST /v1/feeds` returns a 4xx status and creates
+nothing, and `POST /v1/import` never leaves the user with more than `max_feeds` feeds.

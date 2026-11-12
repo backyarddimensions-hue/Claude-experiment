@@ -1,0 +1,30 @@
+{"tool": "signatures", "pkg": "internal/api", "functions": 60, "t": 1794463813.144}
+{"tool": "_result", "name": "signatures", "chars": 13943, "t": 1794463813.144}
+{"tool": "where", "effect": "writes api_keys", "pkg": "internal/storage", "hits": 3, "t": 1794463813.903}
+{"tool": "_result", "name": "where", "chars": 443, "t": 1794463813.904}
+{"tool": "open_file", "path": "internal/storage/api_key.go", "start": 1, "end": 126, "lines": 126, "file_lines": 126, "t": 1794463814.893}
+{"tool": "_result", "name": "open_file", "chars": 3577, "t": 1794463814.893}
+{"tool": "open_file", "path": "internal/api/api_key_handlers.go", "start": 1, "end": 72, "lines": 72, "file_lines": 72, "t": 1794463815.39}
+{"tool": "_result", "name": "open_file", "chars": 2191, "t": 1794463815.39}
+{"tool": "open_file", "path": "internal/api/api.go", "start": 1, "end": 80, "lines": 80, "file_lines": 80, "t": 1794463815.637}
+{"tool": "_result", "name": "open_file", "chars": 4916, "t": 1794463815.637}
+{"tool": "open_file", "path": "internal/api/middleware.go", "start": 1, "end": 189, "lines": 189, "file_lines": 189, "t": 1794463815.9}
+{"tool": "_result", "name": "open_file", "chars": 6529, "t": 1794463815.9}
+{"tool": "edit", "path": "internal/storage/api_key.go", "matches": 1, "t": 1794463822.492}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794463822.492}
+{"tool": "edit", "path": "internal/storage/api_key.go", "matches": 1, "t": 1794463823.332}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794463823.332}
+{"tool": "edit", "path": "internal/api/api_key_handlers.go", "matches": 1, "t": 1794463826.337}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794463826.337}
+{"tool": "edit", "path": "internal/api/api.go", "matches": 1, "t": 1794463827.969}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794463827.969}
+{"tool": "where", "effect": "net", "pkg": "client", "hits": 117, "t": 1794463828.336}
+{"tool": "_result", "name": "where", "chars": 8790, "t": 1794463828.336}
+{"tool": "open_file", "path": "client/client.go", "start": 312, "end": 356, "lines": 45, "file_lines": 1441, "t": 1794463829.479}
+{"tool": "_result", "name": "open_file", "chars": 1602, "t": 1794463829.479}
+{"tool": "edit", "path": "client/client.go", "matches": 1, "t": 1794463833.671}
+{"tool": "_result", "name": "edit", "chars": 2, "t": 1794463833.672}
+{"tool": "check", "n": 1, "rc": 0, "seconds": 39.3, "chars": 56, "t": 1794463873.076}
+{"tool": "_result", "name": "check", "chars": 76, "t": 1794463873.076}
+{"tool": "finish", "summary": "Added `POST /v1/api-keys/{apiKeyID}/regenerate`. It replaces the key's token in place (same ID and description, `last_used_at` reset), so the old token stops authenticating immediately and the new one works. It returns the API key object with the new `token` and status 200; 404 if the key does not exist or belongs to another user, 400 for an invalid ID.\n\nChanges:\n- `internal/storage/api_key.go`: new `Storage.RegenerateAPIKey(userID, keyID)` \u2014 a single `UPDATE ... RETURNING` scoped to the user.\n- `internal/api/api_key_handlers.go`: new `regenerateAPIKeyHandler`.\n- `internal/api/api.go`: route registered.\n- `client/client.go`: added `RegenerateAPIKey` / `RegenerateAPIKeyContext` (not asked for, added so the Go client covers the endpoint).\n\nExisting build, unit and integration tests pass; the new endpoint itself has no test of its own in this change.\n\nThe 200 status is my choice \u2014 the task did not specify one, and create returns 201.", "t": 1794463877.753}
+{"tool": "_result", "name": "finish", "chars": 55, "t": 1794463877.753}
