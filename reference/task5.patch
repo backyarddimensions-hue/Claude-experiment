@@ -1,0 +1,174 @@
+diff --git a/client/model.go b/client/model.go
+index ff1f444b..8a529668 100644
+--- a/client/model.go
++++ b/client/model.go
+@@ -176,6 +176,7 @@ type Feed struct {
+ 	HideGlobally                bool      `json:"hide_globally"`
+ 	DisableHTTP2                bool      `json:"disable_http2"`
+ 	ProxyURL                    string    `json:"proxy_url"`
++	FetchTimeout                int       `json:"fetch_timeout"`
+ 	AppriseServiceURLs          string    `json:"apprise_service_urls"`
+ 	WebhookURL                  string    `json:"webhook_url"`
+ 	NtfyEnabled                 bool      `json:"ntfy_enabled"`
+@@ -241,6 +242,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	FetchTimeout                *int    `json:"fetch_timeout"`
+ }
+ 
+ // FeedIcon represents the feed icon.
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..6d719073 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,8 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		_, err = tx.Exec(`ALTER TABLE feeds ADD COLUMN fetch_timeout int not null default 0`)
++		return err
++	},
+ }
+diff --git a/internal/model/feed.go b/internal/model/feed.go
+index eb74b0f1..97f3614f 100644
+--- a/internal/model/feed.go
++++ b/internal/model/feed.go
+@@ -63,6 +63,7 @@ type Feed struct {
+ 	NtfyTopic                   string    `json:"ntfy_topic"`
+ 	PushoverPriority            int       `json:"pushover_priority"`
+ 	ProxyURL                    string    `json:"proxy_url"`
++	FetchTimeout                int       `json:"fetch_timeout"`
+ 
+ 	// Non-persisted attributes
+ 	Category *Category `json:"category,omitempty"`
+@@ -110,6 +111,14 @@ func (f *Feed) ResetErrorCounter() {
+ 	f.ParsingErrorMsg = ""
+ }
+ 
++// HTTPClientTimeout returns the feed's own HTTP timeout, or the global one when it is not set.
++func (f *Feed) HTTPClientTimeout() time.Duration {
++	if f.FetchTimeout > 0 {
++		return time.Duration(f.FetchTimeout) * time.Second
++	}
++	return config.Opts.HTTPClientTimeout()
++}
++
+ // CheckedNow set attribute values when the feed is refreshed.
+ func (f *Feed) CheckedNow() {
+ 	f.CheckedAt = time.Now()
+@@ -212,6 +221,7 @@ type FeedModificationRequest struct {
+ 	HideGlobally                *bool   `json:"hide_globally"`
+ 	DisableHTTP2                *bool   `json:"disable_http2"`
+ 	ProxyURL                    *string `json:"proxy_url"`
++	FetchTimeout                *int    `json:"fetch_timeout"`
+ }
+ 
+ // Patch updates a feed with modified values.
+@@ -319,6 +329,10 @@ func (f *FeedModificationRequest) Patch(feed *Feed) {
+ 	if f.ProxyURL != nil {
+ 		feed.ProxyURL = *f.ProxyURL
+ 	}
++
++	if f.FetchTimeout != nil {
++		feed.FetchTimeout = *f.FetchTimeout
++	}
+ }
+ 
+ // Feeds is a list of feed
+diff --git a/internal/reader/handler/handler.go b/internal/reader/handler/handler.go
+index 2faad341..b2d79015 100644
+--- a/internal/reader/handler/handler.go
++++ b/internal/reader/handler/handler.go
+@@ -233,7 +233,7 @@ func RefreshFeed(store *storage.Storage, userID, feedID int64, forceRefresh bool
+ 		WithUsernameAndPassword(originalFeed.Username, originalFeed.Password).
+ 		WithUserAgent(originalFeed.UserAgent, config.Opts.HTTPClientUserAgent()).
+ 		WithCookie(originalFeed.Cookie, originalFeed.FeedURL).
+-		WithTimeout(config.Opts.HTTPClientTimeout()).
++		WithTimeout(originalFeed.HTTPClientTimeout()).
+ 		WithProxyRotator(proxyrotator.ProxyRotatorInstance).
+ 		WithCustomFeedProxyURL(originalFeed.ProxyURL).
+ 		WithCustomApplicationProxyURL(config.Opts.HTTPClientProxyURL()).
+diff --git a/internal/reader/icon/checker.go b/internal/reader/icon/checker.go
+index 06b9d9c6..7b410aec 100644
+--- a/internal/reader/icon/checker.go
++++ b/internal/reader/icon/checker.go
+@@ -29,7 +29,7 @@ func (c *iconChecker) UpdateOrCreateFeedIcon() {
+ 	requestBuilder := fetcher.NewRequestBuilder().
+ 		WithUserAgent(c.feed.UserAgent, config.Opts.HTTPClientUserAgent()).
+ 		WithCookie(c.feed.Cookie, c.feed.FeedURL).
+-		WithTimeout(config.Opts.HTTPClientTimeout()).
++		WithTimeout(c.feed.HTTPClientTimeout()).
+ 		WithProxyRotator(proxyrotator.ProxyRotatorInstance).
+ 		WithCustomFeedProxyURL(c.feed.ProxyURL).
+ 		WithCustomApplicationProxyURL(config.Opts.HTTPClientProxyURL()).
+diff --git a/internal/reader/processor/processor.go b/internal/reader/processor/processor.go
+index b7cf4a9d..db1e2a88 100644
+--- a/internal/reader/processor/processor.go
++++ b/internal/reader/processor/processor.go
+@@ -53,7 +53,7 @@ func ProcessFeedEntries(store *storage.Storage, feed *model.Feed, userID int64,
+ 	requestBuilder := fetcher.NewRequestBuilder().
+ 		WithUserAgent(feed.UserAgent, config.Opts.HTTPClientUserAgent()).
+ 		WithCookie(feed.Cookie, feed.FeedURL).
+-		WithTimeout(config.Opts.HTTPClientTimeout()).
++		WithTimeout(feed.HTTPClientTimeout()).
+ 		WithProxyRotator(proxyrotator.ProxyRotatorInstance).
+ 		WithCustomFeedProxyURL(feed.ProxyURL).
+ 		WithCustomApplicationProxyURL(config.Opts.HTTPClientProxyURL()).
+@@ -184,7 +184,7 @@ func ProcessEntryWebPage(feed *model.Feed, entry *model.Entry, user *model.User)
+ 	requestBuilder := fetcher.NewRequestBuilder().
+ 		WithUserAgent(feed.UserAgent, config.Opts.HTTPClientUserAgent()).
+ 		WithCookie(feed.Cookie, feed.FeedURL).
+-		WithTimeout(config.Opts.HTTPClientTimeout()).
++		WithTimeout(feed.HTTPClientTimeout()).
+ 		WithProxyRotator(proxyrotator.ProxyRotatorInstance).
+ 		WithCustomFeedProxyURL(feed.ProxyURL).
+ 		WithCustomApplicationProxyURL(config.Opts.HTTPClientProxyURL()).
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index 657d3b99..f1a29f7d 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -381,9 +381,10 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 			pushover_priority=$37,
+ 			proxy_url=$38,
+ 			ignore_entry_updates=$39,
+-			language=$40
++			language=$40,
++			fetch_timeout=$41
+ 		WHERE
+-			id=$41 AND user_id=$42
++			id=$42 AND user_id=$43
+ 	`
+ 	_, err = s.db.Exec(query,
+ 		feed.FeedURL,
+@@ -426,6 +427,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		feed.ProxyURL,
+ 		feed.IgnoreEntryUpdates,
+ 		feed.Language,
++		feed.FetchTimeout,
+ 		feed.ID,
+ 		feed.UserID,
+ 	)
+diff --git a/internal/storage/feed_query_builder.go b/internal/storage/feed_query_builder.go
+index 564bbdee..adc0fa60 100644
+--- a/internal/storage/feed_query_builder.go
++++ b/internal/storage/feed_query_builder.go
+@@ -185,7 +185,8 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			f.pushover_enabled,
+ 			f.pushover_priority,
+ 			f.proxy_url,
+-			f.ignore_entry_updates
++			f.ignore_entry_updates,
++			f.fetch_timeout
+ 		FROM
+ 			feeds f
+ 		LEFT JOIN
+@@ -269,6 +270,7 @@ func (f *feedQueryBuilder) GetFeeds() (model.Feeds, error) {
+ 			&feed.PushoverPriority,
+ 			&feed.ProxyURL,
+ 			&feed.IgnoreEntryUpdates,
++			&feed.FetchTimeout,
+ 		)
+ 		if err != nil {
+ 			return nil, fmt.Errorf(`store: unable to fetch feeds row: %w`, err)

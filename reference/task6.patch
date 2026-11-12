@@ -1,0 +1,302 @@
+diff --git a/internal/api/feed_handlers.go b/internal/api/feed_handlers.go
+index 18f8ed2b..e6896b26 100644
+--- a/internal/api/feed_handlers.go
++++ b/internal/api/feed_handlers.go
+@@ -52,7 +52,7 @@ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	feed, localizedError := feedHandler.CreateFeed(h.store, userID, &feedCreationRequest)
++	feed, localizedError := feedHandler.CreateFeed(h.store.WithAuditLog(userID), userID, &feedCreationRequest)
+ 	if localizedError != nil {
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+@@ -82,7 +82,7 @@ func (h *handler) refreshFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 	// force=true mirrors the web UI's forced refresh: it bypasses the HTTP cache
+ 	// and reprocesses (and re-scrapes) entries that are already stored.
+ 	forceRefresh := request.QueryBoolParam(r, "force", false)
+-	localizedError := feedHandler.RefreshFeed(h.store, userID, feedID, forceRefresh)
++	localizedError := feedHandler.RefreshFeed(h.store.WithAuditLog(userID), userID, feedID, forceRefresh)
+ 	if localizedError != nil {
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+@@ -149,7 +149,7 @@ func (h *handler) updateFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 
+ 	feedModificationRequest.Patch(originalFeed)
+ 	originalFeed.ResetErrorCounter()
+-	if err := h.store.UpdateFeed(originalFeed); err != nil {
++	if err := h.store.WithAuditLog(userID).UpdateFeed(originalFeed); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+@@ -278,7 +278,7 @@ func (h *handler) removeFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	if err := h.store.RemoveFeed(userID, feedID); err != nil {
++	if err := h.store.WithAuditLog(userID).RemoveFeed(userID, feedID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+diff --git a/internal/api/opml_handlers.go b/internal/api/opml_handlers.go
+index 7e13fc33..1f1742eb 100644
+--- a/internal/api/opml_handlers.go
++++ b/internal/api/opml_handlers.go
+@@ -26,7 +26,7 @@ func (h *handler) exportFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ }
+ 
+ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
+-	opmlHandler := opml.NewHandler(h.store)
++	opmlHandler := opml.NewHandler(h.store.WithAuditLog(request.UserID(r)))
+ 	err := opmlHandler.Import(request.UserID(r), r.Body)
+ 	defer r.Body.Close()
+ 	if err != nil {
+diff --git a/internal/api/user_handlers.go b/internal/api/user_handlers.go
+index 85e82521..e9516da1 100644
+--- a/internal/api/user_handlers.go
++++ b/internal/api/user_handlers.go
+@@ -46,7 +46,7 @@ func (h *handler) createUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	user, err := h.store.CreateUser(&userCreationRequest)
++	user, err := h.store.WithAuditLog(request.UserID(r)).CreateUser(&userCreationRequest)
+ 	if err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+@@ -97,7 +97,7 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 	}
+ 
+ 	userModificationRequest.Patch(originalUser)
+-	if err = h.store.UpdateUser(originalUser); err != nil {
++	if err = h.store.WithAuditLog(request.UserID(r)).UpdateUser(originalUser); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+@@ -266,7 +266,7 @@ func (h *handler) removeUserHandler(w http.ResponseWriter, r *http.Request) {
+ 		return
+ 	}
+ 
+-	if err := h.store.RemoveUser(user.ID); err != nil {
++	if err := h.store.WithAuditLog(request.UserID(r)).RemoveUser(user.ID); err != nil {
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..aeb2a763 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,20 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		// user_id is the user who made the API request. It is not a foreign
++		// key so that the log outlives the users and feeds it refers to.
++		_, err = tx.Exec(`
++			CREATE TABLE audit_log (
++				id bigserial not null,
++				created_at timestamp with time zone not null default now(),
++				user_id bigint not null,
++				action text not null,
++				target_table text not null,
++				target_id bigint not null,
++				primary key (id)
++			);
++		`)
++		return err
++	},
+ }
+diff --git a/internal/storage/audit_log.go b/internal/storage/audit_log.go
+new file mode 100644
+index 00000000..0515d274
+--- /dev/null
++++ b/internal/storage/audit_log.go
+@@ -0,0 +1,39 @@
++// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
++// SPDX-License-Identifier: Apache-2.0
++
++package storage // import "miniflux.app/v2/internal/storage"
++
++import (
++	"database/sql"
++	"fmt"
++)
++
++// WithAuditLog returns a Storage that appends a row to audit_log, on behalf of
++// the given user, each time it modifies a row in the users or feeds tables.
++func (s *Storage) WithAuditLog(actorID int64) *Storage {
++	return &Storage{db: s.db, auditActorID: actorID}
++}
++
++// audit appends a row to audit_log. It does nothing unless the Storage was
++// obtained from WithAuditLog.
++func (s *Storage) audit(action, table string, targetID int64) error {
++	if s.auditActorID == 0 {
++		return nil
++	}
++
++	query := `INSERT INTO audit_log (user_id, action, target_table, target_id) VALUES ($1, $2, $3, $4)`
++	if _, err := s.db.Exec(query, s.auditActorID, action, table, targetID); err != nil {
++		return fmt.Errorf(`store: unable to append audit log: %v`, err)
++	}
++
++	return nil
++}
++
++// auditIfAffected calls audit only if the given statement modified a row.
++func (s *Storage) auditIfAffected(result sql.Result, action, table string, targetID int64) error {
++	if count, err := result.RowsAffected(); err != nil || count == 0 {
++		return err
++	}
++
++	return s.audit(action, table, targetID)
++}
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index 657d3b99..d07ee860 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -302,6 +302,10 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		return fmt.Errorf(`store: unable to create feed %q: %v`, feed.FeedURL, err)
+ 	}
+ 
++	if err := s.audit("create", "feeds", feed.ID); err != nil {
++		return err
++	}
++
+ 	for _, entry := range feed.Entries {
+ 		entry.FeedID = feed.ID
+ 		entry.UserID = feed.UserID
+@@ -385,7 +389,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		WHERE
+ 			id=$41 AND user_id=$42
+ 	`
+-	_, err = s.db.Exec(query,
++	result, err := s.db.Exec(query,
+ 		feed.FeedURL,
+ 		feed.SiteURL,
+ 		feed.Title,
+@@ -433,7 +437,7 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
+ 		return fmt.Errorf(`store: unable to update feed #%d (%s): %v`, feed.ID, feed.FeedURL, err)
+ 	}
+ 
+-	return nil
++	return s.auditIfAffected(result, "update", "feeds", feed.ID)
+ }
+ 
+ // UpdateFeedError persists the parsing error fields for the given feed.
+@@ -449,7 +453,7 @@ func (s *Storage) UpdateFeedError(feed *model.Feed) (err error) {
+ 		WHERE
+ 			id=$5 AND user_id=$6
+ 	`
+-	_, err = s.db.Exec(query,
++	result, err := s.db.Exec(query,
+ 		feed.ParsingErrorMsg,
+ 		feed.ParsingErrorCount,
+ 		feed.CheckedAt,
+@@ -461,15 +465,16 @@ func (s *Storage) UpdateFeedError(feed *model.Feed) (err error) {
+ 		return fmt.Errorf(`store: unable to update feed error #%d (%s): %v`, feed.ID, feed.FeedURL, err)
+ 	}
+ 
+-	return nil
++	return s.auditIfAffected(result, "update", "feeds", feed.ID)
+ }
+ 
+ // RemoveFeed removes the given feed along with its entries and enclosures.
+ func (s *Storage) RemoveFeed(userID, feedID int64) error {
+-	if _, err := s.db.Exec(`DELETE FROM feeds WHERE id=$1 AND user_id=$2`, feedID, userID); err != nil {
++	result, err := s.db.Exec(`DELETE FROM feeds WHERE id=$1 AND user_id=$2`, feedID, userID)
++	if err != nil {
+ 		return fmt.Errorf(`store: unable to delete feed #%d: %v`, feedID, err)
+ 	}
+-	return nil
++	return s.auditIfAffected(result, "delete", "feeds", feedID)
+ }
+ 
+ // ResetFeedErrors clears the parsing error fields for all feeds.
+diff --git a/internal/storage/storage.go b/internal/storage/storage.go
+index ffae9692..ca267d17 100644
+--- a/internal/storage/storage.go
++++ b/internal/storage/storage.go
+@@ -12,11 +12,15 @@ import (
+ // Storage handles all operations related to the database.
+ type Storage struct {
+ 	db *sql.DB
++
++	// auditActorID is the user on whose behalf writes to users and feeds are
++	// recorded in audit_log. Zero disables the audit log. See WithAuditLog.
++	auditActorID int64
+ }
+ 
+ // NewStorage returns a new Storage.
+ func NewStorage(db *sql.DB) *Storage {
+-	return &Storage{db}
++	return &Storage{db: db}
+ }
+ 
+ // DatabaseVersion returns the version of the database which is in use.
+diff --git a/internal/storage/user.go b/internal/storage/user.go
+index 22d0ca92..bd5a312f 100644
+--- a/internal/storage/user.go
++++ b/internal/storage/user.go
+@@ -167,6 +167,10 @@ func (s *Storage) CreateUser(userCreationRequest *model.UserCreationRequest) (*m
+ 		return nil, fmt.Errorf(`store: unable to commit transaction: %v`, err)
+ 	}
+ 
++	if err := s.audit("create", "users", user.ID); err != nil {
++		return nil, err
++	}
++
+ 	return &user, nil
+ }
+ 
+@@ -174,6 +178,7 @@ func (s *Storage) CreateUser(userCreationRequest *model.UserCreationRequest) (*m
+ func (s *Storage) UpdateUser(user *model.User) error {
+ 	user.ExternalFontHosts = strings.TrimSpace(user.ExternalFontHosts)
+ 
++	var result sql.Result
+ 	if user.Password != "" {
+ 		hashedPassword, err := crypto.HashPassword(user.Password)
+ 		if err != nil {
+@@ -216,7 +221,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 				id=$31
+ 		`
+ 
+-		_, err = s.db.Exec(
++		result, err = s.db.Exec(
+ 			query,
+ 			user.Username,
+ 			hashedPassword,
+@@ -289,7 +294,8 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 				id=$30
+ 		`
+ 
+-		_, err := s.db.Exec(
++		var err error
++		result, err = s.db.Exec(
+ 			query,
+ 			user.Username,
+ 			user.IsAdmin,
+@@ -328,7 +334,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 		}
+ 	}
+ 
+-	return nil
++	return s.auditIfAffected(result, "update", "users", user.ID)
+ }
+ 
+ // UserLanguage returns the language of the given user, or "en_US" if the lookup fails.
+@@ -570,10 +576,11 @@ func (s *Storage) fetchUser(query string, args ...any) (*model.User, error) {
+ 
+ // RemoveUser deletes a user and all related data.
+ func (s *Storage) RemoveUser(userID int64) error {
+-	if _, err := s.db.Exec(`DELETE FROM users WHERE id=$1`, userID); err != nil {
++	result, err := s.db.Exec(`DELETE FROM users WHERE id=$1`, userID)
++	if err != nil {
+ 		return fmt.Errorf(`store: unable to remove user #%d: %v`, userID, err)
+ 	}
+-	return nil
++	return s.auditIfAffected(result, "delete", "users", userID)
+ }
+ 
+ // Users returns all users.

@@ -1,0 +1,284 @@
+diff --git a/internal/api/feed_handlers.go b/internal/api/feed_handlers.go
+index 18f8ed2b..abc60ae6 100644
+--- a/internal/api/feed_handlers.go
++++ b/internal/api/feed_handlers.go
+@@ -54,6 +54,10 @@ func (h *handler) createFeedHandler(w http.ResponseWriter, r *http.Request) {
+ 
+ 	feed, localizedError := feedHandler.CreateFeed(h.store, userID, &feedCreationRequest)
+ 	if localizedError != nil {
++		if errors.Is(localizedError.Error(), storage.ErrFeedLimitReached) {
++			response.JSONBadRequest(w, r, localizedError.Error())
++			return
++		}
+ 		response.JSONServerError(w, r, localizedError.Error())
+ 		return
+ 	}
+diff --git a/internal/api/opml_handlers.go b/internal/api/opml_handlers.go
+index 7e13fc33..c2b81a33 100644
+--- a/internal/api/opml_handlers.go
++++ b/internal/api/opml_handlers.go
+@@ -34,6 +34,10 @@ func (h *handler) importFeedsHandler(w http.ResponseWriter, r *http.Request) {
+ 			response.JSONBadRequest(w, r, locale.NewLocalizedError("error.feed_category_not_found").Error())
+ 			return
+ 		}
++		if errors.Is(err, storage.ErrFeedLimitReached) {
++			response.JSONBadRequest(w, r, err)
++			return
++		}
+ 		response.JSONServerError(w, r, err)
+ 		return
+ 	}
+diff --git a/internal/api/user_handlers.go b/internal/api/user_handlers.go
+index 85e82521..0f9c320f 100644
+--- a/internal/api/user_handlers.go
++++ b/internal/api/user_handlers.go
+@@ -89,6 +89,16 @@ func (h *handler) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+ 			response.JSONBadRequest(w, r, errors.New("only administrators can change permissions of standard users"))
+ 			return
+ 		}
++
++		if userModificationRequest.MaxFeeds != nil {
++			response.JSONBadRequest(w, r, errors.New("only administrators can change the feed limit of a user"))
++			return
++		}
++	}
++
++	if userModificationRequest.MaxFeeds != nil && *userModificationRequest.MaxFeeds < 0 {
++		response.JSONBadRequest(w, r, errors.New("the feed limit must not be negative"))
++		return
+ 	}
+ 
+ 	if validationErr := validator.ValidateUserModification(h.store, originalUser.ID, &userModificationRequest); validationErr != nil {
+diff --git a/internal/database/migrations.go b/internal/database/migrations.go
+index dcc32d2d..da7a36db 100644
+--- a/internal/database/migrations.go
++++ b/internal/database/migrations.go
+@@ -1590,4 +1590,8 @@ var migrations = [...]func(tx *sql.Tx) error{
+ 		_, err = tx.Exec(sql)
+ 		return err
+ 	},
++	func(tx *sql.Tx) (err error) {
++		_, err = tx.Exec(`ALTER TABLE users ADD COLUMN max_feeds int not null default 0`)
++		return err
++	},
+ }
+diff --git a/internal/model/user.go b/internal/model/user.go
+index 1ec61ab5..4d27b60a 100644
+--- a/internal/model/user.go
++++ b/internal/model/user.go
+@@ -43,6 +43,7 @@ type User struct {
+ 	ShowReadingTime                 bool       `json:"show_reading_time"`
+ 	EntrySwipe                      bool       `json:"entry_swipe"`
+ 	IsAdmin                         bool       `json:"is_admin"`
++	MaxFeeds                        int        `json:"max_feeds"`
+ }
+ 
+ // UserCreationRequest represents the request to create a user.
+@@ -84,6 +85,7 @@ type UserModificationRequest struct {
+ 	KeepFilterEntryRules            *string  `json:"keep_filter_entry_rules"`
+ 	AlwaysOpenExternalLinks         *bool    `json:"always_open_external_links"`
+ 	OpenExternalLinksInNewTab       *bool    `json:"open_external_links_in_new_tab"`
++	MaxFeeds                        *int     `json:"max_feeds"`
+ }
+ 
+ // Patch updates the User object with the modification request.
+@@ -199,6 +201,10 @@ func (u *UserModificationRequest) Patch(user *User) {
+ 	if u.OpenExternalLinksInNewTab != nil {
+ 		user.OpenExternalLinksInNewTab = *u.OpenExternalLinksInNewTab
+ 	}
++
++	if u.MaxFeeds != nil {
++		user.MaxFeeds = *u.MaxFeeds
++	}
+ }
+ 
+ // UseTimezone converts last login date to the given timezone.
+diff --git a/internal/reader/opml/handler.go b/internal/reader/opml/handler.go
+index 4d0d2773..3136d272 100644
+--- a/internal/reader/opml/handler.go
++++ b/internal/reader/opml/handler.go
+@@ -4,6 +4,7 @@
+ package opml // import "miniflux.app/v2/internal/reader/opml"
+ 
+ import (
++	"errors"
+ 	"fmt"
+ 	"io"
+ 
+@@ -87,6 +88,9 @@ func (h *Handler) Import(userID int64, data io.Reader) error {
+ 		}
+ 		applySubscriptionSettings(feed, subscription)
+ 		if err := h.store.CreateFeed(feed); err != nil {
++			if errors.Is(err, storage.ErrFeedLimitReached) {
++				return err
++			}
+ 			return fmt.Errorf(`opml: unable to create this feed: %q`, subscription.FeedURL)
+ 		}
+ 	}
+diff --git a/internal/storage/feed.go b/internal/storage/feed.go
+index 657d3b99..59c71c68 100644
+--- a/internal/storage/feed.go
++++ b/internal/storage/feed.go
+@@ -14,6 +14,9 @@ import (
+ 	"miniflux.app/v2/internal/model"
+ )
+ 
++// ErrFeedLimitReached is returned when a user already has the maximum number of feeds allowed.
++var ErrFeedLimitReached = errors.New("store: the maximum number of feeds for this user is reached")
++
+ type byStateAndName struct{ f model.Feeds }
+ 
+ func (l byStateAndName) Len() int      { return len(l.f) }
+@@ -263,7 +266,28 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		RETURNING
+ 			id
+ 	`
+-	err := s.db.QueryRow(
++	tx, err := s.db.Begin()
++	if err != nil {
++		return fmt.Errorf(`store: unable to start transaction: %v`, err)
++	}
++	defer tx.Rollback()
++
++	// Lock the user row so that concurrent feed creations for the same user
++	// are serialized and cannot exceed the limit together.
++	var maxFeeds, feedCount int
++	if err := tx.QueryRow(`SELECT max_feeds FROM users WHERE id=$1 FOR NO KEY UPDATE`, feed.UserID).Scan(&maxFeeds); err != nil {
++		return fmt.Errorf(`store: unable to fetch feed limit of user #%d: %v`, feed.UserID, err)
++	}
++	if maxFeeds > 0 {
++		if err := tx.QueryRow(`SELECT count(*) FROM feeds WHERE user_id=$1`, feed.UserID).Scan(&feedCount); err != nil {
++			return fmt.Errorf(`store: unable to count feeds of user #%d: %v`, feed.UserID, err)
++		}
++		if feedCount >= maxFeeds {
++			return ErrFeedLimitReached
++		}
++	}
++
++	err = tx.QueryRow(
+ 		sql,
+ 		feed.FeedURL,
+ 		feed.SiteURL,
+@@ -302,6 +326,10 @@ func (s *Storage) CreateFeed(feed *model.Feed) error {
+ 		return fmt.Errorf(`store: unable to create feed %q: %v`, feed.FeedURL, err)
+ 	}
+ 
++	if err := tx.Commit(); err != nil {
++		return fmt.Errorf(`store: unable to commit transaction: %v`, err)
++	}
++
+ 	for _, entry := range feed.Entries {
+ 		entry.FeedID = feed.ID
+ 		entry.UserID = feed.UserID
+diff --git a/internal/storage/user.go b/internal/storage/user.go
+index 22d0ca92..61386e21 100644
+--- a/internal/storage/user.go
++++ b/internal/storage/user.go
+@@ -211,9 +211,10 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 				block_filter_entry_rules=$27,
+ 				keep_filter_entry_rules=$28,
+ 				always_open_external_links=$29,
+-				open_external_links_in_new_tab=$30
++				open_external_links_in_new_tab=$30,
++				max_feeds=$31
+ 			WHERE
+-				id=$31
++				id=$32
+ 		`
+ 
+ 		_, err = s.db.Exec(
+@@ -248,6 +249,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 			user.KeepFilterEntryRules,
+ 			user.AlwaysOpenExternalLinks,
+ 			user.OpenExternalLinksInNewTab,
++			user.MaxFeeds,
+ 			user.ID,
+ 		)
+ 		if err != nil {
+@@ -284,9 +286,10 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 				block_filter_entry_rules=$26,
+ 				keep_filter_entry_rules=$27,
+ 				always_open_external_links=$28,
+-				open_external_links_in_new_tab=$29
++				open_external_links_in_new_tab=$29,
++				max_feeds=$30
+ 			WHERE
+-				id=$30
++				id=$31
+ 		`
+ 
+ 		_, err := s.db.Exec(
+@@ -320,6 +323,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
+ 			user.KeepFilterEntryRules,
+ 			user.AlwaysOpenExternalLinks,
+ 			user.OpenExternalLinksInNewTab,
++			user.MaxFeeds,
+ 			user.ID,
+ 		)
+ 
+@@ -375,7 +379,8 @@ func (s *Storage) UserByID(userID int64) (*model.User, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		WHERE
+@@ -418,7 +423,8 @@ func (s *Storage) UserByUsername(username string) (*model.User, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		WHERE
+@@ -461,7 +467,8 @@ func (s *Storage) UserByField(field, value string) (*model.User, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		WHERE
+@@ -512,7 +519,8 @@ func (s *Storage) UserByAPIKey(token string) (*model.User, error) {
+ 			u.block_filter_entry_rules,
+ 			u.keep_filter_entry_rules,
+ 			u.always_open_external_links,
+-			u.open_external_links_in_new_tab
++			u.open_external_links_in_new_tab,
++			u.max_feeds
+ 		FROM
+ 			users u
+ 		INNER JOIN
+@@ -557,6 +565,7 @@ func (s *Storage) fetchUser(query string, args ...any) (*model.User, error) {
+ 		&user.KeepFilterEntryRules,
+ 		&user.AlwaysOpenExternalLinks,
+ 		&user.OpenExternalLinksInNewTab,
++		&user.MaxFeeds,
+ 	)
+ 
+ 	if errors.Is(err, sql.ErrNoRows) {
+@@ -610,7 +619,8 @@ func (s *Storage) Users() (model.Users, error) {
+ 			block_filter_entry_rules,
+ 			keep_filter_entry_rules,
+ 			always_open_external_links,
+-			open_external_links_in_new_tab
++			open_external_links_in_new_tab,
++			max_feeds
+ 		FROM
+ 			users
+ 		ORDER BY username ASC
+@@ -656,6 +666,7 @@ func (s *Storage) Users() (model.Users, error) {
+ 			&user.KeepFilterEntryRules,
+ 			&user.AlwaysOpenExternalLinks,
+ 			&user.OpenExternalLinksInNewTab,
++			&user.MaxFeeds,
+ 		)
+ 
+ 		if err != nil {

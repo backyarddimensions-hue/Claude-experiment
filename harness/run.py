@@ -70,6 +70,28 @@ def tool_metrics(path):
     }
 
 
+def untagged_metrics(tool_log, graph_path):
+    """Ruling 5 (checkpoint 2): did arm B query or open a function that carries no tag?"""
+    F = json.load(open(graph_path))['functions']
+    decl = sorted((f for f in F if f['decl']), key=lambda f: (f['file'], f['line']))
+    extent = {}
+    for i, f in enumerate(decl):
+        nxt = decl[i + 1] if i + 1 < len(decl) and decl[i + 1]['file'] == f['file'] else None
+        extent[f['id']] = (f['file'], f['line'], (nxt['line'] - 1) if nxt else 10 ** 9)
+    untagged = {f['id'] for f in decl if f['declared'] is None}
+    recs = [json.loads(l) for l in open(tool_log)] if os.path.exists(tool_log) else []
+    queried = sorted({r['id'] for r in recs if r['tool'] == 'graph' and r.get('found') and r['id'] in untagged})
+    opened = set()
+    for r in recs:
+        if r['tool'] == 'open_file' and 'lines' in r:
+            for fid in untagged:
+                file, lo, hi = extent[fid]
+                if file == r['path'] and r['start'] <= hi and r['end'] >= lo:
+                    opened.add(fid)
+    return {'untagged_queried': len(queried), 'untagged_opened': len(opened),
+            'untagged_queried_ids': queried, 'untagged_opened_ids': sorted(opened)}
+
+
 def main():
     arm, task, n = sys.argv[1], sys.argv[2], sys.argv[3]
     slot = int(sys.argv[sys.argv.index('--slot') + 1]) if '--slot' in sys.argv else 0
@@ -126,12 +148,13 @@ def main():
            'acceptance_checks_ok': sum(1 for c in acc.get('checks', []) if c['ok']), 'acceptance_checks': len(acc.get('checks', [])),
            'paths_found': acc.get('info', {}).get('paths_found', ''),
            'diff_files': len(files), 'diff_added': sum(int(f[0]) for f in files if f[0].isdigit()), 'diff_removed': sum(int(f[1]) for f in files if f[1].isdigit()),
-           **stream_metrics(os.path.join(rd, 'stream.jsonl')), **tool_metrics(os.path.join(rd, 'tools.jsonl'))}
+           **stream_metrics(os.path.join(rd, 'stream.jsonl')), **tool_metrics(os.path.join(rd, 'tools.jsonl')),
+           **(untagged_metrics(os.path.join(rd, 'tools.jsonl'), graph) if arm == 'B' else {})}
     json.dump(res, open(os.path.join(rd, 'result.json'), 'w'), indent=1)
     git('worktree', 'remove', '--force', work)      # the diff is kept; the tree can be rebuilt from base + diff
     cols = ['run', 'arm', 'task', 'n', 'correct', 'suite_pass', 'acceptance_pass', 'acceptance_checks_ok', 'acceptance_checks', 'paths_found',
             'context_at_finish', 'cumulative_input_tokens', 'output_tokens', 'model_calls', 'tool_calls', 'files_opened', 'lines_read',
-            'checks', 'finished', 'diff_files', 'diff_added', 'diff_removed', 'wall_s', 'timed_out', 'cost_usd', 'stop', 'base_commit']
+            'checks', 'finished', 'untagged_queried', 'untagged_opened', 'diff_files', 'diff_added', 'diff_removed', 'wall_s', 'timed_out', 'cost_usd', 'stop', 'base_commit']
     out = os.path.join(EXP, 'results', 'shakedown.csv' if task == '0' else 'results.csv')
     new = not os.path.exists(out)
     with open(out, 'a', newline='') as fh:
