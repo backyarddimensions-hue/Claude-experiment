@@ -1,0 +1,122 @@
+go: downloading github.com/PuerkitoBio/goquery v1.13.0
+go: downloading github.com/tdewolff/minify/v2 v2.24.25
+go: downloading golang.org/x/image v0.47.0
+go: downloading github.com/andybalholm/brotli v1.2.8
+go: downloading github.com/lib/pq v1.12.3
+go: downloading golang.org/x/term v0.47.0
+go: downloading github.com/prometheus/client_golang v1.25.0
+go: downloading github.com/coreos/go-oidc/v3 v3.21.0
+go: downloading golang.org/x/oauth2 v0.37.0
+go: downloading golang.org/x/net v0.62.0
+go: downloading golang.org/x/crypto v0.58.0
+go: downloading github.com/go-webauthn/webauthn v0.18.2
+go: downloading github.com/andybalholm/cascadia v1.3.5
+go: downloading golang.org/x/text v0.43.0
+go: downloading golang.org/x/sys v0.49.0
+go: downloading github.com/go-jose/go-jose/v4 v4.1.7
+go: downloading github.com/beorn7/perks v1.0.1
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading github.com/prometheus/client_model v0.6.3
+go: downloading github.com/prometheus/common v0.73.1
+go: downloading github.com/prometheus/procfs v0.23.0
+go: downloading google.golang.org/protobuf v1.36.12
+go: downloading github.com/google/uuid v1.6.0
+go: downloading github.com/tinylib/msgp v1.6.5
+go: downloading github.com/go-viper/mapstructure/v2 v2.5.0
+go: downloading github.com/go-webauthn/x v0.3.1
+go: downloading github.com/golang-jwt/jwt/v5 v5.3.1
+go: downloading github.com/google/go-tpm v0.9.8
+go: downloading github.com/fxamacker/cbor/v2 v2.10.0
+go: downloading github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
+go: downloading github.com/pandatix/go-abnf v0.5.5
+go: downloading github.com/philhofer/fwd v1.2.1
+go: downloading github.com/x448/float16 v0.8.4
+go: downloading github.com/tdewolff/parse/v2 v2.8.20
+?   	miniflux.app/v2	[no test files]
+ok  	miniflux.app/v2/client	0.006s
+ok  	miniflux.app/v2/internal/api	0.010s
+?   	miniflux.app/v2/internal/cli	[no test files]
+ok  	miniflux.app/v2/internal/config	0.008s
+?   	miniflux.app/v2/internal/crypto	[no test files]
+?   	miniflux.app/v2/internal/database	[no test files]
+?   	miniflux.app/v2/internal/fever	[no test files]
+ok  	miniflux.app/v2/internal/googlereader	0.006s
+ok  	miniflux.app/v2/internal/http/client	0.006s
+ok  	miniflux.app/v2/internal/http/request	0.005s
+ok  	miniflux.app/v2/internal/http/response	0.008s
+ok  	miniflux.app/v2/internal/http/server	0.323s
+ok  	miniflux.app/v2/internal/integration	0.006s
+?   	miniflux.app/v2/internal/integration/apprise	[no test files]
+?   	miniflux.app/v2/internal/integration/archiveorg	[no test files]
+?   	miniflux.app/v2/internal/integration/betula	[no test files]
+?   	miniflux.app/v2/internal/integration/cubox	[no test files]
+?   	miniflux.app/v2/internal/integration/discord	[no test files]
+?   	miniflux.app/v2/internal/integration/espial	[no test files]
+ok  	miniflux.app/v2/internal/integration/gotify	0.013s
+?   	miniflux.app/v2/internal/integration/instapaper	[no test files]
+ok  	miniflux.app/v2/internal/integration/karakeep	0.008s
+?   	miniflux.app/v2/internal/integration/linkace	[no test files]
+?   	miniflux.app/v2/internal/integration/linkding	[no test files]
+ok  	miniflux.app/v2/internal/integration/linktaco	0.014s
+ok  	miniflux.app/v2/internal/integration/linkwarden	0.010s
+?   	miniflux.app/v2/internal/integration/matrixbot	[no test files]
+?   	miniflux.app/v2/internal/integration/notion	[no test files]
+?   	miniflux.app/v2/internal/integration/ntfy	[no test files]
+?   	miniflux.app/v2/internal/integration/nunuxkeeper	[no test files]
+?   	miniflux.app/v2/internal/integration/omnivore	[no test files]
+?   	miniflux.app/v2/internal/integration/pinboard	[no test files]
+?   	miniflux.app/v2/internal/integration/pushover	[no test files]
+ok  	miniflux.app/v2/internal/integration/raindrop	0.008s
+ok  	miniflux.app/v2/internal/integration/readeck	0.010s
+?   	miniflux.app/v2/internal/integration/readwise	[no test files]
+?   	miniflux.app/v2/internal/integration/rssbridge	[no test files]
+?   	miniflux.app/v2/internal/integration/shaarli	[no test files]
+?   	miniflux.app/v2/internal/integration/shiori	[no test files]
+?   	miniflux.app/v2/internal/integration/slack	[no test files]
+?   	miniflux.app/v2/internal/integration/telegrambot	[no test files]
+ok  	miniflux.app/v2/internal/integration/wallabag	0.016s
+?   	miniflux.app/v2/internal/integration/webhook	[no test files]
+ok  	miniflux.app/v2/internal/locale	0.103s
+ok  	miniflux.app/v2/internal/mediaproxy	0.014s
+?   	miniflux.app/v2/internal/metric	[no test files]
+ok  	miniflux.app/v2/internal/model	0.009s
+ok  	miniflux.app/v2/internal/oauth2	0.007s
+ok  	miniflux.app/v2/internal/proxyrotator	0.008s
+ok  	miniflux.app/v2/internal/reader/atom	0.016s
+ok  	miniflux.app/v2/internal/reader/date	0.010s
+?   	miniflux.app/v2/internal/reader/dublincore	[no test files]
+ok  	miniflux.app/v2/internal/reader/encoding	0.006s
+ok  	miniflux.app/v2/internal/reader/fetcher	0.130s
+ok  	miniflux.app/v2/internal/reader/filter	0.012s
+?   	miniflux.app/v2/internal/reader/googleplay	[no test files]
+?   	miniflux.app/v2/internal/reader/handler	[no test files]
+ok  	miniflux.app/v2/internal/reader/icon	0.012s
+?   	miniflux.app/v2/internal/reader/itunes	[no test files]
+ok  	miniflux.app/v2/internal/reader/json	0.009s
+ok  	miniflux.app/v2/internal/reader/language	0.006s
+ok  	miniflux.app/v2/internal/reader/media	0.006s
+ok  	miniflux.app/v2/internal/reader/opml	0.012s
+ok  	miniflux.app/v2/internal/reader/parser	0.014s
+ok  	miniflux.app/v2/internal/reader/processor	0.011s
+ok  	miniflux.app/v2/internal/reader/rdf	0.009s
+ok  	miniflux.app/v2/internal/reader/readability	0.012s
+ok  	miniflux.app/v2/internal/reader/readingtime	0.009s
+ok  	miniflux.app/v2/internal/reader/rewrite	0.011s
+ok  	miniflux.app/v2/internal/reader/rss	0.012s
+ok  	miniflux.app/v2/internal/reader/sanitizer	0.019s
+ok  	miniflux.app/v2/internal/reader/scraper	0.007s
+ok  	miniflux.app/v2/internal/reader/subscription	0.007s
+ok  	miniflux.app/v2/internal/reader/urlcleaner	0.006s
+ok  	miniflux.app/v2/internal/reader/xml	0.006s
+ok  	miniflux.app/v2/internal/storage	0.012s
+?   	miniflux.app/v2/internal/systemd	[no test files]
+ok  	miniflux.app/v2/internal/template	0.063s
+ok  	miniflux.app/v2/internal/timezone	0.005s
+ok  	miniflux.app/v2/internal/ui	0.007s
+ok  	miniflux.app/v2/internal/ui/form	0.005s
+?   	miniflux.app/v2/internal/ui/static	[no test files]
+ok  	miniflux.app/v2/internal/ui/view	0.004s
+ok  	miniflux.app/v2/internal/urllib	0.004s
+ok  	miniflux.app/v2/internal/validator	0.006s
+ok  	miniflux.app/v2/internal/version	0.003s
+ok  	miniflux.app/v2/internal/worker	0.017s

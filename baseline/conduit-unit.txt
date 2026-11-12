@@ -1,0 +1,4 @@
+?   	github.com/gothinkster/golang-gin-realworld-example-app	[no test files]
+ok  	github.com/gothinkster/golang-gin-realworld-example-app/articles	3.423s
+ok  	github.com/gothinkster/golang-gin-realworld-example-app/common	0.009s
+ok  	github.com/gothinkster/golang-gin-realworld-example-app/users	4.519s

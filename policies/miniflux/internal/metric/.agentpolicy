@@ -1,0 +1,3 @@
+nouns: users, feeds, entries
+priority: latency
+boundary: interior

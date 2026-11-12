@@ -1,0 +1,3 @@
+nouns: users, user_sessions, web_sessions, webauthn_credentials, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations
+priority: security
+boundary: ingress

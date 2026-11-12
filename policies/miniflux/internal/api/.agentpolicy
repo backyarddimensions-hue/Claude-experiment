@@ -1,0 +1,3 @@
+nouns: users, api_keys, categories, feeds, feed_icons, icons, entries, enclosures, integrations
+priority: correctness
+boundary: ingress

@@ -1,0 +1,3 @@
+nouns: schema_version, users, user_sessions, web_sessions, categories, feeds, feed_icons, icons, entries, enclosures, acme_cache
+priority: correctness
+boundary: ingress

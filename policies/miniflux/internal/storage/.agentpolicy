@@ -1,0 +1,3 @@
+nouns: acme_cache, api_keys, categories, enclosures, entries, entry_tombstones, feed_icons, feeds, icons, integrations, user_sessions, users, webauthn_credentials, web_sessions
+priority: correctness
+boundary: storage

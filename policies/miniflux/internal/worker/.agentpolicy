@@ -1,0 +1,3 @@
+nouns: users, integrations, feeds, feed_icons, icons, entries, enclosures
+priority: latency
+boundary: interior

@@ -1,0 +1,3 @@
+nouns: users, categories, feeds, api_keys
+priority: correctness
+boundary: interior

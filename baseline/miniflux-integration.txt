@@ -1,0 +1,388 @@
+=== RUN   TestIncorrectEndpoint
+=== PAUSE TestIncorrectEndpoint
+=== RUN   TestHealthcheckEndpoint
+=== PAUSE TestHealthcheckEndpoint
+=== RUN   TestVersionEndpoint
+=== PAUSE TestVersionEndpoint
+=== RUN   TestInvalidCredentials
+=== PAUSE TestInvalidCredentials
+=== RUN   TestGetMeEndpoint
+=== PAUSE TestGetMeEndpoint
+=== RUN   TestGetUsersEndpointAsAdmin
+=== PAUSE TestGetUsersEndpointAsAdmin
+=== RUN   TestGetUsersEndpointAsRegularUser
+=== PAUSE TestGetUsersEndpointAsRegularUser
+=== RUN   TestCreateUserEndpointAsAdmin
+=== PAUSE TestCreateUserEndpointAsAdmin
+=== RUN   TestCreateUserEndpointAsRegularUser
+=== PAUSE TestCreateUserEndpointAsRegularUser
+=== RUN   TestCannotCreateDuplicateUser
+=== PAUSE TestCannotCreateDuplicateUser
+=== RUN   TestRemoveUserEndpointAsAdmin
+=== PAUSE TestRemoveUserEndpointAsAdmin
+=== RUN   TestRemoveUserEndpointAsRegularUser
+=== PAUSE TestRemoveUserEndpointAsRegularUser
+=== RUN   TestGetUserByIDEndpointAsAdmin
+=== PAUSE TestGetUserByIDEndpointAsAdmin
+=== RUN   TestGetUserByIDEndpointAsRegularUser
+=== PAUSE TestGetUserByIDEndpointAsRegularUser
+=== RUN   TestGetUserByUsernameEndpointAsAdmin
+=== PAUSE TestGetUserByUsernameEndpointAsAdmin
+=== RUN   TestGetUserByUsernameEndpointAsRegularUser
+=== PAUSE TestGetUserByUsernameEndpointAsRegularUser
+=== RUN   TestUpdateUserEndpointByChangingDefaultTheme
+=== PAUSE TestUpdateUserEndpointByChangingDefaultTheme
+=== RUN   TestUpdateUserEndpointByChangingExternalFonts
+=== PAUSE TestUpdateUserEndpointByChangingExternalFonts
+=== RUN   TestUpdateUserEndpointByChangingExternalFontsWithInvalidValue
+=== PAUSE TestUpdateUserEndpointByChangingExternalFontsWithInvalidValue
+=== RUN   TestUpdateUserEndpointByChangingCustomJS
+=== PAUSE TestUpdateUserEndpointByChangingCustomJS
+=== RUN   TestUpdateUserEndpointByChangingDefaultThemeToInvalidValue
+=== PAUSE TestUpdateUserEndpointByChangingDefaultThemeToInvalidValue
+=== RUN   TestRegularUsersCannotUpdateOtherUsers
+=== PAUSE TestRegularUsersCannotUpdateOtherUsers
+=== RUN   TestAPIKeysEndpoint
+=== PAUSE TestAPIKeysEndpoint
+=== RUN   TestMarkUserAsReadEndpoint
+=== PAUSE TestMarkUserAsReadEndpoint
+=== RUN   TestCannotMarkUserAsReadAsOtherUser
+=== PAUSE TestCannotMarkUserAsReadAsOtherUser
+=== RUN   TestCreateCategoryEndpoint
+=== PAUSE TestCreateCategoryEndpoint
+=== RUN   TestCreateCategoryWithEmptyTitle
+=== PAUSE TestCreateCategoryWithEmptyTitle
+=== RUN   TestCannotCreateDuplicatedCategory
+=== PAUSE TestCannotCreateDuplicatedCategory
+=== RUN   TestCreateCategoryWithOptions
+=== PAUSE TestCreateCategoryWithOptions
+=== RUN   TestUpdateCategoryEndpoint
+=== PAUSE TestUpdateCategoryEndpoint
+=== RUN   TestUpdateCategoryWithOptions
+=== PAUSE TestUpdateCategoryWithOptions
+=== RUN   TestUpdateInexistingCategory
+=== PAUSE TestUpdateInexistingCategory
+=== RUN   TestDeleteCategoryEndpoint
+=== PAUSE TestDeleteCategoryEndpoint
+=== RUN   TestCannotDeleteInexistingCategory
+=== PAUSE TestCannotDeleteInexistingCategory
+=== RUN   TestCannotDeleteCategoryOfAnotherUser
+=== PAUSE TestCannotDeleteCategoryOfAnotherUser
+=== RUN   TestGetCategoriesEndpoint
+=== PAUSE TestGetCategoriesEndpoint
+=== RUN   TestMarkCategoryAsReadEndpoint
+=== PAUSE TestMarkCategoryAsReadEndpoint
+=== RUN   TestCreateFeedEndpoint
+=== PAUSE TestCreateFeedEndpoint
+=== RUN   TestCannotCreateDuplicatedFeed
+=== PAUSE TestCannotCreateDuplicatedFeed
+=== RUN   TestFeedCreationWithoutCategoryReturnsBadRequest
+=== PAUSE TestFeedCreationWithoutCategoryReturnsBadRequest
+=== RUN   TestCreateFeedWithInexistingCategory
+=== PAUSE TestCreateFeedWithInexistingCategory
+=== RUN   TestCreateFeedWithEmptyFeedURL
+=== PAUSE TestCreateFeedWithEmptyFeedURL
+=== RUN   TestCreateFeedWithInvalidFeedURL
+=== PAUSE TestCreateFeedWithInvalidFeedURL
+=== RUN   TestCreateDisabledFeed
+=== PAUSE TestCreateDisabledFeed
+=== RUN   TestCreateFeedWithDisabledHTTPCache
+=== PAUSE TestCreateFeedWithDisabledHTTPCache
+=== RUN   TestCreateFeedWithScraperRule
+=== PAUSE TestCreateFeedWithScraperRule
+=== RUN   TestUpdateFeedEndpoint
+=== PAUSE TestUpdateFeedEndpoint
+=== RUN   TestCannotHaveDuplicateFeedWhenUpdatingFeed
+=== PAUSE TestCannotHaveDuplicateFeedWhenUpdatingFeed
+=== RUN   TestUpdateFeedWithInvalidCategory
+=== PAUSE TestUpdateFeedWithInvalidCategory
+=== RUN   TestCreateFeedWithInvalidRewriteRules
+--- PASS: TestCreateFeedWithInvalidRewriteRules (0.21s)
+=== RUN   TestUpdateFeedWithInvalidRewriteRules
+--- PASS: TestUpdateFeedWithInvalidRewriteRules (0.90s)
+=== RUN   TestCreateFeedWithInvalidURLRewriteRules
+--- PASS: TestCreateFeedWithInvalidURLRewriteRules (0.20s)
+=== RUN   TestUpdateFeedWithInvalidURLRewriteRules
+--- PASS: TestUpdateFeedWithInvalidURLRewriteRules (0.73s)
+=== RUN   TestCreateFeedWithInvalidRewriteRuleSelector
+--- PASS: TestCreateFeedWithInvalidRewriteRuleSelector (0.20s)
+=== RUN   TestUpdateFeedWithInvalidRewriteRuleSelector
+--- PASS: TestUpdateFeedWithInvalidRewriteRuleSelector (0.74s)
+=== RUN   TestCreateFeedWithInvalidScraperRules
+--- PASS: TestCreateFeedWithInvalidScraperRules (0.20s)
+=== RUN   TestUpdateFeedWithInvalidScraperRules
+--- PASS: TestUpdateFeedWithInvalidScraperRules (0.71s)
+=== RUN   TestMarkFeedAsReadEndpoint
+=== PAUSE TestMarkFeedAsReadEndpoint
+=== RUN   TestFetchCountersEndpoint
+=== PAUSE TestFetchCountersEndpoint
+=== RUN   TestDeleteFeedEndpoint
+=== PAUSE TestDeleteFeedEndpoint
+=== RUN   TestRefreshAllFeedsEndpoint
+=== PAUSE TestRefreshAllFeedsEndpoint
+=== RUN   TestRefreshFeedEndpoint
+=== PAUSE TestRefreshFeedEndpoint
+=== RUN   TestGetFeedEndpoint
+=== PAUSE TestGetFeedEndpoint
+=== RUN   TestGetFeedIcon
+=== PAUSE TestGetFeedIcon
+=== RUN   TestGetFeedIconWithInexistingFeedID
+=== PAUSE TestGetFeedIconWithInexistingFeedID
+=== RUN   TestGetIconWithInexistingIconID
+=== PAUSE TestGetIconWithInexistingIconID
+=== RUN   TestGetIconByIconIDFromAnotherUser
+=== PAUSE TestGetIconByIconIDFromAnotherUser
+=== RUN   TestGetFeedsEndpoint
+=== PAUSE TestGetFeedsEndpoint
+=== RUN   TestGetCategoryFeedsEndpoint
+=== PAUSE TestGetCategoryFeedsEndpoint
+=== RUN   TestExportEndpoint
+=== PAUSE TestExportEndpoint
+=== RUN   TestImportEndpoint
+=== PAUSE TestImportEndpoint
+=== RUN   TestDiscoverSubscriptionsEndpoint
+=== PAUSE TestDiscoverSubscriptionsEndpoint
+=== RUN   TestDiscoverSubscriptionsWithInvalidURL
+=== PAUSE TestDiscoverSubscriptionsWithInvalidURL
+=== RUN   TestDiscoverSubscriptionsWithNoSubscription
+=== PAUSE TestDiscoverSubscriptionsWithNoSubscription
+=== RUN   TestGetAllFeedEntriesEndpoint
+=== PAUSE TestGetAllFeedEntriesEndpoint
+=== RUN   TestGetAllCategoryEntriesEndpoint
+=== PAUSE TestGetAllCategoryEntriesEndpoint
+=== RUN   TestGetAllEntriesEndpointWithFilter
+=== PAUSE TestGetAllEntriesEndpointWithFilter
+=== RUN   TestGetGlobalEntriesEndpoint
+=== PAUSE TestGetGlobalEntriesEndpoint
+=== RUN   TestUpdateEnclosureEndpoint
+=== PAUSE TestUpdateEnclosureEndpoint
+=== RUN   TestGetEnclosureEndpoint
+=== PAUSE TestGetEnclosureEndpoint
+=== RUN   TestGetEntryEndpoints
+=== PAUSE TestGetEntryEndpoints
+=== RUN   TestUpdateEntryStatusEndpoint
+=== PAUSE TestUpdateEntryStatusEndpoint
+=== RUN   TestUpdateEntriesStarredEndpoint
+=== PAUSE TestUpdateEntriesStarredEndpoint
+=== RUN   TestGetEntryIDsEndpoint
+=== PAUSE TestGetEntryIDsEndpoint
+=== RUN   TestUpdateEntryEndpoint
+=== PAUSE TestUpdateEntryEndpoint
+=== RUN   TestToggleStarredEndpoint
+=== PAUSE TestToggleStarredEndpoint
+=== RUN   TestSaveEntryEndpoint
+=== PAUSE TestSaveEntryEndpoint
+=== RUN   TestFetchIntegrationsStatusEndpoint
+=== PAUSE TestFetchIntegrationsStatusEndpoint
+=== RUN   TestFetchContentEndpoint
+=== PAUSE TestFetchContentEndpoint
+=== RUN   TestFlushHistoryEndpoint
+=== PAUSE TestFlushHistoryEndpoint
+=== RUN   TestImportFeedEntryEndpoint
+=== PAUSE TestImportFeedEntryEndpoint
+=== RUN   TestNewHandlerHandlesOptionsRequests
+--- PASS: TestNewHandlerHandlesOptionsRequests (0.00s)
+=== RUN   TestVersionHandler
+--- PASS: TestVersionHandler (0.00s)
+=== RUN   TestGetEntryIDsHandlerRequiresAuthentication
+2026/11/11 22:35:30 WARN [API] No Basic HTTP Authentication header sent with the request authentication_failed=true client_ip="" user_agent="" request_uri=/v1/entries/ids
+2026/11/11 22:35:30 WARN Unauthorized client_ip="" request.method=GET request.uri=/v1/entries/ids request.user_agent="" response.status_code=401
+--- PASS: TestGetEntryIDsHandlerRequiresAuthentication (0.00s)
+=== RUN   TestGetEntryIDsHandlerRejectsInvalidStarredParam
+2026/11/11 22:35:30 WARN [API] No Basic HTTP Authentication header sent with the request authentication_failed=true client_ip="" user_agent="" request_uri="/v1/entries/ids?starred=maybe"
+2026/11/11 22:35:30 WARN Unauthorized client_ip="" request.method=GET request.uri="/v1/entries/ids?starred=maybe" request.user_agent="" response.status_code=401
+--- PASS: TestGetEntryIDsHandlerRejectsInvalidStarredParam (0.00s)
+=== RUN   TestGetEntryIDsHandlerRejectsInvalidStatusParam
+2026/11/11 22:35:30 WARN [API] No Basic HTTP Authentication header sent with the request authentication_failed=true client_ip="" user_agent="" request_uri="/v1/entries/ids?status=invalid"
+2026/11/11 22:35:30 WARN Unauthorized client_ip="" request.method=GET request.uri="/v1/entries/ids?status=invalid" request.user_agent="" response.status_code=401
+--- PASS: TestGetEntryIDsHandlerRejectsInvalidStatusParam (0.00s)
+=== RUN   TestParseEntryIDsParamsDefaults
+--- PASS: TestParseEntryIDsParamsDefaults (0.00s)
+=== RUN   TestParseEntryIDsParamsCustomValues
+--- PASS: TestParseEntryIDsParamsCustomValues (0.00s)
+=== RUN   TestParseEntryIDsParamsLimitCappedAtMaximum
+--- PASS: TestParseEntryIDsParamsLimitCappedAtMaximum (0.00s)
+=== RUN   TestParseEntryIDsParamsZeroLimitUsesDefault
+--- PASS: TestParseEntryIDsParamsZeroLimitUsesDefault (0.00s)
+=== RUN   TestNewHandlerSupportsBasePathStripping
+=== RUN   TestNewHandlerSupportsBasePathStripping/empty_base_path
+=== RUN   TestNewHandlerSupportsBasePathStripping/non_empty_base_path
+--- PASS: TestNewHandlerSupportsBasePathStripping (0.00s)
+    --- PASS: TestNewHandlerSupportsBasePathStripping/empty_base_path (0.00s)
+    --- PASS: TestNewHandlerSupportsBasePathStripping/non_empty_base_path (0.00s)
+=== RUN   TestBasicAuthIsRejectedWhenLocalAuthDisabled
+2026/11/11 22:35:30 WARN [API] Blocking Basic HTTP Authentication attempt, local auth is disabled authentication_failed=true client_ip="" user_agent="" request_uri=/v1/me
+2026/11/11 22:35:30 WARN Unauthorized client_ip="" request.method=GET request.uri=/v1/me request.user_agent="" response.status_code=401
+--- PASS: TestBasicAuthIsRejectedWhenLocalAuthDisabled (0.00s)
+=== CONT  TestIncorrectEndpoint
+=== CONT  TestCreateFeedWithInvalidFeedURL
+--- PASS: TestIncorrectEndpoint (0.00s)
+=== CONT  TestRemoveUserEndpointAsAdmin
+=== CONT  TestRegularUsersCannotUpdateOtherUsers
+=== CONT  TestUpdateUserEndpointByChangingDefaultTheme
+=== CONT  TestRemoveUserEndpointAsRegularUser
+=== CONT  TestCannotCreateDuplicateUser
+=== CONT  TestDeleteCategoryEndpoint
+=== CONT  TestUpdateUserEndpointByChangingExternalFontsWithInvalidValue
+=== CONT  TestDiscoverSubscriptionsEndpoint
+=== CONT  TestUpdateUserEndpointByChangingCustomJS
+=== CONT  TestGetUsersEndpointAsAdmin
+=== CONT  TestGetMeEndpoint
+=== CONT  TestGetUserByUsernameEndpointAsRegularUser
+=== CONT  TestInvalidCredentials
+=== CONT  TestVersionEndpoint
+=== CONT  TestHealthcheckEndpoint
+=== CONT  TestCannotCreateDuplicatedCategory
+=== CONT  TestUpdateInexistingCategory
+=== CONT  TestUpdateCategoryWithOptions
+=== CONT  TestUpdateCategoryEndpoint
+=== CONT  TestCreateCategoryWithOptions
+=== CONT  TestCreateUserEndpointAsRegularUser
+=== CONT  TestGetUserByUsernameEndpointAsAdmin
+=== CONT  TestGetUserByIDEndpointAsRegularUser
+--- PASS: TestHealthcheckEndpoint (0.00s)
+=== CONT  TestGetUserByIDEndpointAsAdmin
+--- PASS: TestGetUsersEndpointAsAdmin (0.06s)
+=== CONT  TestUpdateEntryStatusEndpoint
+--- PASS: TestCreateFeedWithInvalidFeedURL (0.07s)
+=== CONT  TestImportFeedEntryEndpoint
+--- PASS: TestGetMeEndpoint (0.09s)
+=== CONT  TestFlushHistoryEndpoint
+--- PASS: TestUpdateInexistingCategory (0.09s)
+=== CONT  TestFetchContentEndpoint
+--- PASS: TestCannotCreateDuplicateUser (0.10s)
+=== CONT  TestFetchIntegrationsStatusEndpoint
+--- PASS: TestInvalidCredentials (0.10s)
+=== CONT  TestSaveEntryEndpoint
+--- PASS: TestDiscoverSubscriptionsEndpoint (0.10s)
+=== CONT  TestToggleStarredEndpoint
+--- PASS: TestVersionEndpoint (0.10s)
+=== CONT  TestUpdateEntryEndpoint
+--- PASS: TestGetUserByIDEndpointAsAdmin (0.13s)
+=== CONT  TestGetEntryIDsEndpoint
+--- PASS: TestGetUserByUsernameEndpointAsAdmin (0.21s)
+=== CONT  TestUpdateEntriesStarredEndpoint
+--- PASS: TestRemoveUserEndpointAsAdmin (0.29s)
+=== CONT  TestImportEndpoint
+--- PASS: TestRemoveUserEndpointAsRegularUser (0.30s)
+=== CONT  TestExportEndpoint
+--- PASS: TestCreateUserEndpointAsRegularUser (0.30s)
+=== CONT  TestGetCategoryFeedsEndpoint
+--- PASS: TestGetUserByIDEndpointAsRegularUser (0.30s)
+=== CONT  TestGetFeedsEndpoint
+--- PASS: TestUpdateUserEndpointByChangingCustomJS (0.32s)
+=== CONT  TestGetIconByIconIDFromAnotherUser
+--- PASS: TestUpdateUserEndpointByChangingDefaultTheme (0.34s)
+=== CONT  TestGetIconWithInexistingIconID
+--- PASS: TestUpdateUserEndpointByChangingExternalFontsWithInvalidValue (0.37s)
+=== CONT  TestGetFeedIconWithInexistingFeedID
+--- PASS: TestGetUserByUsernameEndpointAsRegularUser (0.37s)
+=== CONT  TestGetFeedIcon
+--- PASS: TestUpdateCategoryEndpoint (0.40s)
+=== CONT  TestGetFeedEndpoint
+--- PASS: TestFetchIntegrationsStatusEndpoint (0.31s)
+=== CONT  TestRefreshFeedEndpoint
+--- PASS: TestCreateCategoryWithOptions (0.42s)
+=== CONT  TestRefreshAllFeedsEndpoint
+--- PASS: TestCannotCreateDuplicatedCategory (0.42s)
+=== CONT  TestDeleteFeedEndpoint
+--- PASS: TestRegularUsersCannotUpdateOtherUsers (0.43s)
+=== CONT  TestFetchCountersEndpoint
+--- PASS: TestGetIconWithInexistingIconID (0.09s)
+=== CONT  TestMarkFeedAsReadEndpoint
+--- PASS: TestGetFeedIconWithInexistingFeedID (0.09s)
+=== CONT  TestUpdateFeedWithInvalidCategory
+--- PASS: TestDeleteCategoryEndpoint (0.47s)
+=== CONT  TestCannotHaveDuplicateFeedWhenUpdatingFeed
+--- PASS: TestUpdateCategoryWithOptions (0.58s)
+=== CONT  TestUpdateFeedEndpoint
+--- PASS: TestImportEndpoint (0.41s)
+=== CONT  TestCreateFeedWithScraperRule
+--- PASS: TestRefreshAllFeedsEndpoint (0.37s)
+=== CONT  TestCreateFeedWithDisabledHTTPCache
+--- PASS: TestImportFeedEntryEndpoint (1.89s)
+=== CONT  TestCreateDisabledFeed
+--- PASS: TestGetFeedsEndpoint (1.71s)
+=== CONT  TestCreateCategoryWithEmptyTitle
+--- PASS: TestGetFeedEndpoint (1.64s)
+=== CONT  TestCreateCategoryEndpoint
+--- PASS: TestSaveEntryEndpoint (1.96s)
+=== CONT  TestCannotMarkUserAsReadAsOtherUser
+--- PASS: TestExportEndpoint (1.78s)
+=== CONT  TestMarkUserAsReadEndpoint
+--- PASS: TestCreateCategoryWithEmptyTitle (0.07s)
+=== CONT  TestAPIKeysEndpoint
+--- PASS: TestFetchCountersEndpoint (1.67s)
+=== CONT  TestCreateUserEndpointAsAdmin
+--- PASS: TestFetchContentEndpoint (2.01s)
+=== CONT  TestUpdateUserEndpointByChangingDefaultThemeToInvalidValue
+--- PASS: TestUpdateEntryStatusEndpoint (2.05s)
+=== CONT  TestCreateFeedEndpoint
+--- PASS: TestToggleStarredEndpoint (2.02s)
+=== CONT  TestCreateFeedWithEmptyFeedURL
+--- PASS: TestUpdateEntryEndpoint (2.04s)
+=== CONT  TestCreateFeedWithInexistingCategory
+--- PASS: TestUpdateFeedWithInvalidCategory (1.69s)
+=== CONT  TestFeedCreationWithoutCategoryReturnsBadRequest
+--- PASS: TestDeleteFeedEndpoint (1.73s)
+=== CONT  TestCannotCreateDuplicatedFeed
+--- PASS: TestGetFeedIcon (1.79s)
+=== CONT  TestCannotDeleteCategoryOfAnotherUser
+--- PASS: TestGetCategoryFeedsEndpoint (1.86s)
+=== CONT  TestMarkCategoryAsReadEndpoint
+--- PASS: TestCreateFeedWithEmptyFeedURL (0.08s)
+=== CONT  TestGetCategoriesEndpoint
+--- PASS: TestFlushHistoryEndpoint (2.13s)
+=== CONT  TestGetAllEntriesEndpointWithFilter
+--- PASS: TestUpdateFeedEndpoint (1.65s)
+=== CONT  TestGetEntryEndpoints
+--- PASS: TestMarkFeedAsReadEndpoint (1.88s)
+=== CONT  TestGetEnclosureEndpoint
+--- PASS: TestUpdateEntriesStarredEndpoint (2.11s)
+=== CONT  TestUpdateEnclosureEndpoint
+--- PASS: TestCreateUserEndpointAsAdmin (0.22s)
+=== CONT  TestGetGlobalEntriesEndpoint
+--- PASS: TestCreateFeedWithScraperRule (1.64s)
+=== CONT  TestCannotDeleteInexistingCategory
+--- PASS: TestCreateCategoryEndpoint (0.32s)
+=== CONT  TestGetAllFeedEntriesEndpoint
+--- PASS: TestUpdateUserEndpointByChangingDefaultThemeToInvalidValue (0.30s)
+=== CONT  TestGetAllCategoryEntriesEndpoint
+--- PASS: TestCannotDeleteInexistingCategory (0.09s)
+=== CONT  TestGetUsersEndpointAsRegularUser
+--- PASS: TestCannotMarkUserAsReadAsOtherUser (0.39s)
+=== CONT  TestUpdateUserEndpointByChangingExternalFonts
+--- PASS: TestCreateFeedWithInexistingCategory (0.32s)
+=== CONT  TestDiscoverSubscriptionsWithNoSubscription
+--- PASS: TestGetIconByIconIDFromAnotherUser (2.15s)
+=== CONT  TestDiscoverSubscriptionsWithInvalidURL
+=== RUN   TestFeedCreationWithoutCategoryReturnsBadRequest/REST_API
+--- PASS: TestCannotDeleteCategoryOfAnotherUser (0.39s)
+--- PASS: TestDiscoverSubscriptionsWithInvalidURL (0.09s)
+--- PASS: TestDiscoverSubscriptionsWithNoSubscription (0.10s)
+=== RUN   TestFeedCreationWithoutCategoryReturnsBadRequest/OPML_import
+--- PASS: TestCreateFeedWithDisabledHTTPCache (1.82s)
+--- PASS: TestGetCategoriesEndpoint (0.49s)
+--- PASS: TestFeedCreationWithoutCategoryReturnsBadRequest (0.56s)
+    --- PASS: TestFeedCreationWithoutCategoryReturnsBadRequest/REST_API (0.08s)
+    --- PASS: TestFeedCreationWithoutCategoryReturnsBadRequest/OPML_import (0.07s)
+--- PASS: TestGetUsersEndpointAsRegularUser (0.29s)
+--- PASS: TestUpdateUserEndpointByChangingExternalFonts (0.30s)
+--- PASS: TestAPIKeysEndpoint (0.86s)
+--- PASS: TestGetEntryIDsEndpoint (3.11s)
+--- PASS: TestRefreshFeedEndpoint (2.99s)
+--- PASS: TestCannotHaveDuplicateFeedWhenUpdatingFeed (3.04s)
+--- PASS: TestCreateDisabledFeed (1.56s)
+--- PASS: TestCreateFeedEndpoint (1.48s)
+--- PASS: TestCannotCreateDuplicatedFeed (1.48s)
+--- PASS: TestGetAllFeedEntriesEndpoint (1.40s)
+--- PASS: TestMarkUserAsReadEndpoint (1.70s)
+--- PASS: TestGetAllCategoryEntriesEndpoint (1.44s)
+--- PASS: TestMarkCategoryAsReadEndpoint (1.70s)
+--- PASS: TestUpdateEnclosureEndpoint (1.55s)
+--- PASS: TestGetEnclosureEndpoint (1.56s)
+--- PASS: TestGetEntryEndpoints (1.75s)
+--- PASS: TestGetGlobalEntriesEndpoint (1.70s)
+--- PASS: TestGetAllEntriesEndpointWithFilter (1.86s)
+PASS
+ok  	miniflux.app/v2/internal/api	7.995s

@@ -1,0 +1,65 @@
+Agent-Legible Code Experiment: Setup and Change Requests
+Hypothesis
+An agent that can see only function signatures, a small set of checked effect tags, directory-level policy files, and a generated dependency graph can make correct changes to a mid-sized codebase at a fraction of the context (tokens read, files opened) that an unconstrained agent uses, without a meaningful drop in correctness.
+If correctness holds up, the inline-facts plus sidecar-policy layer is carrying the information. If it collapses, the failure cases tell us what the layer is missing.
+Testbeds
+Warm-up: RealWorld / Conduit (Go implementation)
+• Roughly 5–10k lines. Shared, language-independent API spec and Postman/Newman test collection, so correctness is scored mechanically.
+• Pick a Go implementation that is actively maintained and passes the RealWorld API test suite out of the box. Confirm green before any changes.
+Main run: Miniflux
+• Go, Postgres, roughly 30–40k lines. Real cross-module data flow: HTTP → fetcher → parser → sanitizer → storage → API/UI.
+• Integration tests exist (make integration-test needs a running Postgres). Consistent single-maintainer style.
+Dev box setup
+1. Clone both repos into a dedicated directory. Record the commit hash for each; all runs start from that hash.
+2. Bring up Postgres in Docker for Miniflux and for Conduit if the chosen implementation needs it.
+3. Run the full test suites once, unmodified, and save the output as the baseline. Any flaky test gets excluded from scoring now, not later.
+4. Install the agent harness with two profiles (see Conditions).
+5. Keep a results spreadsheet with one row per (change request × condition).
+The annotation layer (added before any runs)
+Inline effect tags. One comment line directly above each exported function, using a fixed core vocabulary:
+• pure — no side effects, output depends only on inputs
+• reads <noun> — reads from a named store or external system
+• writes <noun> — mutates a named store or external system
+• net — makes outbound network calls
+• fs — touches the filesystem
+Multiple tags are comma-separated. Example: // @effects: reads feeds, writes entries, net
+Sidecar policy file. One .agentpolicy file per top-level package directory, under ten lines:
+• nouns: the named stores this package may reference (e.g. feeds, entries, users, sessions)
+• priority: one of correctness, security, latency, simplicity
+• boundary: whether this package is an ingress, egress, interior, or storage layer
+Generated graph. A script (go/analysis or a simple go list + callgraph pass) that emits graph.json: for every exported function, its callers, callees, and declared effects. Regenerated on every commit. The checker compares declared effects against the callgraph and fails on undeclared writes or network calls.
+Start by tagging only exported functions. Interior functions inherit from the checker's inference; tag them only where the checker cannot prove purity.
+Conditions
+A — Unconstrained. Agent has normal file read access and can open anything. Standard harness.
+B — Constrained. Agent initially sees only: the task, the list of files, every exported signature with its effect tag, the relevant .agentpolicy files, and graph.json. Opening a file body requires an explicit tool call, which is logged and counted. Edits are submitted as diffs.
+Both conditions run the same model, same temperature, same system prompt apart from the access rules. Each change request runs three times per condition to smooth variance.
+Metrics
+• Correctness: full test suite passes, plus a per-task acceptance check listed below. Binary pass/fail per run.
+• Context cost: total input tokens consumed; number of distinct files opened; total lines read.
+• Round trips: number of tool calls before the final diff.
+• Blast radius: number of files and functions touched by the diff versus the minimal correct diff.
+• Failure type (for fails only): wrong location, missed caller, broke invariant, incomplete, hallucinated API.
+Change requests — Conduit warm-up
+1. Slug collision. Article slugs must be unique; on collision append a short random suffix. Acceptance: creating two articles with the same title yields two distinct slugs, both retrievable.
+2. Soft delete. Deleting an article sets a deleted_at timestamp instead of removing the row; deleted articles are excluded from all list and get endpoints. Acceptance: deleted article returns 404, row still exists in DB.
+3. Follower count. Add followersCount to the profile response. Acceptance: field present and correct after follow/unfollow.
+4. Rate limit on login. Five failed logins per email per fifteen minutes returns 429. Acceptance: sixth attempt within window is rejected, succeeds after window.
+5. Comment edit. Add PUT /articles/:slug/comments/:id, author only. Acceptance: non-author gets 403, body updates persist.
+Change requests — Miniflux main run
+1. Per-feed fetch interval. Add an optional per-feed polling interval that overrides the global one. Acceptance: migration added, field exposed in API and UI, scheduler respects it.
+2. Entry word count. Compute and store a word count when an entry is saved; expose it in the API. Acceptance: existing entries backfilled or null, new entries populated.
+3. Block rule by author. Extend feed block rules to match on entry author, not just title. Acceptance: entries from blocked authors are not stored.
+4. Rotate API keys. Add an endpoint to regenerate a user's API key and invalidate the old one. Acceptance: old key fails immediately, new key works.
+5. Fetch timeout per feed. Allow a per-feed HTTP timeout override. Acceptance: slow test server triggers timeout at the per-feed value, not the global one.
+6. Audit log for writes. Every write to users or feeds through the API appends a row to a new audit_log table. Acceptance: no write path is missed; this one specifically tests whether the effect tags expose every writer.
+Tasks are ordered roughly by how much cross-module reach they require. Task 6 is the real test of the thesis: if condition B finds every writer from graph.json alone, the layer works.
+Scoring and what counts as a result
+• Thesis supported: B is within ten percentage points of A on correctness while using less than half the input tokens and opening fewer than half the files.
+• Thesis weakened: B's correctness drops more than ten points. Categorize every B failure; if most are missed caller or broke invariant, the graph or the tags are under-specified and we iterate on the vocabulary. If most are hallucinated API, the signatures alone aren't enough and we look at exposing more of the body.
+• Inconclusive: A's own correctness is below seventy percent on a task, in which case the task is too underspecified and gets rewritten.
+Decisions made before running
+These were open questions; Claude made the calls on 2026-11-11.
+1. Conduit implementation: pick from the gothinkster RealWorld list, whichever Go implementation passes the RealWorld API suite at head. Confirm at setup time, since which one is green changes month to month. Record the commit hash.
+2. Tagging: inference first, hand-tag only what the checker cannot prove. Hand-tagging thirty thousand lines is the adoption cost the design is meant to avoid. If the inference pass turns out painful to write, that is itself a finding about the approach.
+3. Condition B escalation: one allowed. After a failed first attempt, B may open files freely for a second attempt. Log escalated runs separately and score them in their own column. A hard fail hides where the layer ran out; one escalation shows exactly where.
+4. Added pre-run step: baseline the checker before any agent runs. Tag Miniflux, run the checker, and count undeclared writes and network calls in the existing code. If a careful single-maintainer codebase already has effects nobody declared, that is the first result, and it tells us whether the tags catch anything real or just restate the obvious. Record the count in the results sheet as row zero.
