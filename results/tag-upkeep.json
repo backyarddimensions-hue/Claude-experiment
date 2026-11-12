@@ -1,0 +1,1837 @@
+[
+ {
+  "run": "task1-A1-1",
+  "task": "1",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task1-A1-2",
+  "task": "1",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 0,
+  "added_verdicts": {},
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task1-A1-3",
+  "task": "1",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task1-B-1",
+  "task": "1",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 0,
+  "added_verdicts": {},
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task1-B-2",
+  "task": "1",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task1-B-3",
+  "task": "1",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 0,
+  "added_verdicts": {},
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task2-A1-1",
+  "task": "2",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 4,
+  "changed_verdicts": {
+   "stale-minor": 4
+  },
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [
+   [
+    "internal/api.(*handler).fetchContentHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ],
+   [
+    "internal/api.(*handler).updateEntryHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, mut"
+   ],
+   [
+    "internal/storage.(*Storage).UpdateEntryTitleAndContent",
+    [
+     "writes entries"
+    ],
+    "writes entries, mut"
+   ],
+   [
+    "internal/ui.(*handler).fetchContent",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task2-A1-2",
+  "task": "2",
+  "arm": "A1",
+  "checker_exit": 1,
+  "checker_failures": 1,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 4,
+  "changed_verdicts": {
+   "stale-minor": 4
+  },
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [
+   [
+    "internal/storage.countWords",
+    "declared pure, not provably pure",
+    [
+     "dynamic-call"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "internal/api.(*handler).fetchContentHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ],
+   [
+    "internal/api.(*handler).updateEntryHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, mut"
+   ],
+   [
+    "internal/storage.(*Storage).UpdateEntryTitleAndContent",
+    [
+     "writes entries"
+    ],
+    "writes entries, mut"
+   ],
+   [
+    "internal/ui.(*handler).fetchContent",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task2-A1-3",
+  "task": "2",
+  "arm": "A1",
+  "checker_exit": 1,
+  "checker_failures": 1,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 4,
+  "changed_verdicts": {
+   "stale-minor": 3,
+   "exact": 1
+  },
+  "tags_edited": 1,
+  "edited_verdicts": {
+   "exact": 1
+  },
+  "failure_examples": [
+   [
+    "internal/storage.countWords",
+    "declared pure, not provably pure",
+    [
+     "dynamic-call"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "internal/api.(*handler).fetchContentHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ],
+   [
+    "internal/api.(*handler).updateEntryHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, mut"
+   ],
+   [
+    "internal/ui.(*handler).fetchContent",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task2-B-1",
+  "task": "2",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 4,
+  "changed_verdicts": {
+   "stale-minor": 3,
+   "exact": 1
+  },
+  "tags_edited": 1,
+  "edited_verdicts": {
+   "exact": 1
+  },
+  "failure_examples": [],
+  "stale_examples": [
+   [
+    "internal/api.(*handler).fetchContentHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ],
+   [
+    "internal/api.(*handler).updateEntryHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, mut"
+   ],
+   [
+    "internal/ui.(*handler).fetchContent",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task2-B-2",
+  "task": "2",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 4,
+  "changed_verdicts": {
+   "stale-minor": 3,
+   "exact": 1
+  },
+  "tags_edited": 1,
+  "edited_verdicts": {
+   "exact": 1
+  },
+  "failure_examples": [],
+  "stale_examples": [
+   [
+    "internal/api.(*handler).fetchContentHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ],
+   [
+    "internal/api.(*handler).updateEntryHandler",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, mut"
+   ],
+   [
+    "internal/ui.(*handler).fetchContent",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads users",
+     "writes entries",
+     "net"
+    ],
+    "reads categories, reads enclosures, reads entries, reads feed_icons, reads feeds, reads icons, reads users, writes entries, net, mut"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task2-B-3",
+  "task": "2",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task3-A1-1",
+  "task": "3",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 3,
+  "changed_verdicts": {
+   "exact": 2,
+   "stale-minor": 1
+  },
+  "tags_edited": 3,
+  "edited_verdicts": {
+   "exact": 2,
+   "stale-minor": 1
+  },
+  "failure_examples": [],
+  "stale_examples": [
+   [
+    "internal/storage.(*Storage).CreateFeed",
+    [
+     "reads entries",
+     "reads entry_tombstones",
+     "reads users",
+     "writes enclosures",
+     "writes entries",
+     "writes feeds",
+     "mut"
+    ],
+    "reads entries, reads entry_tombstones, reads feeds, reads users, writes enclosures, writes entries, writes feeds, mut"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task3-A1-2",
+  "task": "3",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 3,
+  "changed_verdicts": {
+   "stale-minor": 1,
+   "exact": 2
+  },
+  "tags_edited": 2,
+  "edited_verdicts": {
+   "exact": 2
+  },
+  "failure_examples": [],
+  "stale_examples": [
+   [
+    "internal/api.(*handler).importFeedsHandler",
+    [
+     "reads categories",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feeds",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes feeds"
+    ],
+    "reads categories, reads entries, reads entry_tombstones, reads feeds, reads users, writes categories, writes enclosures, writes entries, writes feeds"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task3-A1-3",
+  "task": "3",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 2,
+  "added_verdicts": {
+   "exact": 2
+  },
+  "changed": 3,
+  "changed_verdicts": {
+   "exact": 3
+  },
+  "tags_edited": 3,
+  "edited_verdicts": {
+   "exact": 3
+  },
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task3-B-1",
+  "task": "3",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 2,
+  "added_verdicts": {
+   "exact": 2
+  },
+  "changed": 3,
+  "changed_verdicts": {
+   "exact": 3
+  },
+  "tags_edited": 3,
+  "edited_verdicts": {
+   "exact": 3
+  },
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task3-B-2",
+  "task": "3",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 3,
+  "changed_verdicts": {
+   "exact": 3
+  },
+  "tags_edited": 3,
+  "edited_verdicts": {
+   "exact": 3
+  },
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task3-B-3",
+  "task": "3",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 3,
+  "changed_verdicts": {
+   "exact": 3
+  },
+  "tags_edited": 3,
+  "edited_verdicts": {
+   "exact": 3
+  },
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task4-A1-1",
+  "task": "4",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 2,
+  "added_verdicts": {
+   "exact": 2
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task4-A1-2",
+  "task": "4",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 4,
+  "added_verdicts": {
+   "exact": 4
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task4-A1-3",
+  "task": "4",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 4,
+  "added_verdicts": {
+   "exact": 4
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task4-B-1",
+  "task": "4",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 2,
+  "added_verdicts": {
+   "exact": 2
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task4-B-2",
+  "task": "4",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 2,
+  "added_verdicts": {
+   "exact": 2
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task4-B-3",
+  "task": "4",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 4,
+  "added_verdicts": {
+   "exact": 4
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task5-A1-1",
+  "task": "5",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task5-A1-2",
+  "task": "5",
+  "arm": "A1",
+  "checker_exit": 1,
+  "checker_failures": 1,
+  "added": 1,
+  "added_verdicts": {
+   "not-checkable": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [
+   [
+    "internal/model.(*Feed).HTTPClientTimeout",
+    "declared pure, not provably pure",
+    [
+     "reads-mutable-global"
+    ]
+   ]
+  ],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task5-A1-3",
+  "task": "5",
+  "arm": "A1",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 0,
+  "added_verdicts": {},
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task5-B-1",
+  "task": "5",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task5-B-2",
+  "task": "5",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 1,
+  "added_verdicts": {
+   "exact": 1
+  },
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task5-B-3",
+  "task": "5",
+  "arm": "B",
+  "checker_exit": 0,
+  "checker_failures": 0,
+  "added": 0,
+  "added_verdicts": {},
+  "changed": 0,
+  "changed_verdicts": {},
+  "tags_edited": 0,
+  "edited_verdicts": {},
+  "failure_examples": [],
+  "stale_examples": [],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task6-A1-1",
+  "task": "6",
+  "arm": "A1",
+  "checker_exit": 1,
+  "checker_failures": 6,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 24,
+  "changed_verdicts": {
+   "stale-fails-checker": 6,
+   "exact": 17,
+   "stale-minor": 1
+  },
+  "tags_edited": 18,
+  "edited_verdicts": {
+   "exact": 17,
+   "stale-minor": 1
+  },
+  "failure_examples": [
+   [
+    "..main",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/cli.Parse",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/database.Migrate",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/reader/opml.(*Handler).Import",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/ui.(*handler).fetchOPML",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/ui.(*handler).uploadOPML",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "..main",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/api.(*handler).removeCategoryHandler",
+    [
+     "reads categories",
+     "reads feeds",
+     "writes audit_log",
+     "writes categories",
+     "writes feeds"
+    ],
+    "reads categories, reads feeds, writes audit_log, writes categories"
+   ],
+   [
+    "internal/cli.Parse",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/database.Migrate",
+    [
+     "reads enclosures",
+     "reads entries",
+     "reads feeds",
+     "reads icons",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials"
+    ],
+    "reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials"
+   ],
+   [
+    "internal/reader/opml.(*Handler).Import",
+    [
+     "reads categories",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feeds",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes feeds",
+     "mut"
+    ],
+    "reads categories, reads entries, reads entry_tombstones, reads feeds, writes audit_log, writes categories, writes enclosures, writes entries, writes feeds, mut"
+   ],
+   [
+    "internal/ui.(*handler).fetchOPML",
+    [
+     "reads categories",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feeds",
+     "reads integrations",
+     "reads users",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes feeds",
+     "net"
+    ],
+    "reads categories, reads entries, reads entry_tombstones, reads feeds, reads integrations, reads users, writes audit_log, writes categories, writes enclosures, writes entries, writes feeds, net"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task6-A1-2",
+  "task": "6",
+  "arm": "A1",
+  "checker_exit": 1,
+  "checker_failures": 3,
+  "added": 2,
+  "added_verdicts": {
+   "exact": 2
+  },
+  "changed": 19,
+  "changed_verdicts": {
+   "stale-fails-checker": 3,
+   "exact": 16
+  },
+  "tags_edited": 16,
+  "edited_verdicts": {
+   "exact": 16
+  },
+  "failure_examples": [
+   [
+    "..main",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/cli.Parse",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/database.Migrate",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "..main",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/cli.Parse",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/database.Migrate",
+    [
+     "reads enclosures",
+     "reads entries",
+     "reads feeds",
+     "reads icons",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials"
+    ],
+    "reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task6-A1-3",
+  "task": "6",
+  "arm": "A1",
+  "checker_exit": 1,
+  "checker_failures": 3,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 14,
+  "changed_verdicts": {
+   "stale-fails-checker": 3,
+   "exact": 10,
+   "stale-minor": 1
+  },
+  "tags_edited": 11,
+  "edited_verdicts": {
+   "exact": 10,
+   "stale-minor": 1
+  },
+  "failure_examples": [
+   [
+    "..main",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/cli.Parse",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/database.Migrate",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "..main",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/api.(*handler).removeCategoryHandler",
+    [
+     "reads categories",
+     "reads feeds",
+     "writes audit_log",
+     "writes categories",
+     "writes feeds"
+    ],
+    "reads categories, reads feeds, writes audit_log, writes categories"
+   ],
+   [
+    "internal/cli.Parse",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/database.Migrate",
+    [
+     "reads enclosures",
+     "reads entries",
+     "reads feeds",
+     "reads icons",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials"
+    ],
+    "reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task6-B-1",
+  "task": "6",
+  "arm": "B",
+  "checker_exit": 1,
+  "checker_failures": 3,
+  "added": 4,
+  "added_verdicts": {
+   "exact": 4
+  },
+  "changed": 21,
+  "changed_verdicts": {
+   "stale-fails-checker": 3,
+   "exact": 18
+  },
+  "tags_edited": 18,
+  "edited_verdicts": {
+   "exact": 18
+  },
+  "failure_examples": [
+   [
+    "..main",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/cli.Parse",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/database.Migrate",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "..main",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/cli.Parse",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/database.Migrate",
+    [
+     "reads enclosures",
+     "reads entries",
+     "reads feeds",
+     "reads icons",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials"
+    ],
+    "reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task6-B-2",
+  "task": "6",
+  "arm": "B",
+  "checker_exit": 1,
+  "checker_failures": 3,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 21,
+  "changed_verdicts": {
+   "stale-fails-checker": 3,
+   "exact": 18
+  },
+  "tags_edited": 18,
+  "edited_verdicts": {
+   "exact": 18
+  },
+  "failure_examples": [
+   [
+    "..main",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/cli.Parse",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/database.Migrate",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "..main",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/cli.Parse",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/database.Migrate",
+    [
+     "reads enclosures",
+     "reads entries",
+     "reads feeds",
+     "reads icons",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials"
+    ],
+    "reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials"
+   ]
+  ],
+  "added_bad_examples": []
+ },
+ {
+  "run": "task6-B-3",
+  "task": "6",
+  "arm": "B",
+  "checker_exit": 1,
+  "checker_failures": 3,
+  "added": 3,
+  "added_verdicts": {
+   "exact": 3
+  },
+  "changed": 21,
+  "changed_verdicts": {
+   "stale-fails-checker": 3,
+   "exact": 18
+  },
+  "tags_edited": 18,
+  "edited_verdicts": {
+   "exact": 18
+  },
+  "failure_examples": [
+   [
+    "..main",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/cli.Parse",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ],
+   [
+    "internal/database.Migrate",
+    "undeclared",
+    [
+     "writes audit_log"
+    ]
+   ]
+  ],
+  "stale_examples": [
+   [
+    "..main",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/cli.Parse",
+    [
+     "reads categories",
+     "reads enclosures",
+     "reads entries",
+     "reads entry_tombstones",
+     "reads feed_icons",
+     "reads feeds",
+     "reads icons",
+     "reads integrations",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials",
+     "net",
+     "fs"
+    ],
+    "reads categories, reads enclosures, reads entries, reads entry_tombstones, reads feed_icons, reads feeds, reads icons, reads integrations, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials, net, fs"
+   ],
+   [
+    "internal/database.Migrate",
+    [
+     "reads enclosures",
+     "reads entries",
+     "reads feeds",
+     "reads icons",
+     "reads schema_version",
+     "reads users",
+     "writes ?",
+     "writes acme_cache",
+     "writes api_keys",
+     "writes categories",
+     "writes enclosures",
+     "writes entries",
+     "writes entry_tombstones",
+     "writes feed_icons",
+     "writes feeds",
+     "writes icons",
+     "writes integrations",
+     "writes schema_version",
+     "writes sessions",
+     "writes tokens",
+     "writes user_sessions",
+     "writes users",
+     "writes web_sessions",
+     "writes webauthn_credentials"
+    ],
+    "reads enclosures, reads entries, reads feeds, reads icons, reads schema_version, reads users, writes ?, writes acme_cache, writes api_keys, writes audit_log, writes categories, writes enclosures, writes entries, writes entry_tombstones, writes feed_icons, writes feeds, writes icons, writes integrations, writes schema_version, writes sessions, writes tokens, writes user_sessions, writes users, writes web_sessions, writes webauthn_credentials"
+   ]
+  ],
+  "added_bad_examples": []
+ }
+]
