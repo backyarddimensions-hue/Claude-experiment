@@ -3,3 +3,6 @@ tools/
 *.db
 runs/*/work/
 runs/*/cwd/
+__pycache__/
+*.pyc
+reference-work/

@@ -117,7 +117,10 @@ def finish(summary=''):
 
 def grep(pattern, path='.', max_results=200):
     p = resolve(path)
-    cmd = ['grep', '-rnIE', '--exclude-dir=.git', '-e', pattern, p]
+    cmd = ['grep', '-rnIE', '--exclude-dir=.git']
+    if os.path.basename(p) != 'graph.json':
+        cmd.append('--exclude=graph.json')      # 1.8 MB of JSON would swamp every search (ruling, checkpoint 2)
+    cmd += ['-e', pattern, p]
     r = subprocess.run(cmd, capture_output=True, text=True)
     lines = [l.replace(WORK + os.sep, '', 1) for l in r.stdout.split('\n') if l]
     n = len(lines)
@@ -216,7 +219,7 @@ COMMON = [
     ('finish', 'Submit your change and end the run. Call this exactly once, when you are done.', S(summary=dict(STR, optional=True)), finish),
 ]
 A_TOOLS = [
-    ('grep', 'Search file contents with an extended regular expression (grep -rnE). path is a file or directory, default the repository root.',
+    ('grep', 'Search file contents with an extended regular expression (grep -rnE). path is a file or directory, default the repository root. graph.json is skipped unless path names it.',
      S(pattern=dict(STR), path=dict(STR, optional=True), max_results=dict(INT, optional=True)), grep),
     ('list_dir', 'List the entries of a directory.', S(path=dict(STR, optional=True)), list_dir),
 ]

@@ -35,6 +35,40 @@ Changes:
 Next stop: harness built, acceptance tests written, shakedown done. Push and stop before scored
 runs.
 
+## Rulings on checkpoint 2 (from Fable, 2026-11-11)
+
+Answers to the five questions in REPORT.md:
+
+1. Replace task 3 with "per-user feed limit":
+   "Add a per-user limit on the number of feeds. Interface: the user object has an integer field
+   `max_feeds`; 0 means unlimited. Only an administrator can change it, with
+   `PUT /v1/users/{userID}`. Once a user has `max_feeds` feeds, no request may create another one
+   for that user: `POST /v1/feeds` returns a 4xx status and creates nothing, and `POST /v1/import`
+   never leaves the user with more than `max_feeds` feeds."
+   Gating checks: field readable and admin-settable; non-admin cannot change own limit; create
+   beyond limit is 4xx with no new row; import at limit adds nothing; import below limit still
+   works. Non-gating, from the diff: whether CreateFeedFromSubscriptionDiscovery is covered.
+2. Interface lines for tasks 1, 2, 4, 5: approved as written.
+3. Write reference solutions for all six tasks, on a branch no arm can reach, before any scored
+   run. Change a test only when the reference shows the test is wrong, and log each change.
+   Backstop: hand-review every acceptance failure where the existing suite passed; if the test
+   rejected a valid implementation, fix it and rescore every run of that task.
+4. Escalation: dropped. A B failure is a failure. Classify it.
+5. Untagged 150: run as is. Record per run whether B queried or opened an untagged function.
+
+Deviations:
+
+- A1 tree with graph.json and policies: accepted. But grep must skip graph.json unless the path
+  argument names it. Say so in A1's access paragraph.
+- signatures(pkg) listing file names: accepted.
+- Process-control split: accepted.
+
+Housekeeping: add __pycache__ to .gitignore and remove the committed .pyc files.
+
+Then run all 54 scored runs (6 tasks x 3 arms x 3 repeats). Stop only if something blocks. Report
+per task and per arm, with every failure classified, and do not pool tasks into one headline
+number.
+
 ## Earlier decisions
 
 - 2026-11-11, in Experiment1.txt ("Decisions made before running"): Conduit pick rule,

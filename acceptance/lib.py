@@ -139,13 +139,27 @@ class Ctx:
         except ValueError:
             return status, text
 
-    def make_feed(self, name, items, **extra):
-        self.feeds.feeds[name] = {'items': items}
-        cat = self.api('GET', '/v1/categories')[1][0]['id']
-        s, j = self.api('POST', '/v1/feeds', {'feed_url': self.feeds.url(name), 'category_id': cat, **extra})
+    def try_feed(self, name, items=None, auth=None, **extra):
+        """POST /v1/feeds; returns (status, body). auth = dict(user=..., password=...)."""
+        auth = auth or {}
+        self.feeds.feeds[name] = {'items': items or [item(name + ' post')]}
+        cat = self.api('GET', '/v1/categories', **auth)[1][0]['id']
+        return self.api('POST', '/v1/feeds', {'feed_url': self.feeds.url(name), 'category_id': cat, **extra}, **auth)
+
+    def make_feed(self, name, items, auth=None, **extra):
+        s, j = self.try_feed(name, items, auth, **extra)
         if s not in (200, 201):
             raise RuntimeError(f'could not create feed {name}: {s} {j}')
         return j['feed_id']
+
+    def opml(self, names):
+        for n in names:
+            self.feeds.feeds.setdefault(n, {'items': [item(n + ' post')]})
+        outlines = ''.join(f'<outline type="rss" text="{n}" title="{n}" xmlUrl="{self.url_of(n)}" htmlUrl="http://127.0.0.1/"/>' for n in names)
+        return f'<?xml version="1.0" encoding="UTF-8"?><opml version="2.0"><body><outline text="All">{outlines}</outline></body></opml>'.encode()
+
+    def url_of(self, name):
+        return self.feeds.url(name)
 
     # ---- web UI
     def ui_session(self):

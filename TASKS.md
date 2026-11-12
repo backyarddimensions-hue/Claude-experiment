@@ -3,7 +3,7 @@
 The text under each heading is exactly what the agent is given, in every arm. Lines marked
 **Interface** were added on 2026-11-11 so that a hidden test written from the task text alone can
 find the new behaviour; without them the field and route names are the agent's free choice and no
-fixed test could score the result. They are proposed wording, pending Fable's approval.
+fixed test could score the result. Approved by Fable on 2026-11-11 (DECISIONS.md).
 
 ## Task 0 (shakedown, unscored)
 
@@ -28,13 +28,17 @@ already exist are either backfilled or left null; new entries are always populat
 **Interface:** the API entry object has an integer field `word_count` (null where unknown). Words
 are counted on the entry content with HTML tags removed.
 
-## Task 3: block rule by author  (ALREADY IMPLEMENTED UPSTREAM, needs replacing)
+## Task 3: per-user feed limit
 
-Extend feed block rules to match on entry author, not just title. Entries from blocked authors
-are not stored.
+Add a per-user limit on the number of feeds.
 
-Miniflux at the pinned commit already supports `EntryAuthor=<regex>` in a feed's
-`block_filter_entry_rules`. The acceptance test for this task passes on the unmodified tree.
+**Interface:** the user object has an integer field `max_feeds`; 0 means unlimited. Only an
+administrator can change it, with `PUT /v1/users/{userID}`. Once a user has `max_feeds` feeds, no
+request may create another one for that user: `POST /v1/feeds` returns a 4xx status and creates
+nothing, and `POST /v1/import` never leaves the user with more than `max_feeds` feeds.
+
+(Replaces "block rule by author", which Miniflux already implements. Wording from Fable's ruling
+on checkpoint 2.)
 
 ## Task 4: rotate API keys
 

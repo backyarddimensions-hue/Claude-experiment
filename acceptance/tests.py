@@ -75,19 +75,42 @@ def task2(ctx):
     ctx.check('single-entry endpoint exposes word_count', isinstance(one, dict) and isinstance(one.get('word_count'), int), s)
 
 
-# ---------------------------------------------------------------- task 3: block rule by author
+# ---------------------------------------------------------------- task 3: per-user feed limit
 def task3(ctx):
     ctx.start()
-    items = [item('kept post', author='Alice Example'), item('blocked post', author='Blocked Bob')]
-    fid = ctx.make_feed('t3', items, block_filter_entry_rules='EntryAuthor=^Blocked Bob$')
-    s, j = ctx.api('GET', f'/v1/feeds/{fid}/entries')
-    titles = sorted(x['title'] for x in j['entries']) if isinstance(j, dict) else j
-    ctx.check('entry from blocked author is not stored', titles == ['kept post'], titles)
-    n = ctx.psql(f'select count(*) from entries where feed_id={fid}')[0][0]
-    ctx.check('database holds only the unblocked entry', n == '1', n)
-    control = ctx.make_feed('t3control', [item('c1', author='Blocked Bob'), item('c2', author='Alice Example')])
-    n = ctx.psql(f'select count(*) from entries where feed_id={control}')[0][0]
-    ctx.check('feed without the rule stores both', n == '2', n)
+    bob, carol = dict(user='bob', password='secret123'), dict(user='carol', password='secret123')
+    _, ub = ctx.api('POST', '/v1/users', {'username': 'bob', 'password': 'secret123'})
+    _, uc = ctx.api('POST', '/v1/users', {'username': 'carol', 'password': 'secret123'})
+
+    def feeds_of(uid):
+        return int(ctx.psql(f'select count(*) from feeds where user_id={uid}')[0][0])
+
+    def limit_of(uid):
+        j = ctx.api('GET', f'/v1/users/{uid}')[1]
+        return j.get('max_feeds', 'missing') if isinstance(j, dict) else j
+
+    ctx.check('user object has max_feeds, 0 by default', limit_of(ub['id']) == 0, limit_of(ub['id']))
+    s, j = ctx.api('PUT', f'/v1/users/{ub["id"]}', {'max_feeds': 2})
+    ctx.check('administrator can set max_feeds', s in (200, 201) and limit_of(ub['id']) == 2, f'{s} -> {limit_of(ub["id"])}')
+    s, _ = ctx.api('PUT', f'/v1/users/{ub["id"]}', {'max_feeds': 50}, **bob)
+    ctx.check('non-admin cannot change own limit', limit_of(ub['id']) == 2, f'http {s}, limit now {limit_of(ub["id"])}')
+
+    s1, _ = ctx.try_feed('t3b1', auth=bob)
+    s2, _ = ctx.try_feed('t3b2', auth=bob)
+    ctx.check('feeds up to the limit are created', s1 in (200, 201) and s2 in (200, 201) and feeds_of(ub['id']) == 2, f'{s1} {s2}, {feeds_of(ub["id"])} feeds')
+    s3, _ = ctx.try_feed('t3b3', auth=bob)
+    ctx.check('create beyond the limit is 4xx and creates nothing', 400 <= s3 < 500 and feeds_of(ub['id']) == 2, f'http {s3}, {feeds_of(ub["id"])} feeds')
+    s, _ = ctx.api('POST', '/v1/import', raw=ctx.opml(['t3bi1', 't3bi2']), **bob)
+    ctx.check('import at the limit adds nothing', feeds_of(ub['id']) == 2, f'http {s}, {feeds_of(ub["id"])} feeds')
+
+    ctx.api('PUT', f'/v1/users/{uc["id"]}', {'max_feeds': 3})
+    ctx.make_feed('t3c1', [item('c1')], auth=carol)
+    s, _ = ctx.api('POST', '/v1/import', raw=ctx.opml(['t3ci1']), **carol)
+    ctx.check('import below the limit still works', s in (200, 201) and feeds_of(uc['id']) == 2, f'http {s}, {feeds_of(uc["id"])} feeds')
+    s, _ = ctx.api('POST', '/v1/import', raw=ctx.opml(['t3ci2', 't3ci3', 't3ci4']), **carol)
+    ctx.check('import never leaves more than max_feeds', feeds_of(uc['id']) <= 3, f'http {s}, {feeds_of(uc["id"])} feeds')
+    s, _ = ctx.try_feed('t3admin')
+    ctx.check('a user with max_feeds 0 is unlimited', s in (200, 201), s)
 
 
 # ---------------------------------------------------------------- task 4: rotate API keys

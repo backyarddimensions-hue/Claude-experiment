@@ -43,7 +43,8 @@ ACCESS_A1 = LAYER + """
 
 Access: you can read any file in the repository with open_file, search file contents with
 grep(pattern, path), and list directories with list_dir(path). The call graph is the file
-`graph.json` at the repository root."""
+`graph.json` at the repository root. grep skips graph.json unless its path argument names that
+file."""
 
 ACCESS_B = LAYER + """
 
