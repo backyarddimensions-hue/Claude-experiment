@@ -1,0 +1,3 @@
+nouns: users, integrations, categories, feeds, feed_icons, icons, entries, enclosures
+priority: correctness
+boundary: egress

@@ -1,0 +1,10 @@
+# Pinned versions. Every run starts from these.
+miniflux        https://github.com/miniflux/v2                                     1af9501ae474000c3b7f6eb93877e707b5a2708a
+miniflux-tagged local branch `annotated` = 1af9501 + annotations/miniflux-tags.patch  (comment-only diff, 807 tag lines)
+conduit         https://github.com/realworld-apps/golang-gin-realworld-example-app  a41289b2a4951e7cc09066f86742a27f85121c9b
+realworld-spec  https://github.com/gothinkster/realworld                            25588846c314b15a5e427ffe816e6b4af7be68c7
+go              go1.27.4 linux/amd64
+golang.org/x/tools v0.52.0   (effects/go.mod)
+hurl            7.1.0 (Ubuntu 26.04 package, unpacked locally)
+postgres        18.6, private instance on 127.0.0.1:55432
+claude cli      2.1.322

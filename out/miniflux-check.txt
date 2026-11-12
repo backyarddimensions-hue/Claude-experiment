@@ -1,0 +1,38 @@
+== tag check (exported functions) ==
+{'tagged': 807, 'untagged': 78}
+failures: 0
+== policy check (all functions) ==
+direct-net-in-ingress: 2 function-level hits (0 on exported), 2 distinct (package, effect) pairs
+     [code-undeclared] internal/cli               net                          1 funcs   e.g. internal/cli.doHealthCheck net/http.Client.Get @ internal/cli/health_check.go:22
+     [analysis-over-approx] internal/http/server       net                          1 funcs   e.g. internal/http/server.setupAutocert golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:186
+noun-reads: 36 function-level hits (15 on exported), 14 distinct (package, effect) pairs
+     [policy-wrong   ] internal/api               reads entry_tombstones       4 funcs   e.g. internal/api.(*handler).createFeedHandler 
+     [policy-wrong   ] internal/cli               reads entry_tombstones       4 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               reads integrations           4 funcs   e.g. internal/cli.Parse 
+     [code-undeclared] internal/fever             reads enclosures             3 funcs   e.g. internal/fever.(*feverHandler).handleItems 
+     [policy-wrong   ] internal/googlereader      reads entry_tombstones       3 funcs   e.g. internal/googlereader.(*greaderHandler).editSubscriptionHandler 
+     [policy-wrong   ] internal/reader/handler    reads entry_tombstones       3 funcs   e.g. internal/reader/handler.CreateFeed 
+     [code-undeclared] internal/reader/opml       reads entries                2 funcs   e.g. internal/reader/opml.(*Handler).Export 
+     [analysis-over-approx] internal/reader/opml       reads entry_tombstones       1 funcs   e.g. internal/reader/opml.(*Handler).Import 
+     [policy-wrong   ] internal/reader/opml       reads feed_icons             1 funcs   e.g. internal/reader/opml.(*Handler).Export 
+     [policy-wrong   ] internal/reader/opml       reads icons                  1 funcs   e.g. internal/reader/opml.(*Handler).Export 
+     [policy-wrong   ] internal/reader/opml       reads users                  1 funcs   e.g. internal/reader/opml.(*Handler).Export 
+     [policy-wrong   ] internal/ui                reads entry_tombstones       5 funcs   e.g. internal/ui.(*handler).fetchOPML 
+     [policy-wrong   ] internal/worker            reads categories             2 funcs   e.g. internal/worker.(*worker).Run 
+     [policy-wrong   ] internal/worker            reads entry_tombstones       2 funcs   e.g. internal/worker.(*worker).Run 
+noun-writes: 19 function-level hits (9 on exported), 12 distinct (package, effect) pairs
+     [policy-wrong   ] internal/api               writes entry_tombstones      1 funcs   e.g. internal/api.(*handler).flushHistoryHandler 
+     [code-undeclared] internal/api               writes web_sessions          1 funcs   e.g. internal/api.(*handler).updateUserHandler 
+     [policy-wrong   ] internal/cli               writes ?                     1 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               writes api_keys              1 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               writes entry_tombstones      5 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               writes integrations          4 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               writes sessions              1 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               writes tokens                1 funcs   e.g. internal/cli.Parse 
+     [policy-wrong   ] internal/cli               writes webauthn_credentials   1 funcs   e.g. internal/cli.Parse 
+     [analysis-over-approx] internal/reader/opml       writes enclosures            1 funcs   e.g. internal/reader/opml.(*Handler).Import 
+     [analysis-over-approx] internal/reader/opml       writes entries               1 funcs   e.g. internal/reader/opml.(*Handler).Import 
+     [policy-wrong   ] internal/ui                writes entry_tombstones      1 funcs   e.g. internal/ui.(*handler).flushHistory 
+transitive-net-in-interior: 2 function-level hits (2 on exported), 1 distinct (package, effect) pairs
+     [policy-wrong   ] internal/worker            net                          2 funcs   e.g. internal/worker.(*worker).Run 
+no policy file for: {'.': 2}

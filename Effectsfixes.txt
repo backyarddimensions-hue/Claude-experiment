@@ -1,0 +1,179 @@
+--- a/effects/main.go
++++ b/effects/main.go
+@@ -83,8 +83,53 @@
+ 	tables  = map[string]bool{}
+ 	mutGlob = map[*ssa.Global]bool{}
+ 	recvStr = map[string][]string{} // receiver type -> all SQL-like string constants in its methods
++	sqlPass []sqlParam
+ )
+ 
++// sqlParam: function f executes the SQL text it receives as parameter idx.
++type sqlParam struct {
++	f      *Func
++	idx    int
++	method string
++	full   string
++	in     ssa.CallInstruction
++}
++
++// fullyConst reports whether a query value is built only from string constants.
++func fullyConst(v ssa.Value, depth int) bool {
++	if depth > 8 {
++		return false
++	}
++	switch x := v.(type) {
++	case *ssa.Const:
++		return x.Value != nil && isString(x.Type())
++	case *ssa.BinOp:
++		return x.Op == token.ADD && fullyConst(x.X, depth+1) && fullyConst(x.Y, depth+1)
++	case *ssa.UnOp:
++		if al, ok := x.X.(*ssa.Alloc); ok && x.Op == token.MUL {
++			n := 0
++			okAll := true
++			for _, r := range *al.Referrers() {
++				if st, ok := r.(*ssa.Store); ok {
++					n++
++					okAll = okAll && fullyConst(st.Val, depth+1)
++				}
++			}
++			return n > 0 && okAll
++		}
++	}
++	return false
++}
++
++func paramIndex(fn *ssa.Function, v ssa.Value) int {
++	for i, p := range fn.Params {
++		if ssa.Value(p) == v {
++			return i
++		}
++	}
++	return -1
++}
++
+ func main() {
+ 	dir := flag.String("dir", ".", "module root")
+ 	out := flag.String("out", "graph.json", "output file")
+@@ -92,7 +137,7 @@
+ 	abs, _ := filepath.Abs(*dir)
+ 	modDir = abs
+ 
+-	cfg := &packages.Config{Mode: packages.LoadAllSyntax, Dir: abs, Tests: false}
++	cfg := &packages.Config{Mode: packages.LoadAllSyntax | packages.NeedModule, Dir: abs, Tests: false}
+ 	pkgs, err := packages.Load(cfg, "./...")
+ 	if err != nil {
+ 		fatal(err)
+@@ -417,7 +462,10 @@
+ // base traces an address/pointer back to where it came from.
+ // kinds: "global", "param", "local", "unknown".
+ func base(v ssa.Value) (ssa.Value, string) {
+-	seen := map[ssa.Value]bool{}
++	return baseSeen(v, map[ssa.Value]bool{})
++}
++
++func baseSeen(v ssa.Value, seen map[ssa.Value]bool) (ssa.Value, string) {
+ 	for i := 0; i < 64 && v != nil && !seen[v]; i++ {
+ 		seen[v] = true
+ 		switch x := v.(type) {
+@@ -457,7 +505,7 @@
+ 				var last ssa.Value = al
+ 				for _, r := range *al.Referrers() {
+ 					if st, ok := r.(*ssa.Store); ok && st.Addr == al {
+-						if bv, k := base(st.Val); k != "local" {
++						if bv, k := baseSeen(st.Val, seen); k != "local" {
+ 							kind, last = k, bv
+ 						}
+ 					}
+@@ -472,7 +520,7 @@
+ 				if seen[e] {
+ 					continue
+ 				}
+-				if bv, k := base(e); k != "local" {
++				if bv, k := baseSeen(e, seen); k != "local" {
+ 					kind, last = k, bv
+ 				}
+ 			}
+@@ -876,8 +924,20 @@
+ 	if ok {
+ 		rw = parseSQL(strings.Join(frags, " ; "))
+ 	}
++	if len(rw) == 0 && idx < len(c.Args) {
++		// The query is one of this function's own parameters: resolve it at the call sites instead.
++		if pi := paramIndex(f.fn, c.Args[idx]); pi >= 0 {
++			sqlPass = append(sqlPass, sqlParam{f, pi, method, full, in})
++			return
++		}
++		// Entirely constant text that names no known table: connection-level SQL, not a table effect.
++		if fullyConst(c.Args[idx], 0) {
++			f.cat("db-control", "table-less SQL at "+pos(in))
++			return
++		}
++	}
+ 	if len(rw) == 0 {
+-		// Fallback: SQL-looking constants in this function, then in every method of the receiver type.
++		// Fallback: SQL-looking constants in this function only.
+ 		approx = true
+ 		var pool []string
+ 		for _, s := range funcConsts(f.fn) {
+@@ -886,15 +946,6 @@
+ 			}
+ 		}
+ 		rw = parseSQL(strings.Join(pool, " ; "))
+-		if len(rw) == 0 {
+-			root := f.fn
+-			for root.Parent() != nil {
+-				root = root.Parent()
+-			}
+-			if root.Signature.Recv() != nil {
+-				rw = parseSQL(strings.Join(recvStr[root.Signature.Recv().Type().String()], " ; "))
+-			}
+-		}
+ 	}
+ 	if len(rw) == 0 {
+ 		verb := "reads"
+@@ -1178,6 +1229,45 @@
+ // ---------- propagation ----------
+ 
+ func propagate() {
++	// Resolve SQL passed as a parameter from every call site of the receiving function.
++	for _, sp := range sqlPass {
++		sites := 0
++		for _, g := range funcs {
++			for _, cs := range g.calls {
++				if cs.callee != sp.f || cs.args == nil || sp.idx >= len(cs.args) {
++					continue
++				}
++				sites++
++				frags, ok := resolveSQL(cs.args[sp.idx], 0, map[ssa.Value]bool{})
++				var rw []string
++				if ok {
++					rw = parseSQL(strings.Join(frags, " ; "))
++				}
++				if len(rw) == 0 {
++					if fullyConst(cs.args[sp.idx], 0) {
++						sp.f.cat("db-control", "table-less SQL passed from "+g.ID)
++						continue
++					}
++					verb := "reads"
++					if strings.HasPrefix(sp.method, "Exec") {
++						verb = "writes"
++					}
++					sp.f.Unres = append(sp.f.Unres, fmt.Sprintf("%s at %s: SQL parameter not resolvable at call site in %s", sp.full, pos(sp.in), g.ID))
++					sp.f.add(verb+" ?", sp.full, sp.in, true)
++					continue
++				}
++				for _, e := range rw {
++					if !sp.f.eff[e] {
++						sp.f.add(e, sp.full+" (query from "+g.ID+")", sp.in, false)
++					}
++				}
++			}
++		}
++		if sites == 0 {
++			sp.f.Unres = append(sp.f.Unres, fmt.Sprintf("%s at %s: SQL parameter, no call sites found", sp.full, pos(sp.in)))
++			sp.f.add("reads ?", sp.full, sp.in, true)
++		}
++	}
+ 	for _, f := range funcs {
+ 		for _, cs := range f.calls {
+ 			f.callees[cs.callee] = true

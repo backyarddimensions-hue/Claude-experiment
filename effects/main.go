@@ -2,7 +2,7 @@
 //
 // Vocabulary (fixed by the experiment design):
 //
-//	pure | reads <noun> | writes <noun> | net | fs
+//	pure | reads <noun> | writes <noun> | net | fs | mut
 //
 // A function with no inferred effect is only called "pure" if the tool can prove it:
 // no global writes, no mutation of caller-visible state, no nondeterminism, no logging,
@@ -48,11 +48,15 @@ type Func struct {
 	Line      int        `json:"line"`
 	Signature string     `json:"signature"`
 	Exported  bool       `json:"exported"`
-	Declared  []string   `json:"declared"` // parsed from the @effects tag in source; null if untagged
-	Inferred  []string   `json:"inferred"` // transitive effects in the core vocabulary
+	Declared  []string   `json:"declared"`                  // parsed from the @effects tag in source; null if untagged
+	Inferred  []string   `json:"inferred"`                  // transitive effects in the tag vocabulary (incl. mut)
+	InfApprox []string   `json:"inferred_approx,omitempty"` // subset of inferred whose noun was guessed, not proven, on every path
+	Mut       bool       `json:"mut"`                       // mutates state reachable from its receiver or arguments
+	MutWhy    string     `json:"mut_example,omitempty"`
+	Ambient   []string   `json:"ambient,omitempty"` // logging, nondeterministic, concurrency, http-server-io, stream-io: reported, never tagged
 	Direct    []Evidence `json:"direct,omitempty"`
 	Pure      bool       `json:"pure"`
-	Impure    []string   `json:"impure_reasons,omitempty"` // why purity could not be proven (transitive categories)
+	Impure    []string   `json:"impure_reasons,omitempty"` // non-ambient reasons the vocabulary cannot express (transitive)
 	ImpureEx  []string   `json:"impure_examples,omitempty"`
 	Callees   []string   `json:"callees"`
 	Callers   []string   `json:"callers"`
@@ -61,10 +65,12 @@ type Func struct {
 
 	fn      *ssa.Function
 	eff     map[string]bool
+	exact   map[string]bool   // effect has at least one fully proven derivation
 	cats    map[string]string // impurity category -> example
 	mutPar  bool              // mutates state reachable from its own params/receiver
 	mutEx   string
 	calls   []callSite
+	sqlPar  map[int]string // parameter index -> sql method name: this function forwards that param as SQL text
 	callees map[*Func]bool
 	callers map[*Func]bool
 	refs    map[*Func]bool
@@ -73,6 +79,8 @@ type Func struct {
 type callSite struct {
 	callee *Func
 	args   []ssa.Value
+	in     ssa.Instruction
+	done   map[int]bool
 }
 
 var (
@@ -92,7 +100,7 @@ func main() {
 	abs, _ := filepath.Abs(*dir)
 	modDir = abs
 
-	cfg := &packages.Config{Mode: packages.LoadAllSyntax, Dir: abs, Tests: false}
+	cfg := &packages.Config{Mode: packages.LoadAllSyntax | packages.NeedModule, Dir: abs, Tests: false}
 	pkgs, err := packages.Load(cfg, "./...")
 	if err != nil {
 		fatal(err)
@@ -152,6 +160,8 @@ func main() {
 	for fn, f := range funcs {
 		analyze(fn, f, siteCallees)
 	}
+	forwardSQL()
+	orphanSQL()
 	propagate()
 	emit(*out)
 }
@@ -212,7 +222,7 @@ func relPkg(p string) string {
 
 func register(fn *ssa.Function) {
 	p := pkgOf(fn)
-	f := &Func{fn: fn, Pkg: relPkg(p.Path()), eff: map[string]bool{}, cats: map[string]string{},
+	f := &Func{fn: fn, Pkg: relPkg(p.Path()), eff: map[string]bool{}, exact: map[string]bool{}, cats: map[string]string{},
 		callees: map[*Func]bool{}, callers: map[*Func]bool{}, refs: map[*Func]bool{}}
 	parts := strings.Split(f.Pkg, "/")
 	f.TopDir = parts[0]
@@ -360,25 +370,48 @@ func resolveSQL(v ssa.Value, depth int, seen map[ssa.Value]bool) ([]string, bool
 	case *ssa.Call:
 		if c := x.Call.StaticCallee(); c != nil && c.Pkg != nil && c.Pkg.Pkg.Path() == "fmt" && c.Name() == "Sprintf" && len(x.Call.Args) > 0 {
 			out, ok := resolveSQL(x.Call.Args[0], depth+1, seen)
-			// string arguments spliced into the format may carry table names too
+			if !ok {
+				return nil, false
+			}
+			// Substitute constant string arguments for the verbs, in order; unknowns become "?".
+			argStr := map[int64]string{}
 			if len(x.Call.Args) > 1 {
 				if sl, ok2 := x.Call.Args[1].(*ssa.Slice); ok2 {
 					if al, ok3 := sl.X.(*ssa.Alloc); ok3 {
 						for _, r := range *al.Referrers() {
-							if ia, ok4 := r.(*ssa.IndexAddr); ok4 {
-								for _, r2 := range *ia.Referrers() {
-									if st, ok5 := r2.(*ssa.Store); ok5 {
-										if mi, ok6 := st.Val.(*ssa.MakeInterface); ok6 {
-											if s, ok7 := resolveSQL(mi.X, depth+1, seen); ok7 {
-												out = append(out, s...)
-											}
-										}
+							ia, ok4 := r.(*ssa.IndexAddr)
+							if !ok4 {
+								continue
+							}
+							k, ok5 := ia.Index.(*ssa.Const)
+							if !ok5 || k.Value == nil {
+								continue
+							}
+							for _, r2 := range *ia.Referrers() {
+								if st, ok6 := r2.(*ssa.Store); ok6 {
+									var val ssa.Value = st.Val
+									if mi, ok7 := val.(*ssa.MakeInterface); ok7 {
+										val = mi.X
+									}
+									if sv, ok8 := resolveSQL(val, depth+1, seen); ok8 && len(sv) == 1 {
+										argStr[k.Int64()] = sv[0]
 									}
 								}
 							}
 						}
 					}
 				}
+			}
+			for n, format := range out {
+				idx := int64(0)
+				out[n] = reFmtVerb.ReplaceAllStringFunc(format, func(string) string {
+					v, has := argStr[idx]
+					idx++
+					if has {
+						return v
+					}
+					return "?"
+				})
 			}
 			return out, ok
 		}
@@ -404,7 +437,13 @@ func resolveSQL(v ssa.Value, depth int, seen map[ssa.Value]bool) ([]string, bool
 // ---------- analysis ----------
 
 func (f *Func) add(effect, sink string, in ssa.Instruction, approx bool) {
+	if in == nil {
+		return
+	}
 	f.eff[effect] = true
+	if !approx {
+		f.exact[effect] = true
+	}
 	f.Direct = append(f.Direct, Evidence{Effect: effect, Sink: sink, Pos: pos(in), Approx: approx})
 }
 
@@ -416,8 +455,9 @@ func (f *Func) cat(c, example string) {
 
 // base traces an address/pointer back to where it came from.
 // kinds: "global", "param", "local", "unknown".
-func base(v ssa.Value) (ssa.Value, string) {
-	seen := map[ssa.Value]bool{}
+func base(v ssa.Value) (ssa.Value, string) { return baseS(v, map[ssa.Value]bool{}) }
+
+func baseS(v ssa.Value, seen map[ssa.Value]bool) (ssa.Value, string) {
 	for i := 0; i < 64 && v != nil && !seen[v]; i++ {
 		seen[v] = true
 		switch x := v.(type) {
@@ -457,7 +497,7 @@ func base(v ssa.Value) (ssa.Value, string) {
 				var last ssa.Value = al
 				for _, r := range *al.Referrers() {
 					if st, ok := r.(*ssa.Store); ok && st.Addr == al {
-						if bv, k := base(st.Val); k != "local" {
+						if bv, k := baseS(st.Val, seen); k != "local" {
 							kind, last = k, bv
 						}
 					}
@@ -472,7 +512,7 @@ func base(v ssa.Value) (ssa.Value, string) {
 				if seen[e] {
 					continue
 				}
-				if bv, k := base(e); k != "local" {
+				if bv, k := baseS(e, seen); k != "local" {
 					kind, last = k, bv
 				}
 			}
@@ -482,6 +522,50 @@ func base(v ssa.Value) (ssa.Value, string) {
 		}
 	}
 	return v, "unknown"
+}
+
+// externalRunner: is this a call into non-module code that may invoke a function argument synchronously?
+func externalRunner(c *ssa.CallCommon) bool {
+	if c.IsInvoke() {
+		n, ok := c.Value.Type().(*types.Named)
+		if !ok || n.Obj().Pkg() == nil {
+			return false
+		}
+		p := n.Obj().Pkg().Path()
+		return p != modPath && !strings.HasPrefix(p, modPath+"/") && p != "net/http"
+	}
+	sc := c.StaticCallee()
+	if sc == nil || inModule(sc) || pkgOf(sc) == nil {
+		return false
+	}
+	switch pkgOf(sc).Path() {
+	case "net/http", "github.com/gin-gonic/gin", "github.com/prometheus/client_golang/prometheus":
+		return false // handler registration, not execution
+	}
+	return true
+}
+
+func runByExternal(v ssa.Value, depth int) bool {
+	if depth > 3 || v.Referrers() == nil {
+		return false
+	}
+	for _, r := range *v.Referrers() {
+		switch x := r.(type) {
+		case *ssa.ChangeType:
+			if runByExternal(x, depth+1) {
+				return true
+			}
+		case *ssa.MakeInterface:
+			if runByExternal(x, depth+1) {
+				return true
+			}
+		case ssa.CallInstruction:
+			if x.Common().Value != v && externalRunner(x.Common()) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func pointerLike(t types.Type) bool {
@@ -516,8 +600,25 @@ func analyze(fn *ssa.Function, f *Func, siteCallees map[ssa.CallInstruction][]*s
 						continue
 					}
 					if t := lookup(rf); t != nil && t != f {
-						if rf.Parent() != nil && rf.Synthetic == "" {
-							f.calls = append(f.calls, callSite{callee: t}) // creating a closure ~ may run it
+						// A function value handed straight to external code that runs it (sort.Slice,
+						// sync.Once.Do, strings.Map...) is treated as called here. Anything else
+						// (stored, returned, registered as a handler) is only a reference; calls made
+						// later through module code are found by the call graph.
+						run := false
+						if v, ok := in.(ssa.Value); ok {
+							if _, isMC := in.(*ssa.MakeClosure); isMC {
+								run = runByExternal(v, 0)
+							} else if _, isConv := in.(*ssa.ChangeType); isConv {
+								run = runByExternal(v, 0)
+							} else if _, isMI := in.(*ssa.MakeInterface); isMI {
+								run = runByExternal(v, 0)
+							}
+						}
+						if ci, ok := in.(ssa.CallInstruction); ok && externalRunner(ci.Common()) {
+							run = true
+						}
+						if run {
+							f.calls = append(f.calls, callSite{callee: t})
 						} else {
 							t.refs[f] = true
 						}
@@ -558,7 +659,7 @@ func call(f *Func, in ssa.CallInstruction, siteCallees map[ssa.CallInstruction][
 	c := in.Common()
 	if sc := c.StaticCallee(); sc != nil {
 		if t := lookup(sc); t != nil {
-			f.calls = append(f.calls, callSite{callee: t, args: c.Args})
+			f.calls = append(f.calls, callSite{callee: t, args: c.Args, in: in, done: map[int]bool{}})
 			return
 		}
 		if inModule(sc) {
@@ -575,8 +676,25 @@ func call(f *Func, in ssa.CallInstruction, siteCallees map[ssa.CallInstruction][
 	for _, callee := range siteCallees[in] {
 		if t := lookup(callee); t != nil {
 			args := c.Args
-			f.calls = append(f.calls, callSite{callee: t, args: args})
+			f.calls = append(f.calls, callSite{callee: t, args: args, in: in, done: map[int]bool{}})
 			found = true
+			continue
+		}
+		// The call graph resolved this dynamic call to an external sink (e.g. a module-defined
+		// interface satisfied by *sql.DB, or an http.RoundTripper).
+		if cp := pkgOf(callee); cp != nil && !inModule(callee) {
+			rn, nm := recvName(callee), callee.Name()
+			isSQL := cp.Path() == "database/sql" && (rn == "DB" || rn == "Tx" || rn == "Conn") &&
+				(strings.HasPrefix(nm, "Query") || strings.HasPrefix(nm, "Exec") || strings.HasPrefix(nm, "Prepare"))
+			_, isNet := netSink(cp.Path(), rn, nm)
+			if isSQL || isNet || fsSink(cp.Path(), rn, nm) && cp.Path() == "os" && rn != "File" {
+				cc := *c
+				if c.IsInvoke() {
+					cc.Args = append([]ssa.Value{c.Value}, c.Args...) // line up with a static method call
+				}
+				external(f, callee, &cc, in)
+				found = true
+			}
 		}
 	}
 	if c.IsInvoke() {
@@ -660,7 +778,16 @@ func external(f *Func, sc *ssa.Function, c *ssa.CallCommon, in ssa.CallInstructi
 		return
 	case pkg == "database/sql":
 		if recv == "Stmt" && has("Query", "Exec") {
-			return // effect was attributed at Prepare
+			if len(c.Args) > 0 && preparedHere(c.Args[0]) {
+				return // effect was attributed at the Prepare call in this function
+			}
+			verb := "reads"
+			if has("Exec") {
+				verb = "writes"
+			}
+			f.Unres = append(f.Unres, fmt.Sprintf("%s at %s: statement prepared outside this function", full, pos(in)))
+			f.add(verb+" ?", full, in, true)
+			return
 		}
 		if name == "Open" || name == "OpenDB" {
 			f.cat("db-control", full+" at "+pos(in))
@@ -686,6 +813,9 @@ func external(f *Func, sc *ssa.Function, c *ssa.CallCommon, in ssa.CallInstructi
 		f.add("fs", full, in, false)
 		return
 	}
+	if name == "init" && recv == "" {
+		return // dependency package initialiser, run once at program start
+	}
 	cat, ok := classifyExternal(pkg, recv, name)
 	if !ok {
 		f.cat("unclassified-external", full+" at "+pos(in))
@@ -694,6 +824,31 @@ func external(f *Func, sc *ssa.Function, c *ssa.CallCommon, in ssa.CallInstructi
 	if cat != "" {
 		f.cat(cat, full+" at "+pos(in))
 	}
+}
+
+// preparedHere: does this *sql.Stmt come from a Prepare call in the same function?
+func preparedHere(v ssa.Value) bool {
+	seen := map[ssa.Value]bool{}
+	for i := 0; i < 16 && v != nil && !seen[v]; i++ {
+		seen[v] = true
+		switch x := v.(type) {
+		case *ssa.Extract:
+			v = x.Tuple
+		case *ssa.Call:
+			sc := x.Call.StaticCallee()
+			return sc != nil && strings.HasPrefix(sc.Name(), "Prepare")
+		case *ssa.Phi:
+			for _, e := range x.Edges {
+				if preparedHere(e) {
+					return true
+				}
+			}
+			return false
+		default:
+			return false
+		}
+	}
+	return false
 }
 
 func netSink(pkg, recv, name string) (string, bool) {
@@ -793,7 +948,7 @@ func classifyExternal(pkg, recv, name string) (cat string, ok bool) {
 			return "reads-environment", true
 		case "Exit", "Setenv", "Unsetenv":
 			return "process-control", true
-		case "IsNotExist", "IsExist", "IsTimeout", "IsPermission", "NewFile":
+		case "IsNotExist", "IsExist", "IsTimeout", "IsPermission", "NewFile", "Fd", "Name":
 			return "", true
 		}
 		return "", false
@@ -852,11 +1007,29 @@ func classifyExternal(pkg, recv, name string) (cat string, ok bool) {
 		return "", true
 	case "reflect", "unsafe":
 		return "reflection", true
+	case "flag":
+		return "process-control", true
+	case "golang.org/x/net/http/httpproxy":
+		return "reads-environment", true
+	case "github.com/prometheus/client_golang/prometheus", "github.com/prometheus/client_golang/prometheus/promhttp":
+		return "metrics", true
+	case "github.com/PuerkitoBio/goquery":
+		if strings.HasPrefix(name, "NewDocumentFromReader") {
+			return "stream-io", true
+		}
+		return "", true
+	case "github.com/andybalholm/brotli":
+		return "stream-io", true
+	case "golang.org/x/oauth2":
+		if name == "SetAuthURLParam" || name == "AuthCodeURL" || name == "S256ChallengeOption" || name == "VerifierOption" || name == "GenerateVerifier" {
+			return "", true
+		}
+		return "", false
 	}
 	purePrefixes := []string{"strings", "strconv", "bytes", "unicode", "math", "sort", "slices", "maps", "errors", "regexp",
 		"encoding", "html", "text/", "net/url", "net/mail", "net/netip", "net/textproto", "net/http/httputil", "path", "crypto", "hash", "container", "mime", "compress",
 		"archive", "image", "cmp", "iter", "embed", "unique", "golang.org/x/text", "golang.org/x/net/html", "golang.org/x/net/idna",
-		"golang.org/x/crypto", "golang.org/x/image", "database/sql/driver", "io/fs", "testing", "go/", "internal/"}
+		"golang.org/x/crypto", "golang.org/x/image", "github.com/andybalholm/cascadia", "github.com/tdewolff/minify/v2", "github.com/tdewolff/parse/v2", "github.com/lib/pq", "golang.org/x/net/publicsuffix", "github.com/gosimple/slug", "github.com/go-playground/validator/v10", "github.com/golang-jwt/jwt/v5", "database/sql/driver", "io/fs", "testing", "go/", "internal/"}
 	for _, pre := range purePrefixes {
 		if pkg == pre || strings.HasPrefix(pkg, pre+"/") || (strings.HasSuffix(pre, "/") && strings.HasPrefix(pkg, pre)) {
 			return "", true
@@ -865,19 +1038,59 @@ func classifyExternal(pkg, recv, name string) (cat string, ok bool) {
 	return "", false
 }
 
+// paramIndex reports whether v is (possibly via phi) one of fn's own parameters.
+func paramIndex(fn *ssa.Function, v ssa.Value) int {
+	if p, ok := v.(*ssa.Parameter); ok {
+		for i, q := range fn.Params {
+			if q == p {
+				return i
+			}
+		}
+	}
+	return -1
+}
+
 func sqlCall(f *Func, c *ssa.CallCommon, idx int, method, full string, in ssa.CallInstruction) {
+	if idx < len(c.Args) {
+		sqlValue(f, c.Args[idx], method, full, in)
+	}
+}
+
+// sqlValue attributes the effect of executing the SQL text held in v.
+func sqlValue(f *Func, v ssa.Value, method, full string, in ssa.Instruction) {
+	if i := paramIndex(f.fn, v); i >= 0 && f.fn.Parent() == nil {
+		// The query text is supplied by our callers: attribute the effect at each call site instead.
+		if f.sqlPar == nil {
+			f.sqlPar = map[int]string{}
+		}
+		f.sqlPar[i] = method
+		return
+	}
 	var frags []string
 	approx := false
-	ok := false
-	if idx < len(c.Args) {
-		frags, ok = resolveSQL(c.Args[idx], 0, map[ssa.Value]bool{})
-	}
+	frags, ok := resolveSQL(v, 0, map[ssa.Value]bool{})
 	var rw []string
 	if ok {
 		rw = parseSQL(strings.Join(frags, " ; "))
 	}
+	if len(rw) == 0 && ok && sqlLike(strings.Join(frags, " ")) {
+		text := strings.Join(frags, " ")
+		switch {
+		case reWriteVerb.MatchString(text):
+			// A write statement whose target table could not be determined.
+			f.Unres = append(f.Unres, fmt.Sprintf("%s at %s: write statement with unresolved table", full, pos(in)))
+			f.add("writes ?", full, in, true)
+		case reFromKw.MatchString(text) && !reReads.MatchString(text):
+			f.Unres = append(f.Unres, fmt.Sprintf("%s at %s: query with unresolved table", full, pos(in)))
+			f.add("reads ?", full, in, true)
+		default:
+			// Touches no table at all (SELECT version(), SET, advisory locks...).
+			f.cat("db-control", "table-less SQL at "+pos(in))
+		}
+		return
+	}
 	if len(rw) == 0 {
-		// Fallback: SQL-looking constants in this function, then in every method of the receiver type.
+		// Fallback: SQL-looking constants anywhere in this function (flow-insensitive).
 		approx = true
 		var pool []string
 		for _, s := range funcConsts(f.fn) {
@@ -886,15 +1099,6 @@ func sqlCall(f *Func, c *ssa.CallCommon, idx int, method, full string, in ssa.Ca
 			}
 		}
 		rw = parseSQL(strings.Join(pool, " ; "))
-		if len(rw) == 0 {
-			root := f.fn
-			for root.Parent() != nil {
-				root = root.Parent()
-			}
-			if root.Signature.Recv() != nil {
-				rw = parseSQL(strings.Join(recvStr[root.Signature.Recv().Type().String()], " ; "))
-			}
-		}
 	}
 	if len(rw) == 0 {
 		verb := "reads"
@@ -902,12 +1106,6 @@ func sqlCall(f *Func, c *ssa.CallCommon, idx int, method, full string, in ssa.Ca
 			verb = "writes"
 		}
 		f.Unres = append(f.Unres, fmt.Sprintf("%s at %s: SQL text not statically resolvable", full, pos(in)))
-		if ok && sqlLike(strings.Join(frags, " ")) {
-			// Resolved, but touches no known table (e.g. SELECT 1, SET, advisory locks).
-			f.Unres = f.Unres[:len(f.Unres)-1]
-			f.cat("db-control", "table-less SQL at "+pos(in))
-			return
-		}
 		f.add(verb+" ?", full, in, true)
 		return
 	}
@@ -1177,6 +1375,54 @@ func gormAssoc(f *Func, c *ssa.CallCommon, name, full string, in ssa.CallInstruc
 
 // ---------- propagation ----------
 
+// forwardSQL resolves SQL text passed through helper parameters, at the call sites that supply it.
+func forwardSQL() {
+	for changed := true; changed; {
+		changed = false
+		for _, f := range funcs {
+			for _, cs := range f.calls {
+				if cs.in == nil {
+					continue
+				}
+				for i, method := range cs.callee.sqlPar {
+					if cs.done[i] || i >= len(cs.args) {
+						continue
+					}
+					cs.done[i] = true
+					changed = true
+					sqlValue(f, cs.args[i], method, "database/sql (via "+cs.callee.ID+")", cs.in)
+				}
+			}
+		}
+	}
+}
+
+// orphanSQL flags functions that execute caller-supplied SQL but have no module call sites
+// supplying it (adopted from Fable's effects-fixes.patch).
+func orphanSQL() {
+	sites := map[*Func]int{}
+	for _, f := range funcs {
+		for _, cs := range f.calls {
+			if cs.in != nil {
+				sites[cs.callee]++
+			}
+		}
+	}
+	for _, f := range funcs {
+		for i, method := range f.sqlPar {
+			if sites[f] > 0 {
+				continue
+			}
+			verb := "reads"
+			if strings.HasPrefix(method, "Exec") {
+				verb = "writes"
+			}
+			f.Unres = append(f.Unres, fmt.Sprintf("executes SQL from parameter %d, no call sites found", i))
+			f.eff[verb+" ?"] = true
+		}
+	}
+}
+
 func propagate() {
 	for _, f := range funcs {
 		for _, cs := range f.calls {
@@ -1192,6 +1438,9 @@ func propagate() {
 				for e := range t.eff {
 					if !f.eff[e] {
 						f.eff[e], changed = true, true
+					}
+					if t.exact[e] && !f.exact[e] {
+						f.exact[e], changed = true, true
 					}
 				}
 				for c, ex := range t.cats {
@@ -1258,13 +1507,25 @@ func emit(out string) {
 			f.Inferred = append(f.Inferred, e)
 		}
 		sort.Slice(f.Inferred, func(i, j int) bool { return effKey(f.Inferred[i]) < effKey(f.Inferred[j]) })
+		for e := range f.eff {
+			if !f.exact[e] {
+				f.InfApprox = append(f.InfApprox, e)
+			}
+		}
+		sort.Strings(f.InfApprox)
 		if f.mutPar {
-			f.cats["mutates-param-or-receiver"] = f.mutEx
+			f.Mut, f.MutWhy = true, f.mutEx
+			f.Inferred = append(f.Inferred, "mut")
 		}
 		for c, ex := range f.cats {
+			if ambient[c] {
+				f.Ambient = append(f.Ambient, c)
+				continue
+			}
 			f.Impure = append(f.Impure, c)
 			f.ImpureEx = append(f.ImpureEx, c+": "+ex)
 		}
+		sort.Strings(f.Ambient)
 		sort.Strings(f.Impure)
 		sort.Strings(f.ImpureEx)
 		f.Pure = len(f.Inferred) == 0 && len(f.Impure) == 0
@@ -1284,7 +1545,10 @@ func emit(out string) {
 	fmt.Printf("%d functions, %d tables -> %s\n", len(list), len(tl), out)
 }
 
+// ambient impurity: real, but deliberately outside the tag vocabulary (decision 2026-11-11, item 4).
+var ambient = map[string]bool{"logging": true, "nondeterministic": true, "concurrency": true, "http-server-io": true, "stream-io": true}
+
 func effKey(e string) string {
-	order := map[string]string{"reads": "1", "writes": "2", "net": "3", "fs": "4"}
+	order := map[string]string{"reads": "1", "writes": "2", "net": "3", "fs": "4", "mut": "5"}
 	return order[strings.Fields(e)[0]] + e
 }

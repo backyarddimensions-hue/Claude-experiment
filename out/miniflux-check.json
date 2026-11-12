@@ -1,0 +1,484 @@
+{
+ "tag_counts": {
+  "tagged": 807,
+  "untagged": 78
+ },
+ "tag_failures": [],
+ "policy_violations": [
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).createFeedHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/api",
+   "writes entry_tombstones",
+   "internal/api.(*handler).flushHistoryHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).importFeedEntryHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).importFeedsHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).refreshFeedHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/api",
+   "writes web_sessions",
+   "internal/api.(*handler).updateUserHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes ?",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes api_keys",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes sessions",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes tokens",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes webauthn_credentials",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.cleanupScheduler",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.createAdminUser",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.createAdminUserFromEnvironmentVariables",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.createAdminUserFromInteractiveTerminal",
+   false,
+   ""
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/cli",
+   "net",
+   "internal/cli.doHealthCheck",
+   false,
+   "net/http.Client.Get @ internal/cli/health_check.go:22"
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.refreshFeeds",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.refreshFeeds",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.refreshFeeds$1",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.refreshFeeds$1",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.runCleanupTasks",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.runScheduler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.startDaemon",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.startDaemon",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.startDaemon",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/fever",
+   "reads enclosures",
+   "internal/fever.(*feverHandler).handleItems",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/fever",
+   "reads enclosures",
+   "internal/fever.(*feverHandler).handleWriteItems",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/fever",
+   "reads enclosures",
+   "internal/fever.(*feverHandler).serve",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/googlereader",
+   "reads entry_tombstones",
+   "internal/googlereader.(*greaderHandler).editSubscriptionHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/googlereader",
+   "reads entry_tombstones",
+   "internal/googlereader.(*greaderHandler).quickAddHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/googlereader",
+   "reads entry_tombstones",
+   "internal/googlereader.subscribe",
+   false,
+   ""
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/http/server",
+   "net",
+   "internal/http/server.setupAutocert",
+   false,
+   "golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:186"
+  ],
+  [
+   "noun-reads",
+   "internal/reader/handler",
+   "reads entry_tombstones",
+   "internal/reader/handler.CreateFeed",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/handler",
+   "reads entry_tombstones",
+   "internal/reader/handler.CreateFeedFromSubscriptionDiscovery",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/handler",
+   "reads entry_tombstones",
+   "internal/reader/handler.RefreshFeed",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/opml",
+   "reads entries",
+   "internal/reader/opml.(*Handler).Export",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/opml",
+   "reads feed_icons",
+   "internal/reader/opml.(*Handler).Export",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/opml",
+   "reads icons",
+   "internal/reader/opml.(*Handler).Export",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/opml",
+   "reads users",
+   "internal/reader/opml.(*Handler).Export",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/opml",
+   "reads entries",
+   "internal/reader/opml.(*Handler).Import",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader/opml",
+   "reads entry_tombstones",
+   "internal/reader/opml.(*Handler).Import",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/reader/opml",
+   "writes enclosures",
+   "internal/reader/opml.(*Handler).Import",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/reader/opml",
+   "writes entries",
+   "internal/reader/opml.(*Handler).Import",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).fetchOPML",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/ui",
+   "writes entry_tombstones",
+   "internal/ui.(*handler).flushHistory",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).refreshFeed",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).showChooseSubscriptionPage",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).submitSubscription",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).uploadOPML",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads categories",
+   "internal/worker.(*worker).Run",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads entry_tombstones",
+   "internal/worker.(*worker).Run",
+   true,
+   ""
+  ],
+  [
+   "transitive-net-in-interior",
+   "internal/worker",
+   "net",
+   "internal/worker.(*worker).Run",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads categories",
+   "internal/worker.NewPool",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads entry_tombstones",
+   "internal/worker.NewPool",
+   true,
+   ""
+  ],
+  [
+   "transitive-net-in-interior",
+   "internal/worker",
+   "net",
+   "internal/worker.NewPool",
+   true,
+   ""
+  ]
+ ],
+ "no_policy": {
+  ".": 2
+ }
+}

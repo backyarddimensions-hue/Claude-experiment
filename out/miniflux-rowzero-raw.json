@@ -1,0 +1,2857 @@
+{
+ "tag_counts": {
+  "untagged": 885
+ },
+ "tag_failures": [
+  [
+   "client.(*Client).APIKeys",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).APIKeysContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Categories",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoriesContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoriesWithCounters",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoriesWithCountersContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoryEntries",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoryEntriesContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoryEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoryEntryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoryFeeds",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CategoryFeedsContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateAPIKey",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateAPIKeyContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateCategory",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateCategoryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateCategoryWithOptions",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateCategoryWithOptionsContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateFeed",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateFeedContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateUser",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).CreateUserContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteAPIKey",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteAPIKeyContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteCategory",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteCategoryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteFeed",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteFeedContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteUser",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DeleteUserContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Discover",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).DiscoverContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Enclosure",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).EnclosureContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Entries",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).EntriesContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Entry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).EntryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).EntryIDs",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).EntryIDsContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Export",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ExportContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Feed",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedEntries",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedEntriesContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedEntryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedIcon",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedIconContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Feeds",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FeedsContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FetchCounters",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FetchCountersContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FetchEntryOriginalContent",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FetchEntryOriginalContentContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FlushHistory",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).FlushHistoryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ForceRefreshFeed",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ForceRefreshFeedContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Healthcheck",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).HealthcheckContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Icon",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).IconContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Import",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ImportContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ImportFeedEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).IntegrationsStatus",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).IntegrationsStatusContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MarkAllAsRead",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MarkAllAsReadContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MarkCategoryAsRead",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MarkCategoryAsReadContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MarkFeedAsRead",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MarkFeedAsReadContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Me",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).MeContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).RefreshAllFeeds",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).RefreshAllFeedsContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).RefreshCategory",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).RefreshCategoryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).RefreshFeed",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).RefreshFeedContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).SaveEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).SaveEntryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ToggleStarred",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).ToggleStarredContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateCategory",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateCategoryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateCategoryWithOptions",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateCategoryWithOptionsContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEnclosure",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEnclosureContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEntries",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEntriesContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEntriesStarred",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEntriesStarredContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateEntryContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateFeed",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateFeedContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateUser",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UpdateUserContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UserByID",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UserByIDContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UserByUsername",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UserByUsernameContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Users",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).UsersContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).Version",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*Client).VersionContext",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*request).Delete",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*request).Get",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*request).Post",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*request).PostFile",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "client.(*request).Put",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/cli.Parse",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads enclosures",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads integrations",
+    "reads schema_version",
+    "reads users",
+    "writes ?",
+    "writes acme_cache",
+    "writes api_keys",
+    "writes categories",
+    "writes enclosures",
+    "writes entries",
+    "writes entry_tombstones",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "writes integrations",
+    "writes schema_version",
+    "writes sessions",
+    "writes tokens",
+    "writes user_sessions",
+    "writes users",
+    "writes web_sessions",
+    "writes webauthn_credentials",
+    "net",
+    "fs"
+   ]
+  ],
+  [
+   "internal/config.(*configParser).ParseEnvironmentVariables",
+   "untagged but has effects",
+   [
+    "fs"
+   ]
+  ],
+  [
+   "internal/config.(*configParser).ParseFile",
+   "untagged but has effects",
+   [
+    "fs"
+   ]
+  ],
+  [
+   "internal/database.IsSchemaUpToDate",
+   "untagged but has effects",
+   [
+    "reads schema_version"
+   ]
+  ],
+  [
+   "internal/database.Migrate",
+   "untagged but has effects",
+   [
+    "reads enclosures",
+    "reads entries",
+    "reads feeds",
+    "reads icons",
+    "reads schema_version",
+    "reads users",
+    "writes ?",
+    "writes acme_cache",
+    "writes api_keys",
+    "writes categories",
+    "writes enclosures",
+    "writes entries",
+    "writes entry_tombstones",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "writes integrations",
+    "writes schema_version",
+    "writes sessions",
+    "writes tokens",
+    "writes user_sessions",
+    "writes users",
+    "writes web_sessions",
+    "writes webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/http/client.(*requestBuilder).Do",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/http/server.StartWebServer",
+   "untagged but has effects",
+   [
+    "net",
+    "fs"
+   ]
+  ],
+  [
+   "internal/integration.PushEntries",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration.SendEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/apprise.(*Client).SendNotification",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/archiveorg.(*Client).SendURL",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/betula.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/cubox.(*Client).SaveLink",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/discord.(*Client).SendDiscordMsg",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/espial.(*Client).CreateLink",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/gotify.(*Client).SendMessage",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/gotify.(*Client).SendMessages",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/instapaper.(*Client).AddURL",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/karakeep.(*Client).SaveURL",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/linkace.(*Client).AddURL",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/linkding.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/linktaco.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/linkwarden.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/matrixbot.(*Client).DiscoverEndpoints",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/matrixbot.(*Client).Login",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/matrixbot.(*Client).SendFormattedTextMessage",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/matrixbot.PushEntries",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/notion.(*Client).UpdateDocument",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/ntfy.(*Client).SendMessages",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/nunuxkeeper.(*Client).AddEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/omnivore.(*Client).SaveURL",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/pinboard.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/pushover.(*Client).SendMessages",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/raindrop.(*Client).CreateRaindrop",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/readeck.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/readwise.(*Client).CreateDocument",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/rssbridge.DetectBridges",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/shaarli.(*Client).CreateLink",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/shiori.(*Client).CreateBookmark",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/slack.(*Client).SendSlackMsg",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/telegrambot.(*Client).GetMe",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/telegrambot.(*Client).SendMessage",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/telegrambot.PushEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/wallabag.(*Client).CreateEntry",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/webhook.(*Client).SendNewEntriesWebhookEvent",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/integration/webhook.(*Client).SendSaveEntryWebhookEvent",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/metric.(*collector).GatherStorageMetrics",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads feeds",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/oauth2.(*googleProvider).Profile",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/oauth2.(*oidcProvider).Profile",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/oauth2.NewManager",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/oauth2.NewOidcProvider",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/fetcher.(*RequestBuilder).ExecuteRequest",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/handler.CreateFeed",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feeds",
+    "reads icons",
+    "reads users",
+    "writes enclosures",
+    "writes entries",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/handler.CreateFeedFromSubscriptionDiscovery",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feeds",
+    "reads icons",
+    "reads users",
+    "writes enclosures",
+    "writes entries",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/handler.RefreshFeed",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads integrations",
+    "reads users",
+    "writes enclosures",
+    "writes entries",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/icon.(*iconChecker).CreateFeedIconIfMissing",
+   "untagged but has effects",
+   [
+    "reads feed_icons",
+    "reads icons",
+    "writes feed_icons",
+    "writes icons",
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/icon.(*iconChecker).UpdateOrCreateFeedIcon",
+   "untagged but has effects",
+   [
+    "reads icons",
+    "writes feed_icons",
+    "writes icons",
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/opml.(*Handler).Export",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/reader/opml.(*Handler).Import",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feeds",
+    "writes categories",
+    "writes enclosures",
+    "writes entries",
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/reader/processor.ProcessEntryWebPage",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/processor.ProcessFeedEntries",
+   "untagged but has effects",
+   [
+    "reads users",
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/scraper.ScrapeWebsite",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/reader/subscription.(*subscriptionFinder).FindSubscriptions",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/storage.(*EntryQueryBuilder).CountEntries",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*EntryQueryBuilder).GetEntries",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads enclosures",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*EntryQueryBuilder).GetEntriesWithCount",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads enclosures",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*EntryQueryBuilder).GetEntry",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads enclosures",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*EntryQueryBuilder).GetEntryIDs",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*EntryQueryBuilder).GetEntryIDsWithCount",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).APIKeyExists",
+   "untagged but has effects",
+   [
+    "reads api_keys"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).APIKeys",
+   "untagged but has effects",
+   [
+    "reads api_keys"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).AddWebAuthnCredential",
+   "untagged but has effects",
+   [
+    "writes webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).AnotherCategoryExists",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).AnotherFeedURLExists",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).AnotherUserExists",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).AnotherUserWithFieldExists",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).ArchiveEntries",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "writes entries",
+    "writes entry_tombstones"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).Categories",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CategoriesWithFeedCount",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).Category",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CategoryByTitle",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CategoryFeedExists",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CategoryIDExists",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CategoryTitleExists",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CheckPassword",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CheckedAt",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CleanOldWebSessions",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CleanupOrphanIcons",
+   "untagged but has effects",
+   [
+    "reads feed_icons",
+    "writes icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CountAllEntries",
+   "untagged but has effects",
+   [
+    "reads entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CountAllFeeds",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CountAllFeedsWithErrors",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CountUsers",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CountWebAuthnCredentialsByUserID",
+   "untagged but has effects",
+   [
+    "reads webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CreateAPIKey",
+   "untagged but has effects",
+   [
+    "writes api_keys"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CreateCategory",
+   "untagged but has effects",
+   [
+    "writes categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CreateFeed",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads entry_tombstones",
+    "writes enclosures",
+    "writes entries",
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CreateUser",
+   "untagged but has effects",
+   [
+    "writes categories",
+    "writes integrations",
+    "writes users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).CreateWebSession",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).DeleteAPIKey",
+   "untagged but has effects",
+   [
+    "writes api_keys"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).DeleteAllWebAuthnCredentialsByUserID",
+   "untagged but has effects",
+   [
+    "writes webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).DeleteCredentialByHandle",
+   "untagged but has effects",
+   [
+    "writes webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).EnclosureByID",
+   "untagged but has effects",
+   [
+    "reads enclosures"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).EnclosuresByEntryID",
+   "untagged but has effects",
+   [
+    "reads enclosures"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).EnclosuresByEntryIDs",
+   "untagged but has effects",
+   [
+    "reads enclosures"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).EntryShareCode",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FeedByID",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FeedExists",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FeedURLExists",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).Feeds",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FeedsByCategoryWithCounters",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FeedsWithCounters",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FetchCounters",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FirstCategory",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FlushAllSessions",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).FlushHistory",
+   "untagged but has effects",
+   [
+    "writes entries",
+    "writes entry_tombstones"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).GetNavMetadata",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feeds",
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).GetReadTime",
+   "untagged but has effects",
+   [
+    "reads entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).GoogleReaderUserCheckPassword",
+   "untagged but has effects",
+   [
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).GoogleReaderUserGetIntegration",
+   "untagged but has effects",
+   [
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).HasDuplicateFeverUsername",
+   "untagged but has effects",
+   [
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).HasDuplicateGoogleReaderUsername",
+   "untagged but has effects",
+   [
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).HasFeedIcon",
+   "untagged but has effects",
+   [
+    "reads feed_icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).HasPassword",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).HasSaveEntry",
+   "untagged but has effects",
+   [
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).IconByExternalID",
+   "untagged but has effects",
+   [
+    "reads icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).IconByFeedID",
+   "untagged but has effects",
+   [
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).IconByUserAndIconID",
+   "untagged but has effects",
+   [
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).Icons",
+   "untagged but has effects",
+   [
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).InsertEntryForFeed",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads entry_tombstones",
+    "writes enclosures",
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).Integration",
+   "untagged but has effects",
+   [
+    "reads integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).IsNewEntry",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads entry_tombstones"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).MarkAllAsRead",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).MarkAllAsReadBeforeDate",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).MarkCategoryAsRead",
+   "untagged but has effects",
+   [
+    "reads feeds",
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).MarkFeedAsRead",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).MarkGloballyVisibleFeedsAsRead",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads feeds",
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RefreshFeedEntries",
+   "untagged but has effects",
+   [
+    "reads entries",
+    "reads entry_tombstones",
+    "writes enclosures",
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RemoveAndReplaceCategoriesByName",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "writes categories",
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RemoveCategory",
+   "untagged but has effects",
+   [
+    "writes categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RemoveFeed",
+   "untagged but has effects",
+   [
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RemoveUser",
+   "untagged but has effects",
+   [
+    "writes users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RemoveUserWebSession",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RemoveUserWebSessionsExcept",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).ResetFeedErrors",
+   "untagged but has effects",
+   [
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).ResetNextCheckAt",
+   "untagged but has effects",
+   [
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).RotateWebSession",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).SetAPIKeyUsedTimestamp",
+   "untagged but has effects",
+   [
+    "writes api_keys"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).SetEntriesStarredState",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).SetEntriesStatus",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).SetEntriesStatusAndCountVisible",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads feeds",
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).SetLastLogin",
+   "untagged but has effects",
+   [
+    "writes users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).StoreFeedIcon",
+   "untagged but has effects",
+   [
+    "reads icons",
+    "writes feed_icons",
+    "writes icons"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).ToggleStarred",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UnshareEntry",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateCategory",
+   "untagged but has effects",
+   [
+    "writes categories"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateEnclosure",
+   "untagged but has effects",
+   [
+    "writes enclosures"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateEntryTitleAndContent",
+   "untagged but has effects",
+   [
+    "writes entries"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateFeed",
+   "untagged but has effects",
+   [
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateFeedError",
+   "untagged but has effects",
+   [
+    "writes feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateIntegration",
+   "untagged but has effects",
+   [
+    "writes integrations"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateUser",
+   "untagged but has effects",
+   [
+    "writes users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UpdateWebSession",
+   "untagged but has effects",
+   [
+    "writes web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserByAPIKey",
+   "untagged but has effects",
+   [
+    "reads api_keys",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserByFeverToken",
+   "untagged but has effects",
+   [
+    "reads integrations",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserByField",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserByID",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserByUsername",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserExists",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).UserLanguage",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).Users",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WebAuthnCredentialByHandle",
+   "untagged but has effects",
+   [
+    "reads webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WebAuthnCredentialsByUserID",
+   "untagged but has effects",
+   [
+    "reads webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WebAuthnSaveLogin",
+   "untagged but has effects",
+   [
+    "writes webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WebAuthnUpdateName",
+   "untagged but has effects",
+   [
+    "writes webauthn_credentials"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WebSessionByID",
+   "untagged but has effects",
+   [
+    "reads web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WebSessionsByUserID",
+   "untagged but has effects",
+   [
+    "reads web_sessions"
+   ]
+  ],
+  [
+   "internal/storage.(*Storage).WeeklyFeedEntryCount",
+   "untagged but has effects",
+   [
+    "reads entries"
+   ]
+  ],
+  [
+   "internal/storage.(*batchBuilder).FetchJobs",
+   "untagged but has effects",
+   [
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*certificateCache).Delete",
+   "untagged but has effects",
+   [
+    "writes acme_cache"
+   ]
+  ],
+  [
+   "internal/storage.(*certificateCache).Get",
+   "untagged but has effects",
+   [
+    "reads acme_cache"
+   ]
+  ],
+  [
+   "internal/storage.(*certificateCache).Put",
+   "untagged but has effects",
+   [
+    "writes acme_cache"
+   ]
+  ],
+  [
+   "internal/storage.(*entryPaginationBuilder).Entries",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/storage.(*feedQueryBuilder).GetFeed",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/storage.(*feedQueryBuilder).GetFeeds",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads users"
+   ]
+  ],
+  [
+   "internal/systemd.SdNotify",
+   "untagged but has effects",
+   [
+    "net"
+   ]
+  ],
+  [
+   "internal/validator.ValidateAPIKeyCreation",
+   "untagged but has effects",
+   [
+    "reads api_keys"
+   ]
+  ],
+  [
+   "internal/validator.ValidateCategoryCreation",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/validator.ValidateCategoryModification",
+   "untagged but has effects",
+   [
+    "reads categories"
+   ]
+  ],
+  [
+   "internal/validator.ValidateFeedCreation",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/validator.ValidateFeedModification",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads feeds"
+   ]
+  ],
+  [
+   "internal/validator.ValidateUserCreationWithPassword",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/validator.ValidateUserModification",
+   "untagged but has effects",
+   [
+    "reads users"
+   ]
+  ],
+  [
+   "internal/worker.(*worker).Run",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads integrations",
+    "reads users",
+    "writes enclosures",
+    "writes entries",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "net"
+   ]
+  ],
+  [
+   "internal/worker.NewPool",
+   "untagged but has effects",
+   [
+    "reads categories",
+    "reads entries",
+    "reads entry_tombstones",
+    "reads feed_icons",
+    "reads feeds",
+    "reads icons",
+    "reads integrations",
+    "reads users",
+    "writes enclosures",
+    "writes entries",
+    "writes feed_icons",
+    "writes feeds",
+    "writes icons",
+    "net"
+   ]
+  ]
+ ],
+ "policy_violations": [
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).createFeedHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/api",
+   "writes entry_tombstones",
+   "internal/api.(*handler).flushHistoryHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).importFeedEntryHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).importFeedsHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/api",
+   "reads entry_tombstones",
+   "internal/api.(*handler).refreshFeedHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/api",
+   "writes web_sessions",
+   "internal/api.(*handler).updateUserHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes ?",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes api_keys",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes sessions",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes tokens",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes webauthn_credentials",
+   "internal/cli.Parse",
+   true,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.cleanupScheduler",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.createAdminUser",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.createAdminUserFromEnvironmentVariables",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes integrations",
+   "internal/cli.createAdminUserFromInteractiveTerminal",
+   false,
+   ""
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/cli",
+   "net",
+   "internal/cli.doHealthCheck",
+   false,
+   "net/http.Client.Get @ internal/cli/health_check.go:22"
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.refreshFeeds",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.refreshFeeds",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.refreshFeeds$1",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.refreshFeeds$1",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.runCleanupTasks",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.runScheduler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads entry_tombstones",
+   "internal/cli.startDaemon",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/cli",
+   "reads integrations",
+   "internal/cli.startDaemon",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/cli",
+   "writes entry_tombstones",
+   "internal/cli.startDaemon",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/fever",
+   "reads enclosures",
+   "internal/fever.(*feverHandler).handleItems",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/fever",
+   "reads enclosures",
+   "internal/fever.(*feverHandler).handleWriteItems",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/fever",
+   "reads enclosures",
+   "internal/fever.(*feverHandler).serve",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/googlereader",
+   "reads entry_tombstones",
+   "internal/googlereader.(*greaderHandler).editSubscriptionHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/googlereader",
+   "reads entry_tombstones",
+   "internal/googlereader.(*greaderHandler).quickAddHandler",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/googlereader",
+   "reads entry_tombstones",
+   "internal/googlereader.subscribe",
+   false,
+   ""
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/http",
+   "net",
+   "internal/http/client.(*requestBuilder).Do",
+   true,
+   "net/http.Client.Do @ internal/http/client/client.go:161"
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/http",
+   "net",
+   "internal/http/client.NewClientWithOptions$1",
+   false,
+   "net.LookupIP @ internal/http/client/client.go:51"
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/http",
+   "net",
+   "internal/http/client.NewClientWithOptions$1",
+   false,
+   "net.Dialer.DialContext @ internal/http/client/client.go:69"
+  ],
+  [
+   "direct-net-in-ingress",
+   "internal/http",
+   "net",
+   "internal/http/server.setupAutocert",
+   false,
+   "golang.org/x/crypto/acme/autocert.Manager.HTTPHandler @ internal/http/server/server.go:185"
+  ],
+  [
+   "noun-reads",
+   "internal/reader",
+   "reads entry_tombstones",
+   "internal/reader/handler.CreateFeed",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader",
+   "reads entry_tombstones",
+   "internal/reader/handler.CreateFeedFromSubscriptionDiscovery",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader",
+   "reads entry_tombstones",
+   "internal/reader/handler.RefreshFeed",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/reader",
+   "reads entry_tombstones",
+   "internal/reader/opml.(*Handler).Import",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).fetchOPML",
+   false,
+   ""
+  ],
+  [
+   "noun-writes",
+   "internal/ui",
+   "writes entry_tombstones",
+   "internal/ui.(*handler).flushHistory",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).refreshFeed",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).showChooseSubscriptionPage",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).submitSubscription",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/ui",
+   "reads entry_tombstones",
+   "internal/ui.(*handler).uploadOPML",
+   false,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads categories",
+   "internal/worker.(*worker).Run",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads entry_tombstones",
+   "internal/worker.(*worker).Run",
+   true,
+   ""
+  ],
+  [
+   "transitive-net-in-interior",
+   "internal/worker",
+   "net",
+   "internal/worker.(*worker).Run",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads categories",
+   "internal/worker.NewPool",
+   true,
+   ""
+  ],
+  [
+   "noun-reads",
+   "internal/worker",
+   "reads entry_tombstones",
+   "internal/worker.NewPool",
+   true,
+   ""
+  ],
+  [
+   "transitive-net-in-interior",
+   "internal/worker",
+   "net",
+   "internal/worker.NewPool",
+   true,
+   ""
+  ]
+ ],
+ "no_policy": {
+  ".": 2,
+  "client": 136
+ }
+}

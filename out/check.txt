@@ -1,0 +1,31 @@
+== tag check (exported functions) ==
+{'tagged': 640, 'untagged': 245}
+failures: 0
+== policy check (all functions) ==
+direct-net-in-ingress: 5 function-level hits (1 on exported), 2 distinct (package, effect) pairs
+     internal/cli             net                             1 funcs   e.g. internal/cli.doHealthCheck net/http.Client.Get @ internal/cli/health_check.go:22
+     internal/http            net                             4 funcs   e.g. internal/http/client.(*requestBuilder).Do net/http.Client.Do @ internal/http/client/client.go:164
+noun-reads: 31 function-level hits (10 on exported), 9 distinct (package, effect) pairs
+     internal/api             reads entry_tombstones          4 funcs   e.g. internal/api.(*handler).createFeedHandler 
+     internal/cli             reads entry_tombstones          4 funcs   e.g. internal/cli.Parse 
+     internal/cli             reads integrations              4 funcs   e.g. internal/cli.Parse 
+     internal/fever           reads enclosures                3 funcs   e.g. internal/fever.(*feverHandler).handleItems 
+     internal/googlereader    reads entry_tombstones          3 funcs   e.g. internal/googlereader.(*greaderHandler).editSubscriptionHandler 
+     internal/reader          reads entry_tombstones          4 funcs   e.g. internal/reader/handler.CreateFeed 
+     internal/ui              reads entry_tombstones          5 funcs   e.g. internal/ui.(*handler).fetchOPML 
+     internal/worker          reads categories                2 funcs   e.g. internal/worker.(*worker).Run 
+     internal/worker          reads entry_tombstones          2 funcs   e.g. internal/worker.(*worker).Run 
+noun-writes: 17 function-level hits (7 on exported), 10 distinct (package, effect) pairs
+     internal/api             writes entry_tombstones         1 funcs   e.g. internal/api.(*handler).flushHistoryHandler 
+     internal/api             writes web_sessions             1 funcs   e.g. internal/api.(*handler).updateUserHandler 
+     internal/cli             writes ?                        1 funcs   e.g. internal/cli.Parse 
+     internal/cli             writes api_keys                 1 funcs   e.g. internal/cli.Parse 
+     internal/cli             writes entry_tombstones         5 funcs   e.g. internal/cli.Parse 
+     internal/cli             writes integrations             4 funcs   e.g. internal/cli.Parse 
+     internal/cli             writes sessions                 1 funcs   e.g. internal/cli.Parse 
+     internal/cli             writes tokens                   1 funcs   e.g. internal/cli.Parse 
+     internal/cli             writes webauthn_credentials     1 funcs   e.g. internal/cli.Parse 
+     internal/ui              writes entry_tombstones         1 funcs   e.g. internal/ui.(*handler).flushHistory 
+transitive-net-in-interior: 2 function-level hits (2 on exported), 1 distinct (package, effect) pairs
+     internal/worker          net                             2 funcs   e.g. internal/worker.(*worker).Run 
+no policy file for: {'.': 2, 'client': 136}

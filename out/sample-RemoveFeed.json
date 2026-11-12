@@ -1,0 +1,33 @@
+{
+ "id": "internal/storage.(*Storage).RemoveFeed",
+ "pkg": "internal/storage",
+ "top_dir": "internal/storage",
+ "name": "RemoveFeed",
+ "recv": "*Storage",
+ "file": "internal/storage/feed.go",
+ "line": 490,
+ "signature": "func (*storage.Storage) RemoveFeed(userID int64, feedID int64) error",
+ "exported": true,
+ "declared": [
+  "writes feeds"
+ ],
+ "inferred": [
+  "writes feeds"
+ ],
+ "mut": false,
+ "direct": [
+  {
+   "effect": "writes feeds",
+   "sink": "database/sql.DB.Exec",
+   "pos": "internal/storage/feed.go:491"
+  }
+ ],
+ "pure": false,
+ "callees": [],
+ "callers": [
+  "internal/api.(*handler).removeFeedHandler",
+  "internal/googlereader.unsubscribe",
+  "internal/ui.(*handler).removeCategoryFeed",
+  "internal/ui.(*handler).removeFeed"
+ ]
+}

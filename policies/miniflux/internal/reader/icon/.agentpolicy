@@ -1,0 +1,3 @@
+nouns: icons, feed_icons
+priority: correctness
+boundary: egress

@@ -1,0 +1,944 @@
+[
+ {
+  "id": "internal/config.(*configOptions).SetHTTPSValue",
+  "file": "internal/config/options.go",
+  "line": 1085,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: store at internal/config/options.go:1086"
+  ]
+ },
+ {
+  "id": "internal/config.(*configOptions).SetLogLevel",
+  "file": "internal/config/options.go",
+  "line": 1080,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: store at internal/config/options.go:1081"
+  ]
+ },
+ {
+  "id": "internal/database.NewConnectionPool",
+  "file": "internal/database/postgresql.go",
+  "line": 14,
+  "reasons": [
+   "db-control"
+  ],
+  "examples": [
+   "db-control: database/sql.Open at internal/database/postgresql.go:15"
+  ]
+ },
+ {
+  "id": "internal/http/response.(*Builder).Write",
+  "file": "internal/http/response/builder.go",
+  "line": 167,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: via internal/http/response.HTMLNotAcceptable: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.(*acceptEncodingParser).Parse",
+  "file": "internal/http/response/encoding.go",
+  "line": 35,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/http/response.HTML",
+  "file": "internal/http/response/html.go",
+  "line": 17,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithBodyAsBytes"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLBadRequest",
+  "file": "internal/http/response/html.go",
+  "line": 57,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: interface call ..Error at internal/http/response/html.go:76",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLForbidden",
+  "file": "internal/http/response/html.go",
+  "line": 81,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLNotAcceptable",
+  "file": "internal/http/response/html.go",
+  "line": 125,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLNotFound",
+  "file": "internal/http/response/html.go",
+  "line": 103,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLRedirect",
+  "file": "internal/http/response/html.go",
+  "line": 148,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.HTMLBadRequest: interface call ..Error at internal/http/response/html.go:76",
+   "writes-unknown-pointer: via internal/http/response.HTMLBadRequest: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLRequestedRangeNotSatisfiable",
+  "file": "internal/http/response/html.go",
+  "line": 157,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.HTMLServerError",
+  "file": "internal/http/response/html.go",
+  "line": 33,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: interface call ..Error at internal/http/response/html.go:52",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSON",
+  "file": "internal/http/response/json.go",
+  "line": 18,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.JSONServerError: internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithBodyAsBytes"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONAccepted",
+  "file": "internal/http/response/json.go",
+  "line": 47,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONBadRequest",
+  "file": "internal/http/response/json.go",
+  "line": 77,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONCreated",
+  "file": "internal/http/response/json.go",
+  "line": 32,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.JSONServerError: internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONForbidden",
+  "file": "internal/http/response/json.go",
+  "line": 120,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONNotFound",
+  "file": "internal/http/response/json.go",
+  "line": 141,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONServerError",
+  "file": "internal/http/response/json.go",
+  "line": 55,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.JSONUnauthorized",
+  "file": "internal/http/response/json.go",
+  "line": 99,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.generateJSONError: interface call ..Error at internal/http/response/json.go:166",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.NoContent",
+  "file": "internal/http/response/response.go",
+  "line": 19,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithStatus"
+  ]
+ },
+ {
+  "id": "internal/http/response.Text",
+  "file": "internal/http/response/text.go",
+  "line": 9,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithBodyAsString"
+  ]
+ },
+ {
+  "id": "internal/http/response.XML",
+  "file": "internal/http/response/xml.go",
+  "line": 9,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithBodyAsString"
+  ]
+ },
+ {
+  "id": "internal/http/response.XMLAttachment",
+  "file": "internal/http/response/xml.go",
+  "line": 17,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/http/response.(*Builder).Write: internal/http/response.(*Builder).Write$2: internal/http/response.pooledWriter$1: interface call miniflux.app/v2/internal/http/response.writeResetCloser.Reset at internal/http/response/builder.go:59",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/http/response.(*Builder).WithBodyAsString"
+  ]
+ },
+ {
+  "id": "internal/integration/karakeep.NewClient",
+  "file": "internal/integration/karakeep/karakeep.go",
+  "line": 52,
+  "reasons": [
+   "reads-mutable-global"
+  ],
+  "examples": [
+   "reads-mutable-global: Opts at internal/integration/karakeep/karakeep.go:53"
+  ]
+ },
+ {
+  "id": "internal/integration/omnivore.NewClient",
+  "file": "internal/integration/omnivore/omnivore.go",
+  "line": 60,
+  "reasons": [
+   "reads-mutable-global"
+  ],
+  "examples": [
+   "reads-mutable-global: Opts at internal/integration/omnivore/omnivore.go:65"
+  ]
+ },
+ {
+  "id": "internal/integration/raindrop.NewClient",
+  "file": "internal/integration/raindrop/raindrop.go",
+  "line": 21,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/locale.(*LocalizedError).Error",
+  "file": "internal/locale/error.go",
+  "line": 52,
+  "reasons": [
+   "writes-global"
+  ],
+  "examples": [
+   "writes-global: via internal/locale.(*LocalizedError).String: internal/locale.(*Printer).Printf: internal/locale.(*Printer).Print: internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/locale.(*LocalizedError).String",
+  "file": "internal/locale/error.go",
+  "line": 48,
+  "reasons": [
+   "writes-global"
+  ],
+  "examples": [
+   "writes-global: via internal/locale.(*Printer).Printf: internal/locale.(*Printer).Print: internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/locale.(*LocalizedError).Translate",
+  "file": "internal/locale/error.go",
+  "line": 56,
+  "reasons": [
+   "writes-global"
+  ],
+  "examples": [
+   "writes-global: via internal/locale.(*Printer).Printf: internal/locale.(*Printer).Print: internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/locale.(*LocalizedErrorWrapper).Translate",
+  "file": "internal/locale/error.go",
+  "line": 28,
+  "reasons": [
+   "dynamic-call",
+   "writes-global"
+  ],
+  "examples": [
+   "dynamic-call: interface call ..Error at internal/locale/error.go:33",
+   "writes-global: via internal/locale.(*Printer).Printf: internal/locale.(*Printer).Print: internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/locale.(*Printer).Plural",
+  "file": "internal/locale/printer.go",
+  "line": 34,
+  "reasons": [
+   "writes-global"
+  ],
+  "examples": [
+   "writes-global: via internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/locale.(*Printer).Print",
+  "file": "internal/locale/printer.go",
+  "line": 19,
+  "reasons": [
+   "writes-global"
+  ],
+  "examples": [
+   "writes-global: via internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/locale.(*Printer).Printf",
+  "file": "internal/locale/printer.go",
+  "line": 29,
+  "reasons": [
+   "writes-global"
+  ],
+  "examples": [
+   "writes-global: via internal/locale.(*Printer).Print: internal/locale.getTranslationDict: map update defaultCatalog at internal/locale/catalog.go:48"
+  ]
+ },
+ {
+  "id": "internal/mediaproxy.ProxifyAbsoluteURL",
+  "file": "internal/mediaproxy/url.go",
+  "line": 35,
+  "reasons": [
+   "reads-mutable-global"
+  ],
+  "examples": [
+   "reads-mutable-global: Opts at internal/mediaproxy/url.go:40"
+  ]
+ },
+ {
+  "id": "internal/mediaproxy.ProxifyRelativeURL",
+  "file": "internal/mediaproxy/url.go",
+  "line": 16,
+  "reasons": [
+   "reads-mutable-global"
+  ],
+  "examples": [
+   "reads-mutable-global: Opts at internal/mediaproxy/url.go:21"
+  ]
+ },
+ {
+  "id": "internal/mediaproxy.RewriteDocumentWithAbsoluteProxyURL",
+  "file": "internal/mediaproxy/rewriter.go",
+  "line": 23,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "reads-mutable-global: via internal/mediaproxy.genericProxyRewriter: Opts at internal/mediaproxy/rewriter.go:28",
+   "writes-unknown-pointer: via internal/mediaproxy.genericProxyRewriter: internal/mediaproxy.genericProxyRewriter$1: internal/mediaproxy.proxifySourceSet: store at internal/mediaproxy/rewriter.go:102"
+  ]
+ },
+ {
+  "id": "internal/mediaproxy.RewriteDocumentWithRelativeProxyURL",
+  "file": "internal/mediaproxy/rewriter.go",
+  "line": 19,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "reads-mutable-global: via internal/mediaproxy.genericProxyRewriter: Opts at internal/mediaproxy/rewriter.go:28",
+   "writes-unknown-pointer: via internal/mediaproxy.genericProxyRewriter: internal/mediaproxy.genericProxyRewriter$1: internal/mediaproxy.proxifySourceSet: store at internal/mediaproxy/rewriter.go:102"
+  ]
+ },
+ {
+  "id": "internal/metric.NewCollector",
+  "file": "internal/metric/metric.go",
+  "line": 152,
+  "reasons": [
+   "metrics"
+  ],
+  "examples": [
+   "metrics: github.com/prometheus/client_golang/prometheus.MustRegister at internal/metric/metric.go:153"
+  ]
+ },
+ {
+  "id": "internal/oauth2.(*oidcProvider).Config",
+  "file": "internal/oauth2/oidc.go",
+  "line": 59,
+  "reasons": [
+   "reads-mutable-global",
+   "unclassified-external"
+  ],
+  "examples": [
+   "reads-mutable-global: Opts at internal/oauth2/oidc.go:64",
+   "unclassified-external: github.com/coreos/go-oidc/v3/oidc.Provider.Endpoint at internal/oauth2/oidc.go:65"
+  ]
+ },
+ {
+  "id": "internal/reader/atom.(atomCategories).CategoryNames",
+  "file": "internal/reader/atom/atom_common.go",
+  "line": 147,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/atom.makeSorted: call of function value at internal/reader/atom/atom_common.go:156"
+  ]
+ },
+ {
+  "id": "internal/reader/atom.Parse",
+  "file": "internal/reader/atom/parser.go",
+  "line": 15,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/atom.(*atom03Adapter).buildFeed: internal/reader/sanitizer.TruncateHTML: internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at ",
+   "writes-unknown-pointer: via internal/reader/xml.NewXMLDecoder: store at internal/reader/xml/decoder.go:41"
+  ]
+ },
+ {
+  "id": "internal/reader/fetcher.(*ResponseHandler).CacheControlMaxAge",
+  "file": "internal/reader/fetcher/response_handler.go",
+  "line": 73,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/reader/filter.ParseRules",
+  "file": "internal/reader/filter/filter.go",
+  "line": 74,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/reader/json.(*JSONAdapter).BuildFeed",
+  "file": "internal/reader/json/adapter.go",
+  "line": 31,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/json.appendSorted: call of function value at ",
+   "writes-unknown-pointer: store at internal/reader/json/adapter.go:80"
+  ]
+ },
+ {
+  "id": "internal/reader/json.Parse",
+  "file": "internal/reader/json/parser.go",
+  "line": 19,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/json.(*JSONAdapter).BuildFeed: internal/reader/json.appendSorted: call of function value at ",
+   "writes-unknown-pointer: via internal/reader/json.(*JSONAdapter).BuildFeed: store at internal/reader/json/adapter.go:80"
+  ]
+ },
+ {
+  "id": "internal/reader/language.Normalize",
+  "file": "internal/reader/language/language.go",
+  "line": 23,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: store at internal/reader/language/language.go:37"
+  ]
+ },
+ {
+  "id": "internal/reader/parser.DetectFeedFormat",
+  "file": "internal/reader/parser/format.go",
+  "line": 28,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: via internal/reader/xml.NewXMLDecoder: store at internal/reader/xml/decoder.go:41"
+  ]
+ },
+ {
+  "id": "internal/reader/parser.ParseFeed",
+  "file": "internal/reader/parser/parser.go",
+  "line": 20,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/atom.Parse: internal/reader/atom.(*atom03Adapter).buildFeed: internal/reader/sanitizer.TruncateHTML: internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at ",
+   "writes-unknown-pointer: via internal/reader/parser.DetectFeedFormat: internal/reader/xml.NewXMLDecoder: store at internal/reader/xml/decoder.go:41"
+  ]
+ },
+ {
+  "id": "internal/reader/rdf.Parse",
+  "file": "internal/reader/rdf/parser.go",
+  "line": 15,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/rdf.(*rdfAdapter).buildFeed: internal/reader/sanitizer.StripTags: internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at ",
+   "writes-unknown-pointer: via internal/reader/xml.NewXMLDecoder: store at internal/reader/xml/decoder.go:41"
+  ]
+ },
+ {
+  "id": "internal/reader/readability.ExtractContent",
+  "file": "internal/reader/readability/readability.go",
+  "line": 76,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/readability.removeUnlikelyCandidates: call of function value at ",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/reader/readability.transformMisusedDivsIntoParagraphs"
+  ]
+ },
+ {
+  "id": "internal/reader/readingtime.EstimateReadingTime",
+  "file": "internal/reader/readingtime/readingtime.go",
+  "line": 16,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/sanitizer.StripTags: internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/reader/rewrite.ValidateRules",
+  "file": "internal/reader/rewrite/content_rewrite_validation.go",
+  "line": 69,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/rewrite.parseRules: interface call ..Error at internal/reader/rewrite/content_rewrite.go:192",
+   "writes-unknown-pointer: via internal/reader/rewrite.parseRules: store at internal/reader/rewrite/content_rewrite.go:196"
+  ]
+ },
+ {
+  "id": "internal/reader/rss.Parse",
+  "file": "internal/reader/rss/parser.go",
+  "line": 15,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/rss.(*rssAdapter).buildFeed: internal/reader/sanitizer.TruncateHTML: internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at ",
+   "writes-unknown-pointer: store at internal/reader/rss/parser.go:18"
+  ]
+ },
+ {
+  "id": "internal/reader/sanitizer.ParseSrcSetAttribute",
+  "file": "internal/reader/sanitizer/srcset.go",
+  "line": 40,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/reader/sanitizer.parseDescriptors"
+  ]
+ },
+ {
+  "id": "internal/reader/sanitizer.StripTags",
+  "file": "internal/reader/sanitizer/strip_tags.go",
+  "line": 16,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/reader/sanitizer.TruncateHTML",
+  "file": "internal/reader/sanitizer/truncate.go",
+  "line": 16,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/sanitizer.stripIter: internal/reader/sanitizer.TruncateHTML$1: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/reader/xml.NewXMLDecoder",
+  "file": "internal/reader/xml/decoder.go",
+  "line": 17,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: store at internal/reader/xml/decoder.go:41"
+  ]
+ },
+ {
+  "id": "internal/storage.(*Storage).DBSize",
+  "file": "internal/storage/storage.go",
+  "line": 48,
+  "reasons": [
+   "db-control"
+  ],
+  "examples": [
+   "db-control: table-less SQL at internal/storage/storage.go:51"
+  ]
+ },
+ {
+  "id": "internal/storage.(*Storage).DBStats",
+  "file": "internal/storage/storage.go",
+  "line": 43,
+  "reasons": [
+   "db-control"
+  ],
+  "examples": [
+   "db-control: database/sql.DB.Stats at internal/storage/storage.go:44"
+  ]
+ },
+ {
+  "id": "internal/storage.(*Storage).DatabaseVersion",
+  "file": "internal/storage/storage.go",
+  "line": 24,
+  "reasons": [
+   "db-control",
+   "dynamic-call"
+  ],
+  "examples": [
+   "db-control: table-less SQL at internal/storage/storage.go:26",
+   "dynamic-call: interface call ..Error at internal/storage/storage.go:28"
+  ]
+ },
+ {
+  "id": "internal/storage.(*Storage).Ping",
+  "file": "internal/storage/storage.go",
+  "line": 35,
+  "reasons": [
+   "db-control",
+   "dynamic-call"
+  ],
+  "examples": [
+   "db-control: database/sql.DB.PingContext at internal/storage/storage.go:39",
+   "dynamic-call: call of function value at internal/storage/storage.go:37"
+  ]
+ },
+ {
+  "id": "internal/systemd.HasNotifySocket",
+  "file": "internal/systemd/systemd.go",
+  "line": 27,
+  "reasons": [
+   "reads-environment"
+  ],
+  "examples": [
+   "reads-environment: os.Getenv at internal/systemd/systemd.go:28"
+  ]
+ },
+ {
+  "id": "internal/systemd.HasSystemdWatchdog",
+  "file": "internal/systemd/systemd.go",
+  "line": 32,
+  "reasons": [
+   "reads-environment"
+  ],
+  "examples": [
+   "reads-environment: os.Getenv at internal/systemd/systemd.go:33"
+  ]
+ },
+ {
+  "id": "internal/systemd.WatchdogInterval",
+  "file": "internal/systemd/systemd.go",
+  "line": 37,
+  "reasons": [
+   "reads-environment"
+  ],
+  "examples": [
+   "reads-environment: os.Getenv at internal/systemd/systemd.go:38"
+  ]
+ },
+ {
+  "id": "internal/ui.Serve",
+  "file": "internal/ui/ui.go",
+  "line": 17,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "reads-mutable-global: Opts at internal/ui/ui.go:18",
+   "writes-unknown-pointer: passes pointer of unknown origin to mutating internal/template.(*Engine).ParseTemplates"
+  ]
+ },
+ {
+  "id": "internal/ui/form.(*SettingsForm).Validate",
+  "file": "internal/ui/form/settings.go",
+  "line": 124,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: via internal/validator.IsValidDomainList: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/ui/form.(*SubscriptionForm).Validate",
+  "file": "internal/ui/form/subscription.go",
+  "line": 39,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/validator.IsValidScraperRules: interface call ..Error at internal/validator/scraper.go:20",
+   "writes-unknown-pointer: via internal/validator.IsValidRewriteRules: internal/reader/rewrite.ValidateRules: internal/reader/rewrite.parseRules: store at internal/reader/rewrite/content_rewrite.go:196"
+  ]
+ },
+ {
+  "id": "internal/ui/static.GenerateBinaryBundles",
+  "file": "internal/ui/static/static.go",
+  "line": 42,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-global"
+  ],
+  "examples": [
+   "reads-mutable-global: BinaryBundles at internal/ui/static/static.go:69",
+   "writes-global: store BinaryBundles at internal/ui/static/static.go:47"
+  ]
+ },
+ {
+  "id": "internal/ui/static.GenerateJavascriptBundles",
+  "file": "internal/ui/static/static.go",
+  "line": 121,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-global"
+  ],
+  "examples": [
+   "reads-mutable-global: JavascriptBundles at internal/ui/static/static.go:161",
+   "writes-global: store JavascriptBundles at internal/ui/static/static.go:137"
+  ]
+ },
+ {
+  "id": "internal/ui/static.GenerateStylesheetsBundles",
+  "file": "internal/ui/static/static.go",
+  "line": 79,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-global"
+  ],
+  "examples": [
+   "reads-mutable-global: StylesheetBundles at internal/ui/static/static.go:111",
+   "writes-global: store StylesheetBundles at internal/ui/static/static.go:89"
+  ]
+ },
+ {
+  "id": "internal/ui/view.New",
+  "file": "internal/ui/view/view.go",
+  "line": 35,
+  "reasons": [
+   "reads-mutable-global",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "reads-mutable-global: via internal/ui/view.newView: StylesheetBundles at internal/ui/view/view.go:57",
+   "writes-unknown-pointer: map update at internal/ui/view/view.go:39"
+  ]
+ },
+ {
+  "id": "internal/ui/view.NewPublic",
+  "file": "internal/ui/view/view.go",
+  "line": 46,
+  "reasons": [
+   "reads-mutable-global"
+  ],
+  "examples": [
+   "reads-mutable-global: via internal/ui/view.newView: StylesheetBundles at internal/ui/view/view.go:57"
+  ]
+ },
+ {
+  "id": "internal/urllib.RootURL",
+  "file": "internal/urllib/url.go",
+  "line": 148,
+  "reasons": [
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "writes-unknown-pointer: store at internal/urllib/url.go:162"
+  ]
+ },
+ {
+  "id": "internal/validator.IsValidDomainList",
+  "file": "internal/validator/validator.go",
+  "line": 66,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: call of function value at "
+  ]
+ },
+ {
+  "id": "internal/validator.IsValidRewriteRules",
+  "file": "internal/validator/rewrite.go",
+  "line": 22,
+  "reasons": [
+   "dynamic-call",
+   "writes-unknown-pointer"
+  ],
+  "examples": [
+   "dynamic-call: via internal/reader/rewrite.ValidateRules: internal/reader/rewrite.parseRules: interface call ..Error at internal/reader/rewrite/content_rewrite.go:192",
+   "writes-unknown-pointer: via internal/reader/rewrite.ValidateRules: internal/reader/rewrite.parseRules: store at internal/reader/rewrite/content_rewrite.go:196"
+  ]
+ },
+ {
+  "id": "internal/validator.IsValidScraperRules",
+  "file": "internal/validator/scraper.go",
+  "line": 15,
+  "reasons": [
+   "dynamic-call"
+  ],
+  "examples": [
+   "dynamic-call: interface call ..Error at internal/validator/scraper.go:20"
+  ]
+ }
+]

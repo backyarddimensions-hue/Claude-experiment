@@ -1,0 +1,118 @@
+{
+ "noun-reads|internal/api|reads entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-reads|internal/cli|reads entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-reads|internal/googlereader|reads entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-reads|internal/reader/handler|reads entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-reads|internal/ui|reads entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-reads|internal/worker|reads entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-writes|internal/api|writes entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-writes|internal/cli|writes entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-writes|internal/ui|writes entry_tombstones": {
+  "column": "policy-wrong",
+  "why": "entry_tombstones is a storage-internal bookkeeping table (deleted-entry hashes, consulted inside the INSERT in storage.createEntry, written by ArchiveEntries/FlushHistory). I did not know it existed when writing v1 policies, so no package outside storage lists it."
+ },
+ "noun-writes|internal/cli|writes ?": {
+  "column": "policy-wrong",
+  "why": "cli.Parse runs database.Migrate, which touches every table including the dropped legacy ones. The policy should have been nouns: *."
+ },
+ "noun-writes|internal/cli|writes api_keys": {
+  "column": "policy-wrong",
+  "why": "cli.Parse runs database.Migrate, which touches every table including the dropped legacy ones. The policy should have been nouns: *."
+ },
+ "noun-writes|internal/cli|writes sessions": {
+  "column": "policy-wrong",
+  "why": "cli.Parse runs database.Migrate, which touches every table including the dropped legacy ones. The policy should have been nouns: *."
+ },
+ "noun-writes|internal/cli|writes tokens": {
+  "column": "policy-wrong",
+  "why": "cli.Parse runs database.Migrate, which touches every table including the dropped legacy ones. The policy should have been nouns: *."
+ },
+ "noun-writes|internal/cli|writes webauthn_credentials": {
+  "column": "policy-wrong",
+  "why": "cli.Parse runs database.Migrate, which touches every table including the dropped legacy ones. The policy should have been nouns: *."
+ },
+ "noun-writes|internal/cli|writes integrations": {
+  "column": "policy-wrong",
+  "why": "cli.Parse runs database.Migrate, which touches every table including the dropped legacy ones. The policy should have been nouns: *."
+ },
+ "noun-reads|internal/cli|reads integrations": {
+  "column": "policy-wrong",
+  "why": "cli.refreshFeeds calls handler.RefreshFeed, which loads the user integration settings to push new entries. Expected once you know refresh pushes to integrations."
+ },
+ "noun-reads|internal/worker|reads categories": {
+  "column": "policy-wrong",
+  "why": "The feed query joins categories; any package that loads a feed reads categories."
+ },
+ "transitive-net-in-interior|internal/worker|net": {
+  "column": "policy-wrong",
+  "why": "The worker pool exists to run feed refreshes, which fetch over the network. \"interior\" was the wrong boundary."
+ },
+ "noun-reads|internal/reader/opml|reads feed_icons": {
+  "column": "policy-wrong",
+  "why": "storage.Feeds joins feed_icons; listing feeds reads it."
+ },
+ "noun-reads|internal/reader/opml|reads icons": {
+  "column": "policy-wrong",
+  "why": "storage.Feeds joins icons; listing feeds reads it."
+ },
+ "noun-reads|internal/reader/opml|reads users": {
+  "column": "policy-wrong",
+  "why": "storage.Feeds joins users (timezone); listing feeds reads it."
+ },
+ "noun-reads|internal/reader/opml|reads entries": {
+  "column": "code-undeclared",
+  "why": "OPML export only needs feed URLs and titles, but storage.Feeds always runs fetchFeedCounter, an aggregate over entries (feed_query_builder.go:330). A hidden cost not visible from Export or Feeds signatures."
+ },
+ "noun-reads|internal/fever|reads enclosures": {
+  "column": "code-undeclared",
+  "why": "EntryQueryBuilder.GetEntries always loads enclosures via EnclosuresByEntryIDs (enclosure.go:82), though the Fever items response has no enclosure field."
+ },
+ "noun-writes|internal/api|writes web_sessions": {
+  "column": "code-undeclared",
+  "why": "PUT /v1/users/{id} with a password deletes that user's web sessions (user_handlers.go:106 -> RemoveUserWebSessionsExcept). A cross-noun write not suggested by the handler name or route."
+ },
+ "direct-net-in-ingress|internal/cli|net": {
+  "column": "code-undeclared",
+  "why": "cli.doHealthCheck makes an outbound HTTP GET (health_check.go:22) from a package whose role is the operator entry point."
+ },
+ "direct-net-in-ingress|internal/http/server|net": {
+  "column": "analysis-over-approx",
+  "why": "Sink table marks every autocert.Manager method as net; Manager.HTTPHandler only builds a handler. The server does talk to the ACME CA later, but not at this call."
+ },
+ "noun-writes|internal/reader/opml|writes entries": {
+  "column": "analysis-over-approx",
+  "why": "opml Import calls storage.CreateFeed with a feed that has no entries, so the createEntry loop does not run. The analysis is flow-insensitive and cannot see that."
+ },
+ "noun-writes|internal/reader/opml|writes enclosures": {
+  "column": "analysis-over-approx",
+  "why": "opml Import calls storage.CreateFeed with a feed that has no entries, so the createEntry loop does not run. The analysis is flow-insensitive and cannot see that."
+ },
+ "noun-reads|internal/reader/opml|reads entry_tombstones": {
+  "column": "analysis-over-approx",
+  "why": "opml Import calls storage.CreateFeed with a feed that has no entries, so the createEntry loop does not run. The analysis is flow-insensitive and cannot see that."
+ }
+}

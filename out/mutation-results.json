@@ -1,0 +1,74 @@
+[
+ [
+  "M1 direct SQL write in a reads-only function",
+  "writes users",
+  "caught (exact effect)",
+  "checker exit 1, 6 failing functions; impurity noted: None"
+ ],
+ [
+  "M2 outbound HTTP two calls deep under a pure function",
+  "net",
+  "caught (exact effect)",
+  "checker exit 1, 13 failing functions; impurity noted: None"
+ ],
+ [
+  "M3 write through a module interface satisfied by *sql.DB",
+  "writes feeds",
+  "caught (exact effect)",
+  "checker exit 1, 3 failing functions; impurity noted: None"
+ ],
+ [
+  "M4 write through a function value held in a package variable",
+  "writes entries",
+  "caught (exact effect)",
+  "checker exit 1, 3 failing functions; impurity noted: None"
+ ],
+ [
+  "M5 write whose table name is only known at run time",
+  "writes ?",
+  "caught (exact effect)",
+  "checker exit 1, 6 failing functions; impurity noted: ['reads-environment']"
+ ],
+ [
+  "M6 statement prepared elsewhere, executed here",
+  "writes feeds",
+  "caught as writes ?",
+  "checker exit 1, 7 failing functions; impurity noted: ['reads-mutable-global']"
+ ],
+ [
+  "M7 write via reflection",
+  "writes users",
+  "MISSED",
+  "checker exit 0, 0 failing functions; impurity noted: ['reflection']"
+ ],
+ [
+  "M8 outbound HTTP in a goroutine",
+  "net",
+  "caught (exact effect)",
+  "checker exit 1, 13 failing functions; impurity noted: None"
+ ],
+ [
+  "M9 SQL text built with Sprintf and passed through a helper",
+  "writes categories",
+  "caught (exact effect)",
+  "checker exit 1, 5 failing functions; impurity noted: None"
+ ],
+ [
+  "M10 write by shelling out to psql",
+  "writes users",
+  "MISSED",
+  "checker exit 0, 0 failing functions; impurity noted: ['process-control']"
+ ],
+ [
+  "M11 outbound call through a custom http.RoundTripper",
+  "net",
+  "caught (exact effect)",
+  "checker exit 1, 13 failing functions; impurity noted: None"
+ ],
+ [
+  "M12 file write under a pure function",
+  "fs",
+  "caught indirectly: declared pure, not provably pure",
+  "checker exit 1, 8 failing functions; impurity noted: None"
+ ]
+]

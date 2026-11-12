@@ -8,10 +8,10 @@ import (
 )
 
 var (
-	reVerb    = regexp.MustCompile(`(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE|CREATE\s+(UNIQUE\s+)?INDEX)\b`)
-	reCreate  = regexp.MustCompile(`(?i)\bCREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-z_][a-z0-9_]*)`)
-	reRename  = regexp.MustCompile(`(?i)\bRENAME\s+TO\s+([a-z_][a-z0-9_]*)`)
-	reWrites  = []*regexp.Regexp{
+	reVerb   = regexp.MustCompile(`(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE|CREATE\s+(UNIQUE\s+)?INDEX)\b`)
+	reCreate = regexp.MustCompile(`(?i)\bCREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-z_][a-z0-9_]*)`)
+	reRename = regexp.MustCompile(`(?i)\bRENAME\s+TO\s+([a-z_][a-z0-9_]*)`)
+	reWrites = []*regexp.Regexp{
 		regexp.MustCompile(`(?i)\bINSERT\s+INTO\s+([a-z_][a-z0-9_]*)`),
 		regexp.MustCompile(`(?i)\bUPDATE\s+(?:ONLY\s+)?([a-z_][a-z0-9_]*)\s+(?:AS\s+)?(?:[a-z_][a-z0-9_]*\s+)?SET\b`),
 		regexp.MustCompile(`(?i)\bDELETE\s+FROM\s+(?:ONLY\s+)?([a-z_][a-z0-9_]*)`),
@@ -19,8 +19,11 @@ var (
 		regexp.MustCompile(`(?i)\b(?:CREATE|ALTER|DROP)\s+TABLE\s+(?:IF\s+(?:NOT\s+)?EXISTS\s+)?([a-z_][a-z0-9_]*)`),
 		regexp.MustCompile(`(?i)\bCREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:CONCURRENTLY\s+)?(?:IF\s+NOT\s+EXISTS\s+)?[a-z_][a-z0-9_]*\s+ON\s+([a-z_][a-z0-9_]*)`),
 	}
-	reDelete = regexp.MustCompile(`(?i)\bDELETE\s+FROM\s+(?:ONLY\s+)?[a-z_][a-z0-9_]*`)
-	reReads  = regexp.MustCompile(`(?i)\b(?:FROM|JOIN|USING)\s+(?:ONLY\s+)?([a-z_][a-z0-9_]*)`)
+	reWriteVerb = regexp.MustCompile(`(?i)\b(INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE|CREATE\s+(UNIQUE\s+)?INDEX)\b`)
+	reFromKw    = regexp.MustCompile(`(?i)\b(FROM|JOIN)\b`)
+	reFmtVerb   = regexp.MustCompile(`%[-+# 0]*[0-9]*(\.[0-9]+)?[svqdTt]`)
+	reDelete    = regexp.MustCompile(`(?i)\bDELETE\s+FROM\s+(?:ONLY\s+)?[a-z_][a-z0-9_]*`)
+	reReads     = regexp.MustCompile(`(?i)\b(?:FROM|JOIN|USING)\s+(?:ONLY\s+)?([a-z_][a-z0-9_]*)`)
 )
 
 func unquote(s string) (string, error) { return strconv.Unquote(s) }
